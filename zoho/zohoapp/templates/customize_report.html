@@ -1,0 +1,319 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<style>
+    .item-list {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.add,
+.remove {
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+.highlight {
+    background-color: #f0f0f0;
+}
+    .custom-container {
+        background-color: black;
+        color: white;
+    }
+
+    .custom-list-group .custom-list-item {
+        color: white;
+        border: none;
+        margin-bottom: 10px;
+        cursor: pointer;
+        /* Add cursor style for links */
+    }
+    .highlight {
+        
+        color: #eeebeb; /* Updated text color for better visibility */
+    }
+
+    .custom-list-group .list-group-item.active {
+        background-color: #343a40;
+    }
+
+    .custom-content {
+        padding: 20px;
+    }
+
+    /* Custom styles for left column */
+    .left-column {
+        background-color: rgba(rgb(235, 221, 221));
+        color: white;
+        padding: 20px;
+        height: 50vh;
+        overflow-y: auto;
+        /* Add scroll if needed */
+        width: 250px;
+        /* Set the width of the left column */
+    }
+
+    /* Custom styles for right column */
+    .right-column {
+        padding: 20px;
+        flex: 1;
+        /* Take the remaining width */
+    }
+
+    /* Flexbox layout for row */
+    .row-container {
+        display: flex;
+    }
+
+    #dateRangePicker {
+        background-color: rgb(5, 5, 5);
+        border: 1px solid #ccc;
+        padding: 10px;
+        width: 100%;
+        font-size: 14px;
+        color: black;
+        /* Set the text color to black */
+    }
+
+    #reportrange .fa-caret-down {
+        color: rgb(11, 11, 11);
+    }
+
+    .daterangepicker .ranges li {
+        color: black;
+    }
+
+    .active-link {
+        color: #0b07ff;
+        /* Change to the desired active link color */
+    }
+
+    /* Additional styles for show/hide columns */
+    .item-list {
+        padding: 0;
+        margin: 0;
+        list-style: none;
+    }
+
+    .add,
+    .remove {
+        cursor: pointer;
+        margin-left: 5px;
+    }
+
+    .highlight {
+        background-color: #f0f0f0;
+    }
+    .close-button {
+        position: fixed;
+        top: 70px;
+        right: 70px;
+    }
+
+
+
+    .column-transfer {
+        display: flex;
+        gap: 20px;
+        margin-top: 20px;
+        border: 1px solid #ccc;
+        padding: 20px;
+        background-color: #060606;
+        border-radius: 5px;
+    }
+
+    .column-list {
+        background-color: rgb(4, 4, 4);
+        padding: 10px;
+     
+        border-radius: 5px;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    .transfer-button {
+        border: none;
+        background-color: #007bff;
+        color: white;
+        cursor: pointer;
+        padding: 5px 10px;
+        border-radius: 3px;
+    }
+</style>
+
+<div class="container main-content">
+    <div class="row">
+        <div class="col-md-12">
+            <!-- Place the close button here -->
+            <a href="{% url 'salesby_customer' %}" class="btn btn-light close-button">
+                <i class="fa fa-times-circle"></i>
+            </a>
+        </div>
+    </div>
+    <div class="row row-container">
+        <div class="col-md-3 left-column">
+            <div class="custom-list-group">
+                <a class="custom-list-item" data-target="general">
+                    General
+                </a>
+                <br>
+                <br>
+                <br>
+                <a class="custom-list-item" data-target="columns">
+                    Show/Hide Columns
+                </a>
+            </div>
+        </div>
+        <div class="col-md-9 right-column">
+            <div id="general" class="custom-content">
+                <h2 style="color: aliceblue;">General </h2>
+                <div>
+                    <label for="dateRangePicker" style="color: beige;">Select Date Range:</label>
+                    <input type="text" id="dateRangePicker" class="form-control">
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="checkbox1">
+                    <label class="form-check-label" for="checkbox1">
+                        Include 'Sale without invoices' and 'sales return'
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="checkbox2">
+                    <label class="form-check-label" for="checkbox2">
+                        Include 'manual journals'
+                    </label>
+                </div>
+            </div>
+            <div id="columns" class="custom-content" style="display: none;">
+                <div class="row column-transfer">
+                <!-- Show/Hide Columns section -->
+                <div class="row">
+                    <div class="col-md-6" id="originalColumn" style="height: 70vh; width:25vw; overflow-y:auto; border: 1px solid #ccc; position: relative; padding-right: 15px;">
+                        <h2 style="color: white; position: sticky; top: 0;">Available Column</h2>
+                        <div class="search-bar" style="position: sticky; top: 40px;">
+                            <input type="text" id="searchInput" class="search-input" placeholder="Search items">
+                            <span class="search-icon">&#128269;</span>
+                        </div>
+                        <ul class="item-list" style="color: #eeebeb;">
+                            <li class="items"><span class="item-text">Sales(FCY)</span> <span class="add">+</span></li>
+                            <li class="items"><span class="item-text">Sales with Tax</span> <span class="add">+</span></li>
+                            <li class="items"><span class="item-text">Company Name</span> <span class="add">+</span></li>
+                            <li class="items"><span class="item-text">First Name</span> <span class="add">+</span></li>
+                            <li class="items"><span class="item-text">Last Name</span> <span class="add">+</span></li>
+                            <li class="items"><span class="item-text">Website</span><span class="add">+</span></li>
+                            <li class="items"><span class="item-text">Customer Email</span><span class="add">+</span></li>
+                            <li class="items"><span class="item-text">Mobile Phone</span><span class="add">+</span></li>
+                            <li class="items"><span class="item-text">WorkPhone</span><span class="add">+</span></li>
+                            <li class="items"><span class="item-text">Department</span><span class="add">+</span></li>
+                            <li class="items"><span class="item-text">Designation</span><span class="add">+</span></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6" id="addedColumn" style="height: auto; max-height:70vh; width:25vw; overflow-y:auto ;border: 1px solid #ccc; padding-left: 15px;">
+                        <h2 style="color: white; position: sticky; top:0;">Selected Column</h2>
+                        <ul class="item-list" style="color: #eeebeb;"></ul>
+                    </div>
+                </div>
+                <!-- End Show/Hide Columns section -->
+            </div>
+        </div>
+       
+    </div>
+</div>
+
+<script>
+   document.addEventListener("DOMContentLoaded", function () {
+        const links = document.querySelectorAll(".custom-list-item");
+        const contents = document.querySelectorAll(".custom-content");
+        const availableItems = document.querySelectorAll("#originalColumn .items");
+        const addButtons = document.querySelectorAll("#originalColumn .add");
+        const selectedItems = document.querySelector("#addedColumn .item-list");
+        const searchInput = document.getElementById("searchInput");
+        const itemList = document.querySelector(".item-list");
+
+searchInput.addEventListener("click", (event) => {
+    event.stopPropagation(); // Prevent the click event from propagating to document
+    itemList.style.display = "block"; // Show the item list
+});
+
+// Hide the item list when clicking outside the input and the list
+document.addEventListener("click", (event) => {
+    if (!searchInput.contains(event.target) && !itemList.contains(event.target)) {
+        itemList.style.display = "none";
+    }
+});
+      
+
+        links.forEach((link, index) => {
+            link.addEventListener("click", () => {
+                links.forEach(link => {
+                    link.classList.remove("active-link");
+                });
+                link.classList.add("active-link");
+                contents.forEach(content => {
+                    content.style.display = "none";
+                });
+                const targetId = link.getAttribute("data-target");
+                const targetContent = document.getElementById(targetId);
+                targetContent.style.display = "block";
+            });
+        });
+
+        // Initialize date range picker
+        $('#dateRangePicker').daterangepicker({
+            ranges: {
+                'Today': [moment(), moment()],
+                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+            }
+        }, function (start, end, label) {
+            // Callback function when a date range is selected
+            console.log('A date range was chosen: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
+        });
+
+        // JavaScript code for show/hide columns (same as before)
+       
+
+        addButtons.forEach((button, index) => {
+            button.addEventListener("click", () => {
+                const itemText = availableItems[index].querySelector(".item-text").textContent;
+                const listItem = document.createElement("li");
+                listItem.className = "items";
+                listItem.innerHTML = `<span class="item-text">${itemText}</span> <span class="remove">-</span>`;
+                selectedItems.appendChild(listItem);
+                availableItems[index].style.display = "none";
+
+                const removeButton = listItem.querySelector(".remove");
+                removeButton.addEventListener("click", () => {
+                    selectedItems.removeChild(listItem);
+                    availableItems[index].style.display = "flex";
+                });
+            });
+        });
+
+        searchIcon.addEventListener("click", () => {
+            const searchTerm = searchInput.value.toLowerCase();
+            availableItems.forEach(item => {
+                const itemText = item.querySelector(".item-text").textContent.toLowerCase();
+                if (itemText.includes(searchTerm)) {
+                    item.style.display = "flex";
+                    if (searchTerm !== "") {
+                        item.classList.add("highlight");
+                    } else {
+                        item.classList.remove("highlight");
+                    }
+                } else {
+                    item.style.display = "none";
+                    item.classList.remove("highlight");
+                }
+            });
+        });
+    });
+    
+    
+</script>
+
+{% endblock %}

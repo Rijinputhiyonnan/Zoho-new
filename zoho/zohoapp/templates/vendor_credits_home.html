@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<style>
+    .table-container {
+        height: 600px;
+        margin-left:90px;
+    }
+    .button-container {
+        position:absolute;
+        top: 195px;
+        margin-bottom:-30px;
+        margin-left: 740px;
+        background-color: rgb(230, 171, 45);
+    }
+    .form-control{
+      background-color: black transparent;
+    }
+    .button-container a{
+        color: #FFFEEE;
+    }
+    td a{
+        color: #BDAF03;
+    }
+    .image-container {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 50%;
+        text-align: center;
+        margin-bottom: 5px;
+        margin-left: 500px;
+        opacity: 0.5;
+    }
+    
+</style>
+
+<h1>All Vendor Credits</h1>
+
+
+
+
+<div class="table-container" style="margin-top: 50px;">
+    <div class="search-bar">
+        <div class="row">
+            <div class="col-md-3">
+                <input type="search" name="query" id="searchInput"  placeholder="Search Payment Made" style="width: 288px;" class="form-control custom-height">
+
+            </div>
+            <div class="col-md-9">
+                <div class="input-group-append">
+                    <button type="submit" class="btn   custom-height" onclick="searchTable()" style="background-color: rgb(230, 171, 45); height:38px; ">Search</button>
+                </div>
+            </div>
+        </div>
+        
+            
+        
+    </div>
+    <div class="button-container">
+        <a type="button" class="btn  ml-auto" style="width: 100px;" href="{% url 'vendor_credits' %}">+new</a>
+    </div>
+    
+    <table id="vendorTable" class="table" style="width:70%;  margin-top: 40px;">
+        <thead>
+            <tr style="color:white;">
+                <!--<th>#</th>-->
+                <th>Name</th>
+                <th>Date</th>
+                <th>Address</th>
+                <th>Email</th>
+                <th>Source of Supply</th>
+                <th>Tax Amount</th>
+                <th>Total Amount</th>
+
+
+
+            </tr>
+        </thead>
+        <tbody>
+            {% for e in v_credits %}
+                                <tr>
+                                   <!--- <td>{{ p.id}}</td>-->
+                                   <td><a href="{% url 'show_credits' e.id %}">{{ e.company_name }}</a></td>
+                                   <td>{{ e.vendor_date }}</td>
+                                   <td>{{ e.baddress }}</td>
+                                   <td>{{ e.vendor_email }}</td>
+                                   <td>{{ e.source_supply }}</td>
+                                   <td>{{ e.t_tax }}</td>
+                                   <td>{{ e.grandtotal }}</td>
+                                    </tr>
+                                    {% endfor %}
+
+            </tbody>
+            </table>
+            <div class="image-container">
+                <br><br>
+              <img src="https://www.zoho.com/inventory/help/images/sales-returns/sales-return-workflow.png" alt="Flowchart Image" style="width: 100%;">
+            </div>
+        </div>
+       
+<script>
+
+function searchTable() {
+    var input, filter, table, tr, td, i, txtValue;
+    input = document.getElementById("searchInput");
+    filter = input.value.toUpperCase();
+    table = document.getElementById("vendorTable");
+    tr = table.getElementsByTagName("tr");
+
+    for (i = 0; i < tr.length; i++) {
+        td = tr[i].getElementsByTagName("td");
+        for (var j = 0; j < td.length; j++) {
+            var cell = td[j];
+            if (cell) {
+                txtValue = cell.textContent || cell.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                    break;
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
+}
+
+    </script>
+
+{% endblock %}
