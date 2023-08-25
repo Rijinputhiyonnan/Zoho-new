@@ -1043,7 +1043,9 @@ class Payroll(models.Model):
     PRAN = models.IntegerField(null=True)
     status=models.CharField(max_length=200,default='Active')
     isTDS=models.CharField(max_length=200,null=True)
-    TDS = models.IntegerField(null=True,default=0)    
+    TDS = models.IntegerField(null=True,default=0)   
+    def __str__(self):
+        return self.employee_name 
     @property
     def employee_name(self):
         return f"{self.first_name} {self.last_name}"
@@ -1086,24 +1088,25 @@ class Loan(models.Model):
     attach = models.FileField(upload_to='loan_attachments/', blank=True)
     active = models.BooleanField(default=True)
 
+from django.core.exceptions import ValidationError
+
 class Employee(models.Model):
-    payroll = models.ForeignKey(Payroll, on_delete=models.CASCADE, default=None, null=True)
-    emp_number = models.CharField(max_length=100, default=None, null=True)
-    email = models.EmailField(max_length=255)
-    salary = models.DecimalField(max_digits=10, decimal_places=2)
-    joindate = models.DateField()
+    payroll = models.ForeignKey(Payroll, on_delete=models.CASCADE, related_name='employees')
 
     def clean(self):
-        if self.loan_info:
-            if self.loan_info.monthly_cutting_type == '%' and self.loan_info.monthly_cutting_value >= 100:
-                raise ValidationError("Percentage monthly cutting value must be less than 100")
-            if self.loan_info.monthly_cutting_type == 'amount' and self.loan_info.monthly_cutting_value >= self.salary:
-                raise ValidationError("Monthly cutting amount must be less than the employee's salary")
+        if self.payroll:
+            payroll = self.payroll
 
-    def save(self, *args, **kwargs):
-        payroll = self.payroll
-        self.name = f"{payroll.first_name} {payroll.last_name}"
-        super().save(*args, **kwargs)
+            if payroll.salary_type == 'Fixed':
+                if self.salary > payroll.salary:
+                    raise ValidationError("Employee's salary cannot exceed the payroll's fixed salary")
+
+            if self.loan_info:
+                if self.loan_info.monthly_cutting_type == '%' and self.loan_info.monthly_cutting_value >= 100:
+                    raise ValidationError("Percentage monthly cutting value must be less than 100")
+                if self.loan_info.monthly_cutting_type == 'amount' and self.loan_info.monthly_cutting_value >= payroll.salary:
+                    raise ValidationError("Monthly cutting amount must be less than the employee's salary")
 
     def __str__(self):
-        return f"{self.name} ({self.emp_number})"
+        return f"{self.payroll.employee_name} ({self.payroll.emp_number})"
+

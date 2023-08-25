@@ -9664,32 +9664,25 @@ def cust_Attach_files(request,id):
 # Rijin
 
 
-from django.shortcuts import render, redirect
-from .forms import LoanForm
-from .models import Employee, Loan
-
-
-
+from django.http import HttpResponse, HttpResponseRedirect
+from django.urls import reverse
+from .models import Payroll, Loan, Employee
 
 def create_loan(request):
     if request.method == 'POST':
-        print("Form submitted")  # Debugging statement
-
-        employee_id = request.POST.get('employee')
-        issue_date = request.POST.get('issue_date')
-        expiry_date = request.POST.get('expiry_date')
-        loan_amount = request.POST.get('loan_amount')
-        cutting_type = request.POST.get('cutting_type')
-        cutting_value = request.POST.get('cutting_value')
-
-        print("Employee ID:", employee_id)  # Debugging statement
-
         try:
-            employee = Employee.objects.get(id=employee_id)
-            print("Employee Found:", employee)  # Debugging statement
+            employee_id = request.POST.get('employee')
+            issue_date = request.POST.get('issue_date')
+            expiry_date = request.POST.get('expiry_date')
+            loan_amount = request.POST.get('loan_amount')
+            cutting_type = request.POST.get('cutting_type')
+            cutting_value = request.POST.get('cutting_value')
+
+            payroll = Payroll.objects.get(id=employee_id)  # Get the selected payroll object
+            employee = payroll.employees.first()  # Assuming you want the first associated employee
 
             loan = Loan(
-                employee=employee,  # Update this line to use the correct field
+                employee=employee,
                 date_issue=issue_date,
                 date_expiry=expiry_date,
                 loan_amount=loan_amount,
@@ -9698,30 +9691,22 @@ def create_loan(request):
             )
             loan.save()
 
-            print("Loan saved successfully")  # Debugging statement
-
-            return redirect('employee_list')
+            return HttpResponseRedirect(reverse('employee_list'))  # Redirect after successful submission
+        except Payroll.DoesNotExist:
+            return HttpResponse("Payroll not found")
         except Employee.DoesNotExist:
-            print("Employee not found")  # Debugging statement
+            return HttpResponse("Employee not found")
         except Exception as e:
-            print("An error occurred:", e)  # Debugging statement
-        return HttpResponseRedirect('/employee_list/')  # Redirect to the desired URL after successful form submission
-
+            return HttpResponse(f"An error occurred: {e}")
     else:
         payrolls = Payroll.objects.all()
-        employee_data = {
-            str(payroll.emp_number): {
-                "email": payroll.email,
-                "employee_id": payroll.emp_number,
-                "salary": payroll.salary,
-                "joining_date": payroll.joindate.strftime('%Y-%m-%d') if payroll.joindate else "",
-            } for payroll in payrolls
-        }
         context = {
             'payrolls': payrolls,
-            'employee_data_json': json.dumps(employee_data),
         }
         return render(request, 'app/create_loan.html', context)
+
+
+
 
 
 
@@ -9731,4 +9716,4 @@ def employee_list(request):
     context = {
         'employees': employees,
     }
-    return render(request, 'employee_list.html', context)
+    return render(request, 'app/employee_list.html', context)
