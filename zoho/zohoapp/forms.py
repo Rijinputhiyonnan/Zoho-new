@@ -10,16 +10,16 @@ class EmailForm(forms.Form):
 # Rijin
 
 from django import forms
-from .models import Loan, Employee
+from .models import Loan, Payroll
 
 class LoanForm(forms.ModelForm):
     employee = forms.ModelChoiceField(
-        queryset=Employee.objects.all(),
+        queryset=Payroll.objects.all(),
         empty_label="Select an employee"
     )
     loan_amount = forms.DecimalField()
-    loan_issue_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
-    loan_expiry_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+    date_issue = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), label="Issue Date")
+    date_expiry = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), label="Expiry Date")
     monthly_cutting_type = forms.ChoiceField(
         choices=[('%', '%'), ('amount', 'Amount')],
         initial='%'
@@ -28,3 +28,4 @@ class LoanForm(forms.ModelForm):
     class Meta:
         model = Loan
         fields = '__all__'
+

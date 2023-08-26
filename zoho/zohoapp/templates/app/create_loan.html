@@ -32,9 +32,9 @@
                                     </option>
                                 {% endfor %}
                             </select>
-                            
                         </div>
                     </div>
+                    <!-- Other fields populated by JavaScript -->
                     <div class="row pb-3">
                         <div class="col-6">
                             <label for="">Email</label>
@@ -132,7 +132,6 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-
 <script>
     function fillEmployeeDetails() {
         var selectedOption = document.getElementById("employee").selectedOptions[0];
@@ -147,9 +146,8 @@
         document.getElementById("salary").value = salary;
         document.getElementById("joindate").value = joinDate;
     }
-    
-    
 </script>
+
 
 
 

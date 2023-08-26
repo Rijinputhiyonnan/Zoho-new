@@ -461,6 +461,7 @@ urlpatterns = [
     
     path('create_loan/', views.create_loan, name='create_loan'),
     path('employee/list/', views.employee_list, name='employee_list'),
+    path('edit_payroll/<int:payroll_id>/', views.edit_payroll, name='edit_payroll'),
     
     
 ]

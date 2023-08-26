@@ -9663,26 +9663,24 @@ def cust_Attach_files(request,id):
     
 # Rijin
 
-
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
-from .models import Payroll, Loan, Employee
+from .models import Payroll, Loan
 
 def create_loan(request):
     if request.method == 'POST':
         try:
-            employee_id = request.POST.get('employee')
+            payroll_id = request.POST.get('employee')
             issue_date = request.POST.get('issue_date')
             expiry_date = request.POST.get('expiry_date')
             loan_amount = request.POST.get('loan_amount')
             cutting_type = request.POST.get('cutting_type')
             cutting_value = request.POST.get('cutting_value')
 
-            payroll = Payroll.objects.get(id=employee_id)  # Get the selected payroll object
-            employee = payroll.employees.first()  # Assuming you want the first associated employee
+            payroll = Payroll.objects.get(id=payroll_id)  # Get the selected payroll object
 
             loan = Loan(
-                employee=employee,
+                payroll=payroll,  # Associate the Loan with the selected Payroll
                 date_issue=issue_date,
                 date_expiry=expiry_date,
                 loan_amount=loan_amount,
@@ -9694,8 +9692,6 @@ def create_loan(request):
             return HttpResponseRedirect(reverse('employee_list'))  # Redirect after successful submission
         except Payroll.DoesNotExist:
             return HttpResponse("Payroll not found")
-        except Employee.DoesNotExist:
-            return HttpResponse("Employee not found")
         except Exception as e:
             return HttpResponse(f"An error occurred: {e}")
     else:
@@ -9709,11 +9705,31 @@ def create_loan(request):
 
 
 
-
-
 def employee_list(request):
-    employees = Employee.objects.all()
+    payrolls = Payroll.objects.all()
     context = {
-        'employees': employees,
+        'payrolls': payrolls,
     }
     return render(request, 'app/employee_list.html', context)
+
+
+from django.shortcuts import render, get_object_or_404
+from .models import Payroll
+from .forms import PayrollForm  # Import the PayrollForm
+
+def edit_payroll(request, payroll_id):
+    payroll = get_object_or_404(Payroll, id=payroll_id)
+
+    if request.method == 'POST':
+        form = PayrollForm(request.POST, instance=payroll)
+        if form.is_valid():
+            form.save()
+            return redirect('payroll_list')  # Redirect to the payroll list page after successful edit
+    else:
+        form = PayrollForm(instance=payroll)
+
+    context = {
+        'form': form,
+        'payroll': payroll,
+    }
+    return render(request, 'app/edit_payroll.html', context)
