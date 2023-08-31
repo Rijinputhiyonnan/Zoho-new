@@ -461,7 +461,11 @@ urlpatterns = [
     
     path('create_loan/', views.create_loan, name='create_loan'),
     path('employee/list/', views.employee_list, name='employee_list'),
-    path('edit_payroll/<int:payroll_id>/', views.edit_payroll, name='edit_payroll'),
+    path('delete_loan/<int:loan_id>/', views.delete_loan, name='delete_loan'),
+
+     path('edit_loan/<int:loan_id>/', views.edit_loan, name='edit_loan'),
+     
+      path('employee/<int:payroll_id>/loan/', views.employee_loan_details, name='employee_loan_details'),
     
     
 ]

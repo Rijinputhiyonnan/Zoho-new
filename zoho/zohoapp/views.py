@@ -9663,73 +9663,135 @@ def cust_Attach_files(request,id):
     
 # Rijin
 
-from django.http import HttpResponse, HttpResponseRedirect
-from django.urls import reverse
+from django.shortcuts import render, redirect
 from .models import Payroll, Loan
 
 def create_loan(request):
     if request.method == 'POST':
-        try:
-            payroll_id = request.POST.get('employee')
-            issue_date = request.POST.get('issue_date')
-            expiry_date = request.POST.get('expiry_date')
-            loan_amount = request.POST.get('loan_amount')
-            cutting_type = request.POST.get('cutting_type')
-            cutting_value = request.POST.get('cutting_value')
+        # Process form submission
+        employee_id = request.POST.get('employee')
+        issue_date = request.POST.get('loan_issue_date')
+        expiry_date = request.POST.get('loan_expiry_date')
+        loan_amount = request.POST.get('loan_amount')
+        cutting_type = request.POST.get('payment_method')
 
-            payroll = Payroll.objects.get(id=payroll_id)  # Get the selected payroll object
+        if cutting_type == 'percentage_wise':
+            cutting_value = request.POST.get('percentage')
+        else:
+            cutting_value = request.POST.get('monthly_cutting_amount')
 
-            loan = Loan(
-                payroll=payroll,  # Associate the Loan with the selected Payroll
-                date_issue=issue_date,
-                date_expiry=expiry_date,
-                loan_amount=loan_amount,
-                monthly_cutting_type=cutting_type,
-                monthly_cutting_value=cutting_value
-            )
-            loan.save()
+        payroll = Payroll.objects.get(id=employee_id)
 
-            return HttpResponseRedirect(reverse('employee_list'))  # Redirect after successful submission
-        except Payroll.DoesNotExist:
-            return HttpResponse("Payroll not found")
-        except Exception as e:
-            return HttpResponse(f"An error occurred: {e}")
-    else:
-        payrolls = Payroll.objects.all()
-        context = {
-            'payrolls': payrolls,
-        }
-        return render(request, 'app/create_loan.html', context)
+        if cutting_type == 'percentage_wise':
+            cutting_value = request.POST.get('percentage')
+        else:
+            cutting_value = request.POST.get('monthly_cutting_amount')
+
+        loan = Loan(
+            payroll=payroll,
+            date_issue=issue_date,
+            date_expiry=expiry_date,
+            loan_amount=loan_amount,
+            monthly_cutting_type=cutting_type,
+            monthly_cutting_value=cutting_value
+        )
+        loan.save()
 
 
+        return redirect('employee_list')  # Redirect to the employee list page
 
-
-
-def employee_list(request):
     payrolls = Payroll.objects.all()
     context = {
         'payrolls': payrolls,
     }
+    return render(request, 'app/create_loan.html', context)
+
+
+
+
+
+
+from django.shortcuts import render
+from .models import Payroll, Loan
+
+def employee_list(request):
+    employees_with_loans = Payroll.objects.filter(loan__isnull=False)
+
+    for employee in employees_with_loans:
+        employee.loan_info = Loan.objects.get(payroll=employee)
+    
+    context = {
+        'employees': employees_with_loans,
+    }
     return render(request, 'app/employee_list.html', context)
 
 
-from django.shortcuts import render, get_object_or_404
-from .models import Payroll
-from .forms import PayrollForm  # Import the PayrollForm
 
-def edit_payroll(request, payroll_id):
-    payroll = get_object_or_404(Payroll, id=payroll_id)
+from django.shortcuts import get_object_or_404
 
+def delete_loan(request, loan_id):
+    loan = get_object_or_404(Loan, id=loan_id)
+    loan.delete()
+    return redirect('employee_list')  # Redirect to the list of employee loans
+
+
+
+
+
+
+
+
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Loan
+
+def edit_loan(request, loan_id):
+    # Get the Loan instance with the given loan_id or show a 404 error page if not found
+    loan = get_object_or_404(Loan, id=loan_id)
+    
     if request.method == 'POST':
-        form = PayrollForm(request.POST, instance=payroll)
-        if form.is_valid():
-            form.save()
-            return redirect('payroll_list')  # Redirect to the payroll list page after successful edit
-    else:
-        form = PayrollForm(instance=payroll)
+        # Process the form submission if the request method is POST
+        
+        # Get the updated data from the form
+        loan_issue_date = request.POST.get('loan_issue_date')
+        loan_expiry_date = request.POST.get('loan_expiry_date')
+        loan_amount = request.POST.get('loan_amount')
+        monthly_cutting_type = request.POST.get('monthly_cutting_type')
+        monthly_cutting_value = request.POST.get('monthly_cutting_value')
+        # Get other form fields similarly
+        
+        # Update the loan instance with the new data
+        loan.date_issue = loan_issue_date
+        loan.date_expiry = loan_expiry_date
+        loan.loan_amount = loan_amount
+        loan.monthly_cutting_type = monthly_cutting_type
+        loan.monthly_cutting_value = monthly_cutting_value
+        # Update other loan fields in a similar manner
+        
+        # Save the updated loan instance to the database
+        loan.save()
+        
+        # Redirect to a success page or list view
+        return redirect('employee_list')
+    
+    # If the request method is not POST, render the edit loan page with the loan data
+    context = {
+        'loan': loan,
+    }
+    return render(request, 'app/edit_loan.html', context)
+
+
+
+from django.shortcuts import render, get_object_or_404
+from .models import Payroll, Loan
+
+def employee_loan_details(request, payroll_id):
+    payroll = get_object_or_404(Payroll, id=payroll_id)
+    loans = Loan.objects.filter(payroll=payroll)
 
     context = {
-        'form': form,
         'payroll': payroll,
+        'loans': loans,
     }
-    return render(request, 'app/edit_payroll.html', context)
+
+    return render(request, 'app/employee_loan_details.html', context)
+

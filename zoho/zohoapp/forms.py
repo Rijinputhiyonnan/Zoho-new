@@ -18,14 +18,16 @@ class LoanForm(forms.ModelForm):
         empty_label="Select an employee"
     )
     loan_amount = forms.DecimalField()
-    date_issue = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), label="Issue Date")
-    date_expiry = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), label="Expiry Date")
-    monthly_cutting_type = forms.ChoiceField(
-        choices=[('%', '%'), ('amount', 'Amount')],
-        initial='%'
+    loan_issue_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+    loan_expiry_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+    payment_method = forms.ChoiceField(
+        choices=[('percentage_wise', 'Percentage Wise'), ('amount_wise', 'Amount Wise')],
+        initial='percentage_wise'
     )
+    cutting_value = forms.DecimalField()
 
     class Meta:
         model = Loan
         fields = '__all__'
+
 

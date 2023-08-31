@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+<section>
+    <div class="row p-3">
+        <div class="list col-4 col-lg-4 col-md-3 col-sm-2 py-3">
+            <!-- This section is for the employee list and search bar (if needed) -->
+            <!-- ... -->
+        </div>
+        <div class="overview col-8 col-lg-8 col-md-9 col-sm-10 py-3">
+            <div id="overview">
+                <div class="p-name">
+                    <h3 class="px-2 pb-2" id="id1">{{ p.first_name }} {{ p.last_name }}</h3>
+                </div>
+                <!-- Other content and employee details (if needed) -->
+                <!-- ... -->
+
+                <div class="div-to-pdf row" id="div-to-pdf" style="height: 100%; background-color: burlywood">
+                    <!-- This section is for displaying loan details -->
+                    <div class="row m-1">
+                        <div class="card bank-div" style="background-color: rgb(78, 72, 53); width: 100%;">
+                            <h4 class="text-center mt-4">Loan Details
+                                <hr>
+                            </h4>
+                            <div class="row mt-2 px-5">
+                                <div class="col-6"><label for="">Date Issued</label></div>
+                                <div class="col-6">
+                                    <!-- Loop through loans and display date_issue details -->
+                                    {% for loan in loans %}
+                                        <p class="bold">{{ loan.date_issue }}</p>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="row mt-2 px-5">
+                                <div class="col-6"><label for="">Date Expiry</label></div>
+                                <div class="col-6">
+                                    <!-- Loop through loans and display date_expiry details -->
+                                    {% for loan in loans %}
+                                        <p class="bold">{{ loan.date_expiry }}</p>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <!-- Repeat similar blocks for other loan details -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Your JavaScript code for generating PDFs and other functionality (if needed) -->
+<script>
+    // Your JavaScript code here
+</script>
+
+{% endblock %}

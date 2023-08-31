@@ -1048,6 +1048,9 @@ class Payroll(models.Model):
     def employee_name(self):
         return f"{self.first_name} {self.last_name}"
     
+    def __str__(self):
+        return self.employee_name
+    
     
 class Bankdetails(models.Model):
     acc_no = models.BigIntegerField()  
@@ -1072,38 +1075,34 @@ class Payrollfiles(models.Model):
 
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator, MaxValueValidator
+
 
 
 class Loan(models.Model):
-    employee = models.OneToOneField('Employee', on_delete=models.CASCADE, related_name='loan_info')
+    payroll = models.ForeignKey(Payroll, on_delete=models.CASCADE)
     date_issue = models.DateField()
     date_expiry = models.DateField()
     loan_amount = models.DecimalField(max_digits=10, decimal_places=2)
     monthly_cutting_type = models.CharField(max_length=10, choices=[('%', '%'), ('amount', 'Amount')], default='%')
-
     monthly_cutting_value = models.DecimalField(max_digits=10, decimal_places=2)
+
+    # New field for the percentage of loan payment
+    percentage_of_loan_payment = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        default=0,
+        validators=[MinValueValidator(0.0), MaxValueValidator(100.0)]
+    )
+
     comment = models.TextField(blank=True)
     attach = models.FileField(upload_to='loan_attachments/', blank=True)
     active = models.BooleanField(default=True)
 
-class Employee(models.Model):
-    payroll = models.ForeignKey(Payroll, on_delete=models.CASCADE, default=None, null=True)
-    emp_number = models.CharField(max_length=100, default=None, null=True)
-    email = models.EmailField(max_length=255)
-    salary = models.DecimalField(max_digits=10, decimal_places=2)
-    joindate = models.DateField()
-
-    def clean(self):
-        if self.loan_info:
-            if self.loan_info.monthly_cutting_type == '%' and self.loan_info.monthly_cutting_value >= 100:
-                raise ValidationError("Percentage monthly cutting value must be less than 100")
-            if self.loan_info.monthly_cutting_type == 'amount' and self.loan_info.monthly_cutting_value >= self.salary:
-                raise ValidationError("Monthly cutting amount must be less than the employee's salary")
-
-    def save(self, *args, **kwargs):
-        payroll = self.payroll
-        self.name = f"{payroll.first_name} {payroll.last_name}"
-        super().save(*args, **kwargs)
-
     def __str__(self):
-        return f"{self.name} ({self.emp_number})"
+        return f"Loan for {self.payroll}"
+
+    class Meta:
+        verbose_name_plural = "Loans"
