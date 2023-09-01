@@ -9789,9 +9789,8 @@ def employee_loan_details(request, payroll_id):
     loans = Loan.objects.filter(payroll=payroll)
 
     context = {
-        'payroll': payroll,
+        'p': payroll,
         'loans': loans,
     }
 
     return render(request, 'app/employee_loan_details.html', context)
-
