@@ -4,44 +4,82 @@
 
 <section>
     <div class="row p-3">
+        <!-- Left Side -->
+        <div class="list col-4 col-lg-4 col-md-3 col-sm-2 py-3">
+            <div class="header">
+                <h5>EMPLOYEE LOANS</h5>
+            </div>
+            <div class="searchbar">
+                <input class="form-control" type="text" placeholder="Search by Name" name="search" id="search"
+                    onkeyup="searchFunction()"
+                    style="color: rgb(255, 255, 255);background: transparent;margin-right: 5px;">
+                <a class="btn btn-outline-primary mx-1" href="" data-bs-toggle="dropdown" aria-haspopup="true"
+                    aria-expanded="false" role="button">
+                    <i class="fa fa-filter"></i>
+                </a>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="javascript:sortTable(0)">Name A-Z</a>
+                    <a class="dropdown-item" href="javascript:rsortTable(0)">Name Z-A</a>
+                </div>
+                <a class="btn btn-outline-primary mr-1" href="{% url 'create_loan' %}"><i class="fa fa-plus"></i> Create Loan</a>
+            </div>
+            <hr>
+            <table class="table table-borderless" id="mytable">
+                <!-- Table rows for listing employee loans with issue date and amount -->
+                <tr>
+                    <th>Name</th>
+                    <th>Loan Issue Date</th>
+                    <th>Loan Amount</th>
+                </tr>
+                {% for loan in loans %}
+                <tr class='clickable-row' data-href="{% url 'employee_loan_details' loan.id %}">
+                    <td>{{ loan.employee.first_name }} {{ loan.employee.last_name }}</td>
+                    <td>{{ loan.issue_date }}</td>
+                    <td>{{ loan.amount }}</td>
+                </tr>
+            {% endfor %}
+            
+            </table>
+        </div>
+    
+    <div class="row p-3">
         <div class="list col-4 col-lg-4 col-md-3 col-sm-2 py-3">
             <!-- This section is for the employee list and search bar (if needed) -->
             <!-- ... -->
         </div>
         <div class="overview col-8 col-lg-8 col-md-9 col-sm-10 py-3">
             <div id="overview">
-                <div class="p-name">
-                    <h3 class="px-2 pb-2" id="id1">{{ p.first_name }} {{ p.last_name }}</h3>
+                <!-- Display the exact employee name -->
+                <h3 class="px-2 pb-2" id="id1">Employee Name: {{ payroll.employee_name }}</h3>
+                <!-- Display all employee information here -->
+                <div class="row mt-2 px-5">
+                    <div class="col-6"><label for="">Employee ID</label></div>
+                    <div class="col-6"><p class="bold">{{ payroll.id }}</p></div>
                 </div>
-                <!-- Other content and employee details (if needed) -->
-                <!-- ... -->
+                <div class="row mt-2 px-5">
+                    <div class="col-6"><label for="">Employee Salary</label></div>
+                    <div class="col-6"><p class="bold">{{ payroll.salary }}</p></div>
+                </div>
+                <!-- Add more employee information as needed -->
 
                 <div class="div-to-pdf row" id="div-to-pdf" style="height: 100%; background-color: burlywood">
-                    <!-- This section is for displaying loan details -->
+                    <!-- This section is for displaying loan details in a paragraph format -->
                     <div class="row m-1">
                         <div class="card bank-div" style="background-color: rgb(78, 72, 53); width: 100%;">
                             <h4 class="text-center mt-4">Loan Details
                                 <hr>
                             </h4>
-                            <div class="row mt-2 px-5">
-                                <div class="col-6"><label for="">Date Issued</label></div>
-                                <div class="col-6">
-                                    <!-- Loop through loans and display date_issue details -->
-                                    {% for loan in loans %}
-                                        <p class="bold">{{ loan.date_issue }}</p>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            <div class="row mt-2 px-5">
-                                <div class="col-6"><label for="">Date Expiry</label></div>
-                                <div class="col-6">
-                                    <!-- Loop through loans and display date_expiry details -->
-                                    {% for loan in loans %}
-                                        <p class="bold">{{ loan.date_expiry }}</p>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            <!-- Repeat similar blocks for other loan details -->
+                            <!-- Loop through loans and display loan details as paragraphs -->
+                            {% for loan in loans %}
+                                <p><strong>Date Issued:</strong> {{ loan.date_issue }}</p>
+                                <p><strong>Date Expiry:</strong> {{ loan.date_expiry }}</p>
+                                <p><strong>Loan Amount:</strong> {{ loan.loan_amount }}</p>
+                                <p><strong>Monthly Cutting Type:</strong> {{ loan.monthly_cutting_type }}</p>
+                                <p><strong>Monthly Cutting Value:</strong> {{ loan.monthly_cutting_value }}</p>
+                                <!-- Add more paragraphs for other loan details if needed -->
+                            {% empty %}
+                                <p>No loans found for this employee.</p>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
@@ -56,3 +94,6 @@
 </script>
 
 {% endblock %}
+
+
+
