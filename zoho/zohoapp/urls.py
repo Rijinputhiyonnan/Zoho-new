@@ -466,7 +466,7 @@ urlpatterns = [
      path('edit_loan/<int:loan_id>/', views.edit_loan, name='edit_loan'),
      
       path('employee/<int:payroll_id>/loan/', views.employee_loan_details, name='employee_loan_details'),
-    
+    path('edit_loan/<int:loan_id>/', views.edit_loan, name='edit_loan'),
     
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

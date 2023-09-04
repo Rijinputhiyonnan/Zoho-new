@@ -2,12 +2,64 @@
 {% block content %}
 {% load static %}
 
-<!-- Your existing styles -->
+<style>
+    * {
 
+        font-family: "Gill Sans", sans-serif;
+        color: white;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    input[type="number"],
+    input[type="email"],
+    input[type="file"],
+    .gen-info textarea,
+    .gen-info select,
+    .data select,
+    .data option,
+    .gen-info option {
+        color: rgb(7, 7, 7);
+        border: 1px solid rgb(0, 0, 0);
+    }
+
+    .gen-info .left {
+        padding-right: 2rem;
+    }
+
+
+    .action-button {
+        display: flex;
+        align-items: center;
+        /* justify-content: center; */
+    }
+
+    .action-button button {
+        width: 8vw;
+        font-size: 1.2vw;
+        margin: 0.5rem .3rem;
+    }
+
+    label {
+        font-size: 1.2vw;
+    }
+
+    .containerprof {
+
+        position: relative;
+
+    }
+
+    .input-container {
+        position: relative;
+        margin: 0 auto;
+        text-align: center;
+    }
+</style>
 <section>
     <div class="containerprof p-5">
         <div class="header pb-5">
-            <h3>CREATE LOAN</h3>
+            <h3>CREATE EMPLOYEE LOAN</h3>
             <hr>
         </div>
         <form method="POST" action="{% url 'create_loan' %}" id="myForm" onsubmit="return handleFormSubmission()">
@@ -68,89 +120,74 @@
                             <input type="date" class="form-control text-dark" name="joindate" id="joindate" readonly>
                         </div>
                     </div>
-                </div>
-                <div class="image col-6 col-lg-6 col-md-6 col-sm-12">
-                    <!-- ... (Upload Image) ... -->
-                </div>
-            </div>
-            <div class="gen-info row pt-5">
-                <div class="left col-6 col-lg-6 col-md-6 col-sm-12">
-                    <!-- ... (General information fields) ... -->
-                </div>
-                <div class="col-6 col-lg-6 col-md-6 col-sm-12 pt-3">
-                    <!-- ... (Bank details, TDS, Statutory information fields) ... -->
-                </div>
-            </div>
-            <hr>
-            <!-- Loan details -->
-            <div class="row pb-3">
-                <div class="col-6">
-                    <label for="">Date of Loan Issue</label>
-                </div>
-                <div class="col-6">
-                    <input type="date" class="form-control text-dark" name="loan_issue_date" id="loan_issue_date" required>
-                </div>
-            </div>
-            <div class="row pb-3">
-                <div class="col-6">
-                    <label for="">Expiry Date</label>
-                </div>
-                <div class="col-6">
-                    <input type="date" class="form-control text-dark" name="loan_expiry_date" id="loan_expiry_date" required>
-                </div>
-            </div>
-            <div class="row pb-3">
-                <div class="col-6">
-                    <label for="">Loan Amount</label>
-                </div>
-                <div class="col-6">
-                    <input type="number" class="form-control text-dark" name="loan_amount" id="loan_amount" required>
-                </div>
-            </div>
-            <!-- ... Your existing HTML code ... -->
 
-            <!-- ... (Your existing code) ... -->
-
-<div class="row pb-3">
-    <div class="col-6 d-flex align-items-center">
-        <label for="payment_method" class="mr-2 mb-0" style="width: 150px;">Payment Method</label>
-        <select class="form-control text-dark" name="payment_method" id="payment_method" required onchange="showAdditionalFields()">
-            <option value="">Select</option>
-            <option value="percentage_wise">Percentage Wise</option>
-            <option value="amount_wise">Amount Wise</option>
-        </select>
-    </div>
-</div>
-<div class="row pb-3" id="percentageWiseFields" style="display: none;">
-    <div class="col-6 d-flex align-items-center">
-        <label for="percentage" class="mr-2 mb-0" style="width: 150px;">Percentage</label>
-        <input type="number" class="form-control text-dark" name="percentage" id="percentage" step="0.01" min="0" max="100" oninput="updateMonthlyCuttingAmount()">
-    </div>
-</div>
-<div class="row pb-3" id="percentageWiseMonthlyFields" style="display: none;">
-    <div class="col-6 d-flex align-items-center">
-        <label for="monthly_cutting_amount" class="mr-2 mb-0" style="width: 150px;">Monthly Cutting Amount</label>
-        <input type="number" class="form-control text-dark" name="monthly_cutting_amount" id="monthly_cutting_amount" step="0.01" min="0" max="{{ salary }}"  oninput="validateCuttingAmount()" required>
-    </div>
-</div>
-<div class="row pb-3" id="amountWiseFields" style="display: none;">
-    <div class="col-6 d-flex align-items-center">
-        <label for="monthly_cutting_amount" class="mr-2 mb-0" style="width: 150px;">Monthly Cutting Amount</label>
-        <input type="number" class="form-control text-dark" name="monthly_cutting_amount" id="monthly_cutting_amount" step="0.01" min="0" required>
-        <div id="error-message" style="color: red;"></div> <!-- Error message for cutting amount validation -->
-    </div>
-</div>
+                    <div class="row pb-3">
+                        <div class="col-6">
+                            <label for="">Date of Loan Issue</label>
+                        </div>
+                        <div class="input-container col-6">
+                            <input type="date" class="form-control text-dark" name="loan_issue_date" id="loan_issue_date" required>
+                        </div>
+                    </div>
+                    <div class="row pb-3">
+                        <div class="col-6">
+                            <label for="">Expiry Date</label>
+                        </div>
+                        <div class="input-container col-6">
+                            <input type="date" class="form-control text-dark" name="loan_expiry_date" id="loan_expiry_date" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row pb-3">
+                        <div class="col-6">
+                            <label for="">Loan Amount</label>
+                        </div>
+                        <div class="input-container col-6">
+                            <input type="number" class="form-control text-dark" name="loan_amount" id="loan_amount" required>
+                        </div>
+                    </div>
+                    <div class="row pb-3">
+                        <div class="col-6">
+                            <label for="payment_method" class="mr-2 mb-0" style="width: 150px;">Payment Method</label>
+                        </div>
+                        <div class="input-container col-6">
+                            <select class="form-control text-dark" name="payment_method" id="payment_method" required onchange="showAdditionalFields()">
+                                <option value="">Select</option>
+                                <option value="percentage_wise">Percentage Wise</option>
+                                <option value="amount_wise">Amount Wise</option>
+                            </select>
+                        </div>
 
 
 
-            
-            
-            
+                        <div class="row pb-3" id="percentageWiseFields" style="display: none;">
+                            <div class="col-6">
+                                <label for="percentage" class="mr-2 mb-0" style="width: 150px;">Percentage</label>
+                            </div>
+                            <div class="input-container col-6">
+                                <input type="number" class="form-control text-dark" name="percentage" id="percentage" step="0.01" min="0" max="100" oninput="updateMonthlyCuttingAmount()">
+                            </div>
+                        </div>
+                       <div class="row pb-3" id="percentageWiseMonthlyFields" style="display: none;">
+                            <div class="col-6 d-flex align-items-center">
+                                <label for="monthly_cutting_amount" class="mr-2 mb-0" style="width: 150px;">Monthly Cutting Amount</label>
+                                <input type="number" class="form-control text-dark" name="monthly_cutting_amount" id="monthly_cutting_amount" step="0.01" min="0" max="{{ salary }}"  oninput="validateCuttingAmount()" required>
+                            </div>
+                        </div>
+                        <div class="row pb-3" id="amountWiseFields" style="display: none;">
+                            <div class="col-6 d-flex align-items-center">
+                                <label for="monthly_cutting_amount" class="mr-2 mb-0" style="width: 150px;">Monthly Cutting Amount</label>
+                                <input type="number" class="form-control text-dark" name="monthly_cutting_amount" id="monthly_cutting_amount" required min="0" step="0.01">
 
 
-            <!-- Action buttons -->
+                                <div id="error-message" style="color: red;"></div> <!-- Error message for cutting amount validation -->
+                            </div>
+                        </div>
+                        
+                        
+                          <!-- Action buttons -->
             <div class="action-button">
-                <button class="btn btn-primary" type="submit">Create Loan</button>
+                <button class="btn btn-primary" type="submit">Submit</button>
                 <button class="btn btn-danger" type="reset">Cancel</button>
             </div>
             <div class="text-center">
@@ -158,154 +195,97 @@
             </div>
         </form>
     </div>
-</section>
-
+</section>  
+          
+                    
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                    <script>
+                        function fillEmployeeDetails() {
+                            var selectedOption = document.getElementById("employee").selectedOptions[0];
+                            
+                            var email = selectedOption.getAttribute("data-email");
+                            var empNumber = selectedOption.getAttribute("data-emp-number");
+                            var salary = selectedOption.getAttribute("data-salary");
+                            var joinDate = selectedOption.getAttribute("data-joindate");
+                            
+                            document.getElementById("email").value = email;
+                            document.getElementById("emp_id").value = empNumber;
+                            document.getElementById("salary").value = salary;
+                            document.getElementById("joindate").value = joinDate;
+                        }
 
-<script>
-    function fillEmployeeDetails() {
-        var selectedOption = document.getElementById("employee").selectedOptions[0];
+
+
+                        function showAdditionalFields() {
+                            var paymentMethod = document.getElementById("payment_method").value;
+                            var percentageWiseFields = document.getElementById("percentageWiseFields");
+                            var percentageWiseMonthlyFields = document.getElementById("percentageWiseMonthlyFields");
+                            var amountWiseFields = document.getElementById("amountWiseFields");
+                    
+                            if (paymentMethod === "percentage_wise") {
+                                percentageWiseFields.style.display = "block";
+                                percentageWiseMonthlyFields.style.display = "block";
+                                amountWiseFields.style.display = "none";
+                            } else if (paymentMethod === "amount_wise") {
+                                amountWiseFields.style.display = "block";
+                                percentageWiseFields.style.display = "none";
+                                percentageWiseMonthlyFields.style.display = "none";
+                            } else {
+                                percentageWiseFields.style.display = "none";
+                                percentageWiseMonthlyFields.style.display = "none";
+                                amountWiseFields.style.display = "none";
+                            }
+                        }
+
+
+
+
+
+
+
+                        function updateMonthlyCuttingAmount() {
+                            var salary = parseFloat(document.getElementById("salary").value);
+                            var percentage = parseFloat(document.getElementById("percentage").value);
+                    
+                            var percentageField = document.getElementById("percentage");
+                            var monthlyCuttingAmountField = document.getElementById("monthly_cutting_amount");
+                    
+                            if (isNaN(percentage) || percentage < 0 || percentage > 100) {
+                                percentageField.setCustomValidity("Percentage must be between 0 and 100.");
+                            } else {
+                                percentageField.setCustomValidity("");
+                                var monthlyCuttingAmount = (salary * percentage) / 100;
+                                monthlyCuttingAmountField.value = monthlyCuttingAmount.toFixed(2);
+                    
+                                if (monthlyCuttingAmount > salary) {
+                                    monthlyCuttingAmountField.setCustomValidity("Monthly cutting amount cannot exceed salary.");
+                                } else {
+                                    monthlyCuttingAmountField.setCustomValidity("");
+                                }
+                            }
+                        }
+                        
+                        function validateMonthlyCuttingAmount() {
+                            var salary = parseFloat(document.getElementById("salary").value);
+                            var monthlyCuttingAmount = parseFloat(document.getElementById("monthly_cutting_amount").value);
+                    
+                            if (isNaN(monthlyCuttingAmount) || monthlyCuttingAmount < 0 || monthlyCuttingAmount > salary) {
+                                document.getElementById("monthly_cutting_amount").setCustomValidity("Invalid monthly cutting amount.");
+                            } else {
+                                document.getElementById("monthly_cutting_amount").setCustomValidity("");
+                            }
+                        }
+                    
+                    
+                    
+                    
+                    
+                    </script>
+                    
+                    
+                     
         
-        var email = selectedOption.getAttribute("data-email");
-        var empNumber = selectedOption.getAttribute("data-emp-number");
-        var salary = selectedOption.getAttribute("data-salary");
-        var joinDate = selectedOption.getAttribute("data-joindate");
-        
-        document.getElementById("email").value = email;
-        document.getElementById("emp_id").value = empNumber;
-        document.getElementById("salary").value = salary;
-        document.getElementById("joindate").value = joinDate;
-    }
-</script>
-
-
-
-<!-- ... Your existing HTML code ... -->
-
-<script>
-    function showAdditionalFields() {
-        var paymentMethod = document.getElementById("payment_method").value;
-        var percentageWiseFields = document.getElementById("percentageWiseFields");
-        var percentageWiseMonthlyFields = document.getElementById("percentageWiseMonthlyFields");
-        var amountWiseFields = document.getElementById("amountWiseFields");
-
-        if (paymentMethod === "percentage_wise") {
-            percentageWiseFields.style.display = "block";
-            percentageWiseMonthlyFields.style.display = "block";
-            amountWiseFields.style.display = "none";
-        } else if (paymentMethod === "amount_wise") {
-            amountWiseFields.style.display = "block";
-            percentageWiseFields.style.display = "none";
-            percentageWiseMonthlyFields.style.display = "none";
-        } else {
-            percentageWiseFields.style.display = "none";
-            percentageWiseMonthlyFields.style.display = "none";
-            amountWiseFields.style.display = "none";
-        }
-    }
-
-    function updateMonthlyCuttingAmount() {
-        var salary = parseFloat(document.getElementById("salary").value);
-        var percentage = parseFloat(document.getElementById("percentage").value);
-
-        var percentageField = document.getElementById("percentage");
-        var monthlyCuttingAmountField = document.getElementById("monthly_cutting_amount");
-
-        if (isNaN(percentage) || percentage < 0 || percentage > 100) {
-            percentageField.setCustomValidity("Percentage must be between 0 and 100.");
-        } else {
-            percentageField.setCustomValidity("");
-            var monthlyCuttingAmount = (salary * percentage) / 100;
-            monthlyCuttingAmountField.value = monthlyCuttingAmount.toFixed(2);
-
-            if (monthlyCuttingAmount > salary) {
-                monthlyCuttingAmountField.setCustomValidity("Monthly cutting amount cannot exceed salary.");
-            } else {
-                monthlyCuttingAmountField.setCustomValidity("");
-            }
-        }
-    }
+     
     
-    function validateMonthlyCuttingAmount() {
-        var salary = parseFloat(document.getElementById("salary").value);
-        var monthlyCuttingAmount = parseFloat(document.getElementById("monthly_cutting_amount").value);
-
-        if (isNaN(monthlyCuttingAmount) || monthlyCuttingAmount < 0 || monthlyCuttingAmount > salary) {
-            document.getElementById("monthly_cutting_amount").setCustomValidity("Invalid monthly cutting amount.");
-        } else {
-            document.getElementById("monthly_cutting_amount").setCustomValidity("");
-        }
-    }
-
-
-
-
-
-    document.getElementById("myForm").addEventListener("submit", function(event) {
-        var paymentMethod = document.getElementById("payment_method").value;
-        
-        if (paymentMethod === "amount_wise") {
-            var monthlyCuttingAmount = parseFloat(document.getElementById("monthly_cutting_amount").value);
-            var salary = parseFloat(document.getElementById("salary").value);
-            
-            if (monthlyCuttingAmount > salary) {
-                alert("Monthly cutting amount cannot be greater than the salary.");
-                event.preventDefault();  // Prevent form submission
-            }
-        }
-    });
-    
-</script>
-
-<script>
-    function showAdditionalFields() {
-        const paymentMethod = document.getElementById("payment_method").value;
-        
-        const percentageWiseFields = document.getElementById("percentageWiseFields");
-        const percentageWiseMonthlyFields = document.getElementById("percentageWiseMonthlyFields");
-        const amountWiseFields = document.getElementById("amountWiseFields");
-        
-        if (paymentMethod === "percentage_wise") {
-            percentageWiseFields.style.display = "block";
-            percentageWiseMonthlyFields.style.display = "block";
-            amountWiseFields.style.display = "none";
-        } else if (paymentMethod === "amount_wise") {
-            percentageWiseFields.style.display = "none";
-            percentageWiseMonthlyFields.style.display = "none";
-            amountWiseFields.style.display = "block";
-            updateMaxValue();
-        } else {
-            percentageWiseFields.style.display = "none";
-            percentageWiseMonthlyFields.style.display = "none";
-            amountWiseFields.style.display = "none";
-        }
-    }
-
-    function updateMaxValue() {
-        const monthlyCuttingAmountInput = document.getElementById("monthly_cutting_amount");
-        const salary = {{ salary }}; // Replace with the actual salary value
-        monthlyCuttingAmountInput.max = salary;
-    }
-
-    function validateCuttingAmount() {
-        const monthlyCuttingAmountInput = document.getElementById("monthly_cutting_amount");
-        const salary = {{ salary }}; // Replace with the actual salary value
-        
-        const errorMessage = document.getElementById("error-message");
-        const cuttingAmount = parseFloat(monthlyCuttingAmountInput.value);
-        
-        if (cuttingAmount > salary) {
-            errorMessage.textContent = "Monthly cutting amount cannot be greater than salary.";
-        } else {
-            errorMessage.textContent = "";
-        }
-    }
-</script>
-
-
-
-
-
-
 
 {% endblock %}

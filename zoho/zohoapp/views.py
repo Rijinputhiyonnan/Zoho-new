@@ -9665,9 +9665,18 @@ def cust_Attach_files(request,id):
 
 from django.shortcuts import render, redirect
 from .models import Payroll, Loan
+from django.shortcuts import render, redirect
+from .models import Payroll, Loan
+from .forms import LoanForm
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Payroll, Loan
+from django.core.validators import MinValueValidator
 
 def create_loan(request):
     if request.method == 'POST':
+        print("Received a POST request")
         # Process form submission
         employee_id = request.POST.get('employee')
         issue_date = request.POST.get('loan_issue_date')
@@ -9675,36 +9684,53 @@ def create_loan(request):
         loan_amount = request.POST.get('loan_amount')
         cutting_type = request.POST.get('payment_method')
 
+        # Check the cutting type and retrieve the appropriate cutting value
         if cutting_type == 'percentage_wise':
-            cutting_value = request.POST.get('percentage')
+            cutting_percentage = request.POST.get('percentage')
+            cutting_amount = None  # Initialize as None
         else:
-            cutting_value = request.POST.get('monthly_cutting_amount')
+            cutting_amount = request.POST.get('monthly_cutting_amount')
+            cutting_percentage = None  # Initialize as None
 
+        # Fetch the payroll object based on the selected employee
         payroll = Payroll.objects.get(id=employee_id)
 
-        if cutting_type == 'percentage_wise':
-            cutting_value = request.POST.get('percentage')
-        else:
-            cutting_value = request.POST.get('monthly_cutting_amount')
+        try:
+            loan = Loan(
+                payroll=payroll,
+                date_issue=issue_date,
+                date_expiry=expiry_date,
+                loan_amount=loan_amount,
+                monthly_cutting_type=cutting_type,
+                monthly_cutting_percentage=cutting_percentage,
+                monthly_cutting_amount=cutting_amount
+            )
+            loan.save()
 
-        loan = Loan(
-            payroll=payroll,
-            date_issue=issue_date,
-            date_expiry=expiry_date,
-            loan_amount=loan_amount,
-            monthly_cutting_type=cutting_type,
-            monthly_cutting_value=cutting_value
-        )
-        loan.save()
+            # Debugging: Print information to the console
+            print(f"Employee ID: {employee_id}")
+            print(f"Issue Date: {issue_date}")
+            print(f"Expiry Date: {expiry_date}")
+            print(f"Loan Amount: {loan_amount}")
+            print(f"Cutting Type: {cutting_type}")
+            print(f"Cutting Percentage: {cutting_percentage}")
+            print(f"Cutting Amount: {cutting_amount}")
+            print(f"Payroll: {payroll}")
+            print(f"Loan: {loan}")
 
+            return redirect('employee_list')  # Redirect to the employee list page
+        except ValueError as e:
+            # Handle validation errors (e.g., percentage > 100%, amount >= salary)
+            error_message = str(e)
 
-        return redirect('employee_list')  # Redirect to the employee list page
-
+    # For GET requests or when form is not submitted, retrieve a list of all payrolls
     payrolls = Payroll.objects.all()
     context = {
         'payrolls': payrolls,
+        'error_message': error_message if 'error_message' in locals() else None,  # Pass error message to the template
     }
     return render(request, 'app/create_loan.html', context)
+
 
 
 
@@ -9792,5 +9818,21 @@ def employee_loan_details(request, payroll_id):
         'p': payroll,
         'loans': loans,
     }
+    for loan in loans:
+        print(f"Loan ID: {loan.id}")
 
     return render(request, 'app/employee_loan_details.html', context)
+
+
+from django.shortcuts import render, get_object_or_404
+from .models import Loan  # Import your Loan model
+
+def edit_loan(request, loan_id):
+    # Retrieve the loan object using the loan_id
+    loan = get_object_or_404(Loan, id=loan_id)
+
+    # Pass the loan object to the template
+    context = {'loan': loan}
+    
+    return render(request, 'app/edit_loan.html', context)
+

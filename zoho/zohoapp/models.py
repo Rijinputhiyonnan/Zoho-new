@@ -1079,22 +1079,37 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 
+from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
+
+from django.core.validators import MinValueValidator, MaxValueValidator
+from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
+
 class Loan(models.Model):
     payroll = models.ForeignKey(Payroll, on_delete=models.CASCADE)
     date_issue = models.DateField()
     date_expiry = models.DateField()
     loan_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    monthly_cutting_type = models.CharField(max_length=10, choices=[('%', '%'), ('amount', 'Amount')], default='%')
-    monthly_cutting_value = models.DecimalField(max_digits=10, decimal_places=2)
-
-    # New field for the percentage of loan payment
-    percentage_of_loan_payment = models.DecimalField(
+    monthly_cutting_type = models.CharField(
+        max_length=10,
+        choices=[('percentage', 'Percentage'), ('amount', 'Amount')],
+        default='percentage'
+    )
+    monthly_cutting_percentage = models.DecimalField(
         max_digits=5,
         decimal_places=2,
         null=True,
         blank=True,
         default=0,
         validators=[MinValueValidator(0.0), MaxValueValidator(100.0)]
+    )
+    monthly_cutting_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0.0)]
     )
 
     comment = models.TextField(blank=True)
@@ -1106,3 +1121,18 @@ class Loan(models.Model):
 
     class Meta:
         verbose_name_plural = "Loans"
+
+    def save(self, *args, **kwargs):
+        if self.monthly_cutting_type == 'percentage':
+            # If monthly cutting type is percentage wise, calculate monthly_cutting_amount
+            self.monthly_cutting_percentage = self.monthly_cutting_percentage or 0
+            if self.monthly_cutting_percentage > 100:
+                raise ValueError("Monthly cutting percentage cannot be greater than 100%")
+            self.monthly_cutting_amount = (self.monthly_cutting_percentage / 100) * self.payroll.salary
+        elif self.monthly_cutting_type == 'amount':
+            # If monthly cutting type is amount wise, ensure monthly_cutting_percentage is None
+            self.monthly_cutting_percentage = None
+            if self.monthly_cutting_amount >= self.payroll.salary:
+                raise ValueError("Monthly cutting amount cannot be greater than or equal to salary")
+        super().save(*args, **kwargs)
+
