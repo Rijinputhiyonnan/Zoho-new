@@ -1079,12 +1079,6 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 
-from django.db import models
-from django.core.validators import MinValueValidator, MaxValueValidator
-
-from django.core.validators import MinValueValidator, MaxValueValidator
-from django.db import models
-from django.core.validators import MinValueValidator, MaxValueValidator
 
 class Loan(models.Model):
     payroll = models.ForeignKey(Payroll, on_delete=models.CASCADE)

@@ -2,7 +2,60 @@
 {% block content %}
 {% load static %}
 
-<!-- Your existing styles -->
+<style>
+    * {
+
+        font-family: "Gill Sans", sans-serif;
+        color: white;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    input[type="number"],
+    input[type="email"],
+    input[type="file"],
+    .gen-info textarea,
+    .gen-info select,
+    .data select,
+    .data option,
+    .gen-info option {
+        color: rgb(7, 7, 7);
+        border: 1px solid rgb(0, 0, 0);
+    }
+
+    .gen-info .left {
+        padding-right: 2rem;
+    }
+
+
+    .action-button {
+        display: flex;
+        align-items: center;
+        /* justify-content: center; */
+    }
+
+    .action-button button {
+        width: 8vw;
+        font-size: 1.2vw;
+        margin: 0.5rem .3rem;
+    }
+
+    label {
+        font-size: 1.2vw;
+    }
+
+    .containerprof {
+
+        position: relative;
+
+    }
+
+    .input-container {
+        position: relative;
+        margin: 0 auto;
+        text-align: center;
+    }
+</style>
 
 <section>
     <div class="containerprof p-5">
@@ -10,190 +63,193 @@
             <h3>EDIT LOAN</h3>
             <hr>
         </div>
-        <form method="POST" action="{% url 'edit_loan' loan.id %}" id="myForm" onsubmit="return handleFormSubmission()">
+        <form method="POST" action="{% url 'edit_loan' loan.id %}">
             {% csrf_token %}
             <div class="row">
-                <div class="data col-6 col-lg-6 col-md-6 col-sm-12">
-                    <!-- Include Employee Details -->
-                    <div class="row pb-3">
-                        <div class="col-6">
-                            <label for="">Select Employee</label>
-                        </div>
-                        <div class="col-6">
-                            <select class="form-control text-dark" name="employee" id="employee" onchange="fillEmployeeDetails()">
-                                <option value="">Select an employee</option>
-                                {% for payroll in payrolls %}
-                                    <option value="{{ payroll.id }}"
-                                        data-email="{{ payroll.email }}"
-                                        data-emp-number="{{ payroll.emp_number }}"
-                                        data-salary="{{ payroll.salary }}"
-                                        data-joindate="{{ payroll.joindate|date:'Y-m-d' }}"
-                                        {% if payroll.id == loan.payroll.id %}selected{% endif %}>
-                                        {{ payroll.employee_name }}
-                                    </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <!-- Other fields populated by JavaScript -->
-                    <div class="row pb-3">
-                        <div class="col-6">
-                            <label for="">Email</label>
-                        </div>
-                        <div class="input-container col-6">
-                            <input type="email" class="form-control text-dark" name="email" id="email" readonly>
-                        </div>
-                    </div>
-                    <div class="row pb-3">
-                        <div class="col-6">
-                            <label for="">Employee ID</label>
-                        </div>
-                        <div class="input-container col-6">
-                            <input type="text" class="form-control text-dark" name="emp_id" id="emp_id" readonly>
-                        </div>
-                    </div>
-                    <div class="row pb-3">
-                        <div class="col-6">
-                            <label for="">Salary</label>
-                        </div>
-                        <div class="input-container col-6">
-                            <input type="number" class="form-control text-dark" name="salary" id="salary" readonly>
-                        </div>
-                    </div>
-                    <div class="row pb-3">
-                        <div class="col-6">
-                            <label for="">Joining Date</label>
-                        </div>
-                        <div class="input-container col-6">
-                            <input type="date" class="form-control text-dark" name="joindate" id="joindate" readonly>
-                        </div>
-                    </div>
-                    <!-- Include all other employee details here -->
-                </div>
-                <div class="image col-6 col-lg-6 col-md-6 col-sm-12">
-                    <!-- ... (Upload Image) ... -->
-                </div>
-            </div>
-            <div class="gen-info row pt-5">
-                <div class="left col-6 col-lg-6 col-md-6 col-sm-12">
-                    <!-- ... (General information fields) ... -->
-                </div>
-                <div class="col-6 col-lg-6 col-md-6 col-sm-12 pt-3">
-                    <!-- ... (Bank details, TDS, Statutory information fields) ... -->
-                </div>
-            </div>
-            <hr>
-            <!-- Include Loan Details -->
-            <div class="row pb-3">
+                <!-- Employee selection -->
                 <div class="col-6">
-                    <label for="">Date of Loan Issue</label>
-                </div>
-                <div class="col-6">
-                    <input type="date" class="form-control text-dark" name="loan_issue_date" id="loan_issue_date" value="{{ loan.date_issue }}" required>
-                </div>
-            </div>
-            <div class="row pb-3">
-                <div class="col-6">
-                    <label for="">Expiry Date</label>
-                </div>
-                <div class="col-6">
-                    <input type="date" class="form-control text-dark" name="loan_expiry_date" id="loan_expiry_date" value="{{ loan.date_expiry }}" required>
-                </div>
-            </div>
-            <div class="row pb-3">
-                <div class="col-6">
-                    <label for="">Loan Amount</label>
-                </div>
-                <div class="col-6">
-                    <input type="number" class="form-control text-dark" name="loan_amount" id="loan_amount" value="{{ loan.loan_amount }}" required>
-                </div>
-            </div>
-            <!-- Include all other loan details here -->
-            
-            <!-- Payment Method and Additional Fields -->
-            <div class="row pb-3">
-                <div class="col-6 d-flex align-items-center">
-                    <label for="payment_method" class="mr-2 mb-0" style="width: 150px;">Payment Method</label>
-                    <select class="form-control text-dark" name="payment_method" id="payment_method" required onchange="showAdditionalFields()">
-                        <option value="">Select</option>
-                        <option value="percentage_wise" {% if loan.payment_method == 'percentage_wise' %}selected{% endif %}>Percentage Wise</option>
-                        <option value="amount_wise" {% if loan.payment_method == 'amount_wise' %}selected{% endif %}>Amount Wise</option>
+                    <label for="employee">Select Employee</label>
+                    <select class="form-control" name="employee" id="employee" onchange="fillEmployeeDetails()">
+                        <option value="">Select an employee</option>
+                        {% for payroll in payrolls %}
+                        <option value="{{ payroll.id }}"
+                            data-email="{{ payroll.email }}"
+                            data-emp-number="{{ payroll.emp_number }}"
+                            data-salary="{{ payroll.salary }}"
+                            data-joindate="{{ payroll.joindate|date:'Y-m-d' }}"
+                            {% if payroll.id == loan.payroll.id %}selected{% endif %}>
+                            {{ payroll.employee_name }}
+                        </option>
+                        {% endfor %}
                     </select>
                 </div>
-            </div>
-            <div class="row pb-3" id="percentageWiseFields" style="{% if loan.payment_method != 'percentage_wise' %}display: none;{% endif %}">
-                <div class="col-6 d-flex align-items-center">
-                    <label for="percentage" class="mr-2 mb-0" style="width: 150px;">Percentage</label>
-                    <input type="number" class="form-control text-dark" name="percentage" id="percentage" step="0.01" min="0" max="100" oninput="updateMonthlyCuttingAmount()" value="{{ loan.percentage }}">
+                
+                <!-- Employee information -->
+                <div class="col-6">
+                    <label for="email">Email</label>
+                    <input type="email" class="form-control" name="email" id="email" readonly>
                 </div>
-            </div>
-            <div class="row pb-3" id="percentageWiseMonthlyFields" style="{% if loan.payment_method != 'percentage_wise' %}display: none;{% endif %}">
-                <div class="col-6 d-flex align-items-center">
-                    <label for="monthly_cutting_amount" class="mr-2 mb-0" style="width: 150px;">Monthly Cutting Amount</label>
-                    <input type="number" class="form-control text-dark" name="monthly_cutting_amount" id="monthly_cutting_amount" step="0.01" min="0" max="{{ loan.salary }}"  oninput="validateCuttingAmount()" value="{{ loan.monthly_cutting_amount }}" required>
+                <div class="col-6">
+                    <label for="emp_id">Employee ID</label>
+                    <input type="text" class="form-control" name="emp_id" id="emp_id" readonly>
                 </div>
-            </div>
-            <div class="row pb-3" id="amountWiseFields" style="{% if loan.payment_method != 'amount_wise' %}display: none;{% endif %}">
-                <div class="col-6 d-flex align-items-center">
-                    <label for="monthly_cutting_amount" class="mr-2 mb-0" style="width: 150px;">Monthly Cutting Amount</label>
-                    <input type="number" class="form-control text-dark" name="monthly_cutting_amount" id="monthly_cutting_amount" step="0.01" min="0" value="{{ loan.monthly_cutting_amount }}" required>
-                    <div id="error-message" style="color: red;"></div> <!-- Error message for cutting amount validation -->
+                <div class="col-6">
+                    <label for="salary">Salary</label>
+                    <input type="number" class="form-control" name="salary" id="salary" readonly>
                 </div>
-            </div>
-            
-            <!-- Action buttons -->
-            <div class="action-button">
-                <button class="btn btn-primary" type="submit">Update Loan</button>
-                <a class="btn btn-danger" href="{% url 'employee_loan_details' loan.payroll.id %}">Cancel</a>
-            </div>
-            <div class="text-center">
-                <!-- ... (Message alerts) ... -->
+                <div class="col-6">
+                    <label for="joindate">Joining Date</label>
+                    <input type="date" class="form-control" name="joindate" id="joindate" readonly>
+                </div>
+                
+                <!-- Loan information -->
+                <div class="col-6">
+                    <label for="loan_issue_date">Date of Loan Issue</label>
+                    <input type="date" class="form-control" name="loan_issue_date" id="loan_issue_date" value="{{ loan.date_issue }}" required>
+                </div>
+                <div class="col-6">
+                    <label for="loan_expiry_date">Expiry Date</label>
+                    <input type="date" class="form-control" name="loan_expiry_date" id="loan_expiry_date" value="{{ loan.date_expiry }}" required>
+                </div>
+                <div class="col-6">
+                    <label for="loan_amount">Loan Amount</label>
+                    <input type="number" class="form-control" name="loan_amount" id="loan_amount" value="{{ loan.loan_amount }}" required>
+                </div>
+                <div class="col-6">
+                    <label for="payment_method">Payment Method</label>
+                    <select class="form-control" name="payment_method" id="payment_method" required onchange="showAdditionalFields()">
+                        <option value="">Select</option>
+                        <option value="percentage_wise" {% if loan.monthly_cutting_type == 'percentage_wise' %}selected{% endif %}>Percentage Wise</option>
+                        <option value="amount_wise" {% if loan.monthly_cutting_type == 'amount_wise' %}selected{% endif %}>Amount Wise</option>
+                    </select>
+                </div>
+                
+                <!-- Additional fields based on payment method -->
+                <div class="col-6" id="percentageWiseFields">
+                    <label for="percentage">Percentage</label>
+                    <input type="number" class="form-control" name="percentage" id="percentage" step="0.01" min="0" max="100" oninput="updateMonthlyCuttingAmount()">
+                </div>
+                <div class="col-6" id="percentageWiseMonthlyFields">
+                    <label for="monthly_cutting_amount">Monthly Cutting Amount</label>
+                    <input type="number" class="form-control" name="monthly_cutting_amount" id="monthly_cutting_amount" step="0.01" min="0">
+                </div>
+                
+                <!-- Display error message -->
+                <div class="col-12">
+                    <div id="error-message" style="color: red;"></div>
+                </div>
+                
+                <!-- Action buttons -->
+                <div class="col-12 mt-4">
+                    <div class="action-button">
+                        <button class="btn btn-primary" type="submit">Update</button>
+                        <a href="{% url 'employee_list' %}" class="btn btn-danger">Cancel</a>
+                    </div>
+                </div>
             </div>
         </form>
     </div>
 </section>
 
+
+
+                   
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                    <script>
+                        function fillEmployeeDetails() {
+                            var selectedOption = document.getElementById("employee").selectedOptions[0];
+                            
+                            var email = selectedOption.getAttribute("data-email");
+                            var empNumber = selectedOption.getAttribute("data-emp-number");
+                            var salary = selectedOption.getAttribute("data-salary");
+                            var joinDate = selectedOption.getAttribute("data-joindate");
+                            
+                            document.getElementById("email").value = email;
+                            document.getElementById("emp_id").value = empNumber;
+                            document.getElementById("salary").value = salary;
+                            document.getElementById("joindate").value = joinDate;
+                        }
+
+
+
+                        function showAdditionalFields() {
+                            var paymentMethod = document.getElementById('payment_method').value;
+                            var percentageWiseFields = document.getElementById('percentageWiseFields');
+                            var amountWiseFields = document.getElementById('amountWiseFields');
+                        
+                            if (paymentMethod === 'percentage_wise') {
+                                percentageWiseFields.style.display = 'block';
+                                amountWiseFields.style.display = 'none';
+                            } else if (paymentMethod === 'amount_wise') {
+                                percentageWiseFields.style.display = 'none';
+                                amountWiseFields.style.display = 'block';
+                            } else {
+                                percentageWiseFields.style.display = 'none';
+                                amountWiseFields.style.display = 'none';
+                            }
+                        }
+                       
+                    
+                    
+                    
+                    
+                    </script>
+                    
+                    
+                
 
 <script>
-    function fillEmployeeDetails() {
-        var selectedOption = document.getElementById("employee").selectedOptions[0];
+    // Function to handle form submission and validation
+    function handleFormSubmission() {
+        // Get the selected payment method
+        var paymentMethod = document.getElementById('payment_method').value;
         
-        var email = selectedOption.getAttribute("data-email");
-        var empNumber = selectedOption.getAttribute("data-emp-number");
-        var salary = selectedOption.getAttribute("data-salary");
-        var joinDate = selectedOption.getAttribute("data-joindate");
+        // Validate the form based on the selected payment method
+        if (paymentMethod === 'percentage_wise') {
+            // Validate percentage and monthly cutting amount
+            var percentage = parseFloat(document.getElementById('percentage').value);
+            var salary = parseFloat(document.getElementById('salary').value);
+            var monthlyCuttingAmount = parseFloat(document.getElementById('monthly_cutting_amount').value);
+            
+            if (isNaN(percentage) || isNaN(salary) || isNaN(monthlyCuttingAmount) || percentage < 0 || percentage > 100 || monthlyCuttingAmount < 0 || monthlyCuttingAmount > salary) {
+                document.getElementById('error-message').innerText = "Invalid percentage or monthly cutting amount.";
+                return false; // Prevent form submission
+            } else {
+                document.getElementById('error-message').innerText = ""; // Clear error message
+                return true; // Allow form submission
+            }
+        } else if (paymentMethod === 'amount_wise') {
+            // Validate monthly cutting amount
+            var monthlyCuttingAmount = parseFloat(document.getElementById('monthly_cutting_amount').value);
+            var salary = parseFloat(document.getElementById('salary').value);
+            
+            if (isNaN(monthlyCuttingAmount) || monthlyCuttingAmount < 0 || monthlyCuttingAmount > salary) {
+                document.getElementById('error-message').innerText = "Invalid monthly cutting amount.";
+                return false; // Prevent form submission
+            } else {
+                document.getElementById('error-message').innerText = ""; // Clear error message
+                return true; // Allow form submission
+            }
+        }
         
-        document.getElementById("email").value = email;
-        document.getElementById("emp_id").value = empNumber;
-        document.getElementById("salary").value = salary;
-        document.getElementById("joindate").value = joinDate;
+        return true; // Allow form submission for other cases
     }
 
-    function showAdditionalFields() {
-        var paymentMethod = document.getElementById("payment_method").value;
-        var percentageWiseFields = document.getElementById("percentageWiseFields");
-        var percentageWiseMonthlyFields = document.getElementById("percentageWiseMonthlyFields");
-        var amountWiseFields = document.getElementById("amountWiseFields");
-
-        if (paymentMethod === "percentage_wise") {
-            percentageWiseFields.style.display = "block";
-            percentageWiseMonthlyFields.style.display = "block";
-            amountWiseFields.style.display = "none";
-        } else if (paymentMethod === "amount_wise") {
-            amountWiseFields.style.display = "block";
-            percentageWiseFields.style.display = "none";
-            percentageWiseMonthlyFields.style.display = "none";
+    // Function to update the monthly cutting amount when percentage changes
+    function updateMonthlyCuttingAmount() {
+        var percentage = parseFloat(document.getElementById('percentage').value);
+        var salary = parseFloat(document.getElementById('salary').value);
+        
+        if (!isNaN(percentage) && !isNaN(salary)) {
+            var monthlyCuttingAmount = (percentage / 100) * salary;
+            document.getElementById('monthly_cutting_amount').value = monthlyCuttingAmount.toFixed(2);
         } else {
-            percentageWiseFields.style.display = "none";
-            percentageWiseMonthlyFields.style.display = "none";
-            amountWiseFields.style.display = "none";
+            document.getElementById('monthly_cutting_amount').value = '';
         }
     }
-
-    // Rest of your JavaScript functions here...
-
 </script>
+    
+        
+     
 
 {% endblock %}

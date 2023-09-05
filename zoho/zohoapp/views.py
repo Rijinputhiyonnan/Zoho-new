@@ -9666,15 +9666,11 @@ def cust_Attach_files(request,id):
 from django.shortcuts import render, redirect
 from .models import Payroll, Loan
 from django.shortcuts import render, redirect
-from .models import Payroll, Loan
-from .forms import LoanForm
-
-
-from django.shortcuts import render, redirect, get_object_or_404
-from .models import Payroll, Loan
-from django.core.validators import MinValueValidator
+from .models import Loan, Payroll
 
 def create_loan(request):
+    error_message = None
+
     if request.method == 'POST':
         print("Received a POST request")
         # Process form submission
@@ -9684,18 +9680,20 @@ def create_loan(request):
         loan_amount = request.POST.get('loan_amount')
         cutting_type = request.POST.get('payment_method')
 
-        # Check the cutting type and retrieve the appropriate cutting value
-        if cutting_type == 'percentage_wise':
-            cutting_percentage = request.POST.get('percentage')
-            cutting_amount = None  # Initialize as None
-        else:
-            cutting_amount = request.POST.get('monthly_cutting_amount')
-            cutting_percentage = None  # Initialize as None
-
-        # Fetch the payroll object based on the selected employee
-        payroll = Payroll.objects.get(id=employee_id)
-
         try:
+            if cutting_type == 'percentage_wise':
+                cutting_percentage = request.POST.get('percentage')
+                # Fetch the payroll object based on the selected employee
+                payroll = Payroll.objects.get(id=employee_id)
+                # Calculate monthly cutting amount as a percentage of salary
+                cutting_amount = (float(cutting_percentage) / 100) * float(payroll.salary)
+            else:
+                cutting_amount = request.POST.get('monthly_cutting_amount')
+                cutting_percentage = None  # Initialize as None
+
+            # Fetch the payroll object based on the selected employee
+            payroll = Payroll.objects.get(id=employee_id)
+
             loan = Loan(
                 payroll=payroll,
                 date_issue=issue_date,
@@ -9723,14 +9721,13 @@ def create_loan(request):
             # Handle validation errors (e.g., percentage > 100%, amount >= salary)
             error_message = str(e)
 
-    # For GET requests or when form is not submitted, retrieve a list of all payrolls
+    # For GET requests or when the form is not submitted, retrieve a list of all payrolls
     payrolls = Payroll.objects.all()
     context = {
         'payrolls': payrolls,
-        'error_message': error_message if 'error_message' in locals() else None,  # Pass error message to the template
+        'error_message': error_message,
     }
     return render(request, 'app/create_loan.html', context)
-
 
 
 
@@ -9767,42 +9764,29 @@ def delete_loan(request, loan_id):
 
 
 
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import Loan
+from .forms import EditLoanForm  # Import the edit loan form
 
 def edit_loan(request, loan_id):
-    # Get the Loan instance with the given loan_id or show a 404 error page if not found
+    # Retrieve the loan to be edited based on its ID
     loan = get_object_or_404(Loan, id=loan_id)
-    
+
     if request.method == 'POST':
-        # Process the form submission if the request method is POST
-        
-        # Get the updated data from the form
-        loan_issue_date = request.POST.get('loan_issue_date')
-        loan_expiry_date = request.POST.get('loan_expiry_date')
-        loan_amount = request.POST.get('loan_amount')
-        monthly_cutting_type = request.POST.get('monthly_cutting_type')
-        monthly_cutting_value = request.POST.get('monthly_cutting_value')
-        # Get other form fields similarly
-        
-        # Update the loan instance with the new data
-        loan.date_issue = loan_issue_date
-        loan.date_expiry = loan_expiry_date
-        loan.loan_amount = loan_amount
-        loan.monthly_cutting_type = monthly_cutting_type
-        loan.monthly_cutting_value = monthly_cutting_value
-        # Update other loan fields in a similar manner
-        
-        # Save the updated loan instance to the database
-        loan.save()
-        
-        # Redirect to a success page or list view
-        return redirect('employee_list')
-    
-    # If the request method is not POST, render the edit loan page with the loan data
+        # Process form submission
+        form = EditLoanForm(request.POST, instance=loan)  # Bind the loan object to the form
+        if form.is_valid():
+            form.save()  # Update the loan object in the database
+            return redirect('employee_list')  # Redirect to the employee list page after successful update
+    else:
+        # Display the edit loan form with the loan data
+        form = EditLoanForm(instance=loan)
+
     context = {
+        'form': form,
         'loan': loan,
     }
+
     return render(request, 'app/edit_loan.html', context)
 
 
@@ -9813,10 +9797,13 @@ from .models import Payroll, Loan
 def employee_loan_details(request, payroll_id):
     payroll = get_object_or_404(Payroll, id=payroll_id)
     loans = Loan.objects.filter(payroll=payroll)
+    l=Loan.objects.all()
 
     context = {
         'p': payroll,
+     
         'loans': loans,
+        'l' : l,
     }
     for loan in loans:
         print(f"Loan ID: {loan.id}")
@@ -9824,15 +9811,44 @@ def employee_loan_details(request, payroll_id):
     return render(request, 'app/employee_loan_details.html', context)
 
 
+
 from django.shortcuts import render, get_object_or_404
-from .models import Loan  # Import your Loan model
+from .models import Loan
 
 def edit_loan(request, loan_id):
-    # Retrieve the loan object using the loan_id
     loan = get_object_or_404(Loan, id=loan_id)
-
-    # Pass the loan object to the template
-    context = {'loan': loan}
+    
+    context = {
+        'loan': loan,
+    }
     
     return render(request, 'app/edit_loan.html', context)
 
+
+from django.shortcuts import get_object_or_404, redirect
+
+from .models import Loan
+
+def activate_loan(request, loan_id):
+    loan = get_object_or_404(Loan, id=loan_id)
+    loan.is_active = True
+    loan.save()
+    # Optionally, you can add a success message using Django's messages framework.
+    # messages.success(request, 'Loan has been activated.')
+    return redirect('employee_loan_details', payroll_id=loan.payroll.id)
+
+def deactivate_loan(request, loan_id):
+    loan = get_object_or_404(Loan, id=loan_id)
+    loan.is_active = False
+    loan.save()
+    # Optionally, you can add a success message using Django's messages framework.
+    # messages.success(request, 'Loan has been deactivated.')
+    return redirect('employee_loan_details', payroll_id=loan.payroll.id)
+from django.http import JsonResponse
+
+def toggle_loan_active(request, loan_id):
+    loan = Loan.objects.get(pk=loan_id)
+    loan.active = not loan.active  # Toggle the active status
+    loan.save()
+    
+    return JsonResponse({'active': loan.active})

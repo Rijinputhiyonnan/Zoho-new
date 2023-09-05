@@ -136,13 +136,13 @@
             <hr>
             <table class="table table-borderless" id="mytable">
                 <tr></tr>
-                {% for loan in loans %}
-                <tr class='clickable-row' data-href="{% url 'employee_loan_details' loan.payroll_id %}">
+                {% for l in l %}
+                <tr class='clickable-row' data-href="{% url 'employee_loan_details' l.payroll_id %}">
                     <td class="pt-2">
-                        <p class="bold">{{ loan.payroll.first_name }} {{ loan.payroll.last_name }}</p>
-                        <p>{{ loan.date_issue }}</p>
+                        <p class="bold">{{ l.payroll.first_name }} {{ l.payroll.last_name }}</p>
+                        <p>{{ l.date_issue }}</p>
                     </td>
-                    <td class="pt-2">{{ loan.loan_amount }}</td>
+                    <td class="pt-2">{{ l.loan_amount }}</td>
                 </tr>
                 {% endfor %}
             </table>
@@ -178,7 +178,7 @@
                                     var opt =
                                     {
                                         margin: 1,
-                                        filename: 'employee' + '.pdf',
+                                        filename: 'employee loan' + '.pdf',
                                         image: { type: 'jpeg', quality: 0.98 },
                                         html2canvas: { scale: 2 },
                                         jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
@@ -221,7 +221,14 @@
                             <i class="fas fa-paperclip"></i>
                         </label>
                         <input id="file-input" type="file" name="file" style="display:none;" onchange="uploadFile()">
-                        <a class="btn ml-1" href="{% url 'payroll_active' p.id %}" id="sts">{{p.status}}</a>
+                        <button class="btn btn-primary" onclick="toggleLoanActiveStatus({{ loan.id }})" id="active-button">
+                            {% if loan.active %}
+                                Deactivate
+                            {% else %}
+                                Activate
+                            {% endif %}
+                        </button>
+                        
                     </div>
                 </div>
                 <hr>
@@ -333,23 +340,26 @@
                             <div class="row mt-2">
                                 <div class="col-5"><label for="">Monthly Cutting Type:</label></div>
                                 <div class="col-7">
-                                    {% if loan.monthly_cutting_type == 'amount' %}
+                                    {% if loan.monthly_cutting_type == 'amount_wis' %}
                                         <p class="bold">Amount Wise</p>
-                                        <div class="row mt-2">
+
+                             </div>       
+                                        
                                             <div class="col-5"><label for="">Monthly Cutting Amount:</label></div>
                                             <div class="col-7">
-                                                <p class="bold">{{ loan.monthly_cutting_value }} ₹</p>
+                                                <p class="bold">{{ loan.monthly_cutting_amount }} ₹</p>
                                             </div>
                                         </div>
-                                    {% elif loan.monthly_cutting_type == '%' %}
+                                    {% elif loan.monthly_cutting_type == 'percentage' %}
                                         <p class="bold">Percentage Wise</p>
+                                    </div>
                                         <div class="row mt-2">
                                             <div class="col-5"><label for="">Percentage:</label></div>
                                             <div class="col-7">
-                                                <p class="bold">{{ loan.monthly_cutting_value }}%</p>
+                                                <p class="bold">{{ loan.monthly_cutting_percentage }}%</p>
                                             </div>
                                         </div>
-                                        <div class="row mt-2">
+                                        
                                             <div class="col-5"><label for="">Monthly Cutting Amount:</label></div>
                                             <div class="col-7">
                                                 <p class="bold">{{ loan.monthly_cutting_amount }} ₹</p>
@@ -365,75 +375,7 @@
                             {% endfor %}
                             <!-- Add more fields as needed -->
                             
-                            <div class="card-title h4 mt-4">Statutary Information
-                                <hr>
-                            </div>
-                            <div class="row mt-2">
-                                <div class="col-5"><label for="">Income Tax Number :</label></div>
-                                <div class="col-7">
-                                    <p class="bold">{{p.ITN}}</p>
-                                </div>
-                            </div>
-                            <div class="row mt-2">
-                                <div class="col-5"><label for="">Aadhar Number :</label></div>
-                                <div class="col-7">
-                                    <p class="bold">{{p.Aadhar}}</p>
-                                </div>
-                            </div>
-                            <div class="row mt-2">
-                                <div class="col-5"><label for="">Universal Account Number(UAN) :</label></div>
-                                <div class="col-7">
-                                    <p class="bold">{{p.UAN}}</p>
-                                </div>
-                            </div>
-                            <div class="row mt-2">
-                                <div class="col-5"><label for="">PR Account Number(PRAN) :</label></div>
-                                <div class="col-7">
-                                    <p class="bold">{{p.PRAN}}</p>
-                                </div>
-                            </div>
-                            <div class="row mt-2">
-                                <div class="col-5"><label for="">PF Account Number(PFN) :</label></div>
-                                <div class="col-7">
-                                    <p class="bold">{{p.PFN}}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% for bank in b %}
-                    <div class="row m-1">
-                        <div class="card bank-div" style="background-color: rgb(78, 72, 53);width: 100%;">
-                            <h4 class="text-center mt-4">Bank Details
-                                <hr>
-                            </h4>
-                            <div class="row mt-2 px-5">
-                                <div class="col-6"><label for="">Account Number</label></div>
-                                <div class="col-6">
-                                    <p class="bold">{{bank.acc_no}}</p>
-                                </div>
-                            </div>
-                            <div class="row mt-2 px-5">
-                                <div class="col-6"><label for="">Bank</label></div>
-                                <div class="col-6">
-                                    <p class="bold">{{bank.bank_name}}</p>
-                                </div>
-                            </div>
-                            <div class="row mt-2 px-5">
-                                <div class="col-6"><label for="">IFSC</label></div>
-                                <div class="col-6">
-                                    <p class="bold">{{bank.IFSC}}</p>
-                                </div>
-                            </div>
-                            <div class="row mt-2 px-5">
-                                <div class="col-6"><label for="">Branch Name</label></div>
-                                <div class="col-6">
-                                    <p class="bold">{{bank.branch}}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
+                            
                 <!-- </div> -->
             </div>
         </div>
@@ -640,6 +582,35 @@
         sortAscending = !sortAscending;
     }
 
+
+
+
+
+    function toggleLoanActiveStatus(loanId) {
+        // Send an AJAX request to toggle the active status
+        $.ajax({
+            url: `/toggle_loan_active/${loanId}/`,
+            method: 'POST',
+            dataType: 'json',
+            success: function (data) {
+                // Update the button text and style based on the response
+                const activeButton = document.getElementById('active-button');
+                if (data.active) {
+                    activeButton.textContent = 'Deactivate';
+                    activeButton.classList.remove('btn-success');
+                    activeButton.classList.add('btn-danger');
+                } else {
+                    activeButton.textContent = 'Activate';
+                    activeButton.classList.remove('btn-danger');
+                    activeButton.classList.add('btn-success');
+                }
+            },
+            error: function (error) {
+                console.error('Error:', error);
+            }
+        });
+    }
+    
 </script>
 <!-- <script>
     function generatePDF() {

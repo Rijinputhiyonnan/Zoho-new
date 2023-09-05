@@ -43,3 +43,8 @@ class LoanForm(forms.ModelForm):
         fields = '__all__'
 
 
+
+class EditLoanForm(forms.ModelForm):
+    class Meta:
+        model = Loan
+        fields = ['date_issue', 'date_expiry', 'loan_amount', 'monthly_cutting_type', 'monthly_cutting_percentage', 'monthly_cutting_amount']
