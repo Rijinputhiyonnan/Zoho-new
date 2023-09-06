@@ -156,8 +156,14 @@
 
                 <div class="bar pt-3">
                     <div class="left">
-                        <a class="btn mx-1" href="#home">Overview</a>
+                        
+                        <a class="btn mx-1 fa fa-file-word" href="{% url 'employee_loan_template' payroll_id=loan.payroll.id %}">Template</a>
+
+
+                    
+                        <a class="btn mx-1, fa fa-eye"  href="#home">Overview</a>
                     </div>
+                    {% endfor %}
                     <div class="right">
                         {% for loan in loans %}
                         <a class="btn ml-1" href="{% url 'edit_loan' loan_id=loan.id %}" data-toggle="tooltip" title="Edit"><i

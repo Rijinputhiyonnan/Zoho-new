@@ -471,8 +471,10 @@ urlpatterns = [
     path('loan/deactivate/<int:loan_id>/', views.deactivate_loan, name='deactivate_loan'),
     path('toggle_loan_active/<int:loan_id>/', views.toggle_loan_active, name='toggle_loan_active'),
 
+path('employee_loan_template/<int:payroll_id>/', views.employee_loan_template, name='employee_loan_template'),
 
-    
+
+
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
