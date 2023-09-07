@@ -282,18 +282,10 @@
                         <div class="col-md-2 mt-2 mx-1">
                             <a class="btn text-center btn-primary bi bi-funnel px-3 py-1" data-bs-toggle="dropdown"
                                 role="button"></a>
-                            <div class="dropdown-menu " style="z-index: 1;">
-                                 <a class="dropdown-item" href="{% url 'view_custasc' recur_bill.id  %}">Customer A-Z</a>
-                                <a class="dropdown-item" href="{% url 'view_custdesc' recur_bill.id %}">Customer Z-A</a>
-                                <a class="dropdown-item" href="{% url 'view_vendorasc' recur_bill.id %}">Vendor A-Z</a>
-                                <a class="dropdown-item" href="{% url 'view_vendordesc' recur_bill.id %}">Vendor Z-A</a>
-                                <a class="dropdown-item" href="{% url 'view_profileasc' recur_bill.id %}">Profile A-Z</a>
-                                <a class="dropdown-item" href="{% url 'view_profiledesc' recur_bill.id %}">Profile Z-A</a>
-
-                            </div>
+                          
                         </div>
                         <div class="col-md-2 mr-4 mt-2">
-                            <a href="{% url 'add_recurring_bills' %}" class="btn btn-primary fa fa-plus px-3 pt-1"
+                            <a href="{% url 'create_loan' %}" class="btn btn-primary fa fa-plus px-3 pt-1"
                                 role="button">
                             </a>
                         </div>
@@ -303,23 +295,48 @@
                 <div class="border-bottom"></div>
 
                 <div class="row mt-5 bills">
-                    {% for b in recur_bills %}
-                        <a href="{% url 'view_recurring_bills' b.id %}" class="my-3">
-                            
-                            <div class="row mt-3">
-                                <div class="col-md-7">
-                                    <label style="color: azure; font-size: 18px;" class="mx-3 text-capitalize text-center pname">{{b.profile_name}} </label><br>
-                                        <!-- <label style="color: rgb(129, 126, 126); font-size: 15px;" class="mx-3 px-2"># RB- {{ b.id }} </label> -->
-                                        <label style="color: rgb(129, 126, 126); font-size: 15px; "class="mx-2 px-2"> {{ b.start_date }} </label>
-                                </div>
-                                <!-- <div class="col-md-1"></div> -->
-                                <div class="col-md-5 mt-3">
-                                    <label style="color: rgb(129, 126, 126); font-size: 15px;">₹ {{ b.grand_total|floatformat:2 }} </label>
-                                </div>
-                            </div>
+                    {% for l in l %}
+                <tr class='clickable-row' data-href="{% url 'employee_loan_template' l.payroll_id %}">
+                    <td class="pt-2">
+                        <p class="bold">{{ l.payroll.first_name }} {{ l.payroll.last_name }}</p>
+                        <p>{{ l.date_issue }}</p>
+                    </td>
+                    <td class="pt-2">{{ l.loan_amount }}</td>
+                </tr>
+                {% endfor %}
+                <script>
 
-                        </a> 
-                    {% endfor %}
+                    jQuery(document).ready(function ($) {
+                        $(".clickable-row").click(function () {
+                            window.location = $(this).data("href");
+                        });
+                    });
+                
+                    function searchFunction() {
+                        var input, filter, table, tr, td, i, txtValue;
+                        input = document.getElementById("search");
+                        filter = input.value.toLowerCase();
+                        table = document.getElementById("mytable");
+                        tr = table.getElementsByTagName("tr");
+                        // input.style.borderColor = "green";
+                        for (i = 0; i < tr.length; i++) {
+                            let rowVisible = false;
+                            td = tr[i].getElementsByTagName("td");
+                            for (j = 0; j < td.length; j++) {
+                                if (td[j]) {
+                                    txtValue = td[j].textContent || td[j].innerText;
+                                    if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                                        rowVisible = true;
+                                        break;
+                                    }
+                                }
+                            }
+                
+                            // Show/hide the row based on the search results
+                            tr[i].style.display = rowVisible ? "" : "none";
+                        }
+                    }
+                </script>
                 </div>
             </div>
         </div>
@@ -335,13 +352,13 @@
                     <div class="m-0">
                         <a href="" class=" far fa-comment-alt btns px-2 py-2" title="COMMENTS"
                             data-toggle="modal" data-target="#cmnts"> </a>
-                    </div>
-
-                    <div class="mx-4">
-                        <a href="{% url 'edit_recurring_bills' recur_bill.id %}" class=" fa fa-pencil btns px-2 py-2"
-                              data-toggle="tooltip" title="EDIT"> </a>
-                        <a href="{% url 'delete_recurring_bills' recur_bill.id %} " class="delete fa fa-trash btns px-2 py-2"
-                         data-toggle="tooltip" title="DELETE" onclick="return confirm('Do you want to Delete this Recurring Bill?');"> </a>
+                    
+                        {% for loan in loans %}
+                        <a href="{% url 'edit_loan' loan_id=loan.id %}" class=" fa fa-pencil btns px-2 py-2"
+                        data-toggle="tooltip" title="EDIT"> </a>
+                  <a href="{% url 'delete_loan' loan.id  %} " class="delete fa fa-trash btns px-2 py-2"
+                   data-toggle="tooltip" title="DELETE" onclick="return confirm('Do you want to Delete this Employee loan details?');"> </a>
+                   {% endfor %}
                     </div>
 
                     <div class="mx-1">
@@ -379,7 +396,7 @@
                 <div class="tab">
                     <a class="tablinks mx-2 btns px-2 py-2" onclick="openTab(event, 'Template')" role="button"><i
                             class="fa fa-file-word "></i> Template</a>
-                    <a class="tablinks  btns px-2 py-2" onclick="openTab(event, 'Overview')" role="button"><i class="fa fa-eye"></i>
+                    <a class="tablinks  btns px-2 py-2" href="{% url 'employee_loan_details' payroll_id=p.id %}"role="button"><i class="fa fa-eye"></i>
                         Overview</a>
                 </div>
             </div>
@@ -390,7 +407,7 @@
                 <div class="row pt-0 m-0 text-center">
                     <div class="col-4 "></div>
                     <div class="col-4 ">
-                        <h4 class="text-uppercase text-dark" >recurring bills</h4>
+                        <h4 class="text-uppercase text-dark" >Employee Loan Details</h4>
                     </div>
                     <div class="col-4 "></div>
                 </div>
@@ -410,16 +427,23 @@
                         <section class="d-flex justify-content-between">
                             <div class="top-right">
                                 <div class="graphic-path text-center">
-                                    <h5 class="text-capitalize"  >{{recur_bill.profile_name}}</h5>
-                                    <p class="text-capitalize" id="pid" hidden>{{recur_bill.id}}</p>
+                                    
+                                    
+                                    
+                                    <h5 class="text-capitalize"  >{{p.first_name}} {{p.last_name}}</h5>
+                                    
 
                                 </div>
                                 <div class="position-relative">
-                                    <p>Bill Date : &nbsp <span style="color: black;">{{recur_bill.start_date|date:'d-m-Y'}}</span></p>
-                                    <p>Due Date : &nbsp <span style="color: black;">{{recur_bill.end_date|date:'d-m-Y'}}</span></p>
-                                    <p>Term : &nbsp <span style="color: black;">NET {{recur_bill.payment_terms}}</span></p> 
+                                    
+                                    <p>Designation : &nbsp <span style="color: black;">{{p.designation}}</span></p>
+                                    <p>Employee ID : <span style="color: black;">{{p.emp_number}}</span></p>
+                                    
+                                    <p>Email : &nbsp <span style="color: black;">{{p.email}}</span></p> 
+                                    <p>Phone : &nbsp <span style="color: black;">{{p.Phone}}</span></p> 
                                 </div>
                             </div>
+                           
                         </section>
 
                     </div>
@@ -428,38 +452,7 @@
 
                 <section class="store-user mt-2">
                     <div class="col-12">
-                        <div class="row pb-3">
-
-                            <div class="col-1 "></div>
-                            <div class="col-5">
-                                <p style=" font-size: 18px; font-style: italic; font-weight: 700;">Bill To,</p>
-                                <h6  class="mx-3 text-capitalize" style="color: black; ">{{ vendor.salutation}} {{vendor.first_name}} {{ vendor.last_name}}</h6>
-                                <p class="address col-6 mx-4 p-2" style="margin-left: -14px;">{{vendor.baddress}}<br>
-                                    {{vendor.bcity}}<br>
-                                    {{vendor.bstate}}<br> 
-                                </p>
-                            </div>
-                            <div class="col-1"></div>
-                            <!-- <div class="col-5 mt-5">
-                                <p>Bill Date : &nbsp <span style="color: black;">{{recur_bill.start_date|date:'d-m-Y'}}</span></p>
-                                <p>Due Date : &nbsp <span style="color: black;">{{recur_bill.end_date|date:'d-m-Y'}}</span></p>
-                                <p>Term : &nbsp <span style="color: black;">NET {{recur_bill.payment_terms}}</span></p>
-
-                            </div> -->
-
-                            <div class="col-5">
-                                <p style=" font-size: 18px; font-style: italic; font-weight: 700;">Deliver To,</p>
-                                <h6  class="mx-2 text-capitalize" style="color: black;">{{customer.customerName}}</h6>
-                                <p class="address col-6 mx-3 p-2" style="margin-left: -14px;">{{customer.Address1}} <br>
-                                    {{customer.Address2}}<br>
-                                    {{customer.city}}<br>
-                                    {{customer.state}}<br>
-
-                                    
-                                </p>
-
-                            </div>
-                        </div>
+                        
 
                     </div>
                 </section>
@@ -468,28 +461,22 @@
                     <table class="table ">
                         <thead style="background-color:burlywood; color: black;">
                             <tr>
-                                <td>#</td>
-                                <td>Item</td>
-                                <td>Account</td>
-                                <td>Rate</td>
-                                <td>Quantity</td>
-                                <td>Discount</td>
-                                <td>Tax</td>
-                                <td>Total</td>
+                               
+                                <td>Loan Amount</td>
+                                <td>Loan Issue Date</td>
+                                <td>Loan Expiry Date</td>
+                                
                             </tr>
                         </thead>
                         <tbody style=":hover{color: #ddd; background-color: transparent;}">
 
-                            {% for b in bill_item %}
+                            {% for b in loans %}
                             <tr >
-                                <td>{{ forloop.counter }}</td>
-                                <td>{{b.item}}</td>
-                                <td>{{b.account}} </td>
-                                <td>{{b.rate}}</td>
-                                <td>{{b.quantity}}</td>
-                                <td>{{b.discount}}</td>
-                                <td>{{b.tax}} %</td>
-                                <td>{{b.amount|floatformat:2}}</td>
+                                
+                                <td>{{b.loan_amount}}</td>
+                                <td>{{b.date_issue}} </td>
+                                <td>{{b.date_expiry}}</td>
+                                
                             </tr>
                             {% endfor %}
 
@@ -498,49 +485,7 @@
                 </section>
 
                 <section class="balance-info p-5">
-                    <div class="row">
-                        <div class="col-8 btn-group">
-                            <!-- <p class="m-0 font-weight-bold" style="color: black;"> Note: </p>
-                            <p class="py-0 px-5" style="color: black;">{{recur_bill.note}}</p> -->
-                        </div>
-                        <div class="col-4">
-                            <table class="table border-0 table-hover">
-                                <tr>
-                                    <td style="font-weight:bold">Sub Total :</td>
-                                    <td style="font-weight:bold">{{recur_bill.sub_total|floatformat:2}}</td>
-                                </tr>
-                                {% if recur_bill.igst != "" %}
-                                <tr>
-                                    <td style="font-weight:bold">IGST :</td>
-                                    <td style="font-weight:bold">{% if recur_bill.igst == None %} 0 {% else %} {{recur_bill.igst|floatformat:2}} {% endif %}</td>
-                                </tr>
-                                {% endif %}
-                                {% if recur_bill.cgst != "" %}
-                                <tr>
-                                    <td style="font-weight:bold">CGST :</td>
-                                    <td style="font-weight:bold">{% if recur_bill.cgst == None %} 0 {% else %} {{recur_bill.cgst|floatformat:2}} {% endif %}</td>
-                                </tr>
-                                {% endif %}
-                                {% if recur_bill.sgst != "" %}
-                                <tr>
-                                    <td style="font-weight:bold">SGST:</td>
-                                    <td style="font-weight:bold">{% if recur_bill.sgst == None %} 0 {% else %} {{recur_bill.sgst|floatformat:2}} {% endif %}</td>
-                                </tr>
-                                {% endif %}
-                                {% if recur_bill.shipping_charge != "" %}
-                                <tr>
-                                    <td style="font-weight:bold">Shipping Charge:</td>
-                                    <td style="font-weight:bold">{{recur_bill.shipping_charge|floatformat:2}}</td>
-                                </tr>
-                                {% endif %}
-                                <tfoot>
-                                    <tr>
-                                        <td style="font-weight:bold">Total:</td>
-                                        <td style="font-weight:bold ;">{{recur_bill.grand_total|floatformat:2}}</td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
+                   
                     </div>
                 </section>
 
@@ -981,7 +926,7 @@
             $.ajax({
 
                 type: 'POST',
-                url: "{% url 'recurbill_add_file' recur_bill.id %}",
+                
 
                 data: {
                     id: $("#file_id").val(),
@@ -1005,7 +950,7 @@
             $.ajax({
 
                 type: 'POST',
-                url: "{% url 'recurbill_email' recur_bill.id %}",
+                
 
                 data: {
                     // id: $("#email_id").val(),

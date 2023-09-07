@@ -9865,10 +9865,13 @@ def employee_loan_template(request, payroll_id):
     payroll = get_object_or_404(Payroll, id=payroll_id)
     loans = Loan.objects.filter(payroll=payroll)
     l=Loan.objects.all()
+    
 
     context = {
         'company': company,
         'p': payroll,
+        
+        
      
         'loans': loans,
         'l' : l,
@@ -9877,3 +9880,21 @@ def employee_loan_template(request, payroll_id):
         print(f"Loan ID: {loan.id}")
 
     return render(request, 'app/employee_loan_template.html', context)
+
+
+
+def employee_loan_details_copy(request, payroll_id):
+    payroll = get_object_or_404(Payroll, id=payroll_id)
+    loans = Loan.objects.filter(payroll=payroll)
+    l=Loan.objects.all()
+
+    context = {
+        'p': payroll,
+     
+        'loans': loans,
+        'l' : l,
+    }
+    for loan in loans:
+        print(f"Loan ID: {loan.id}")
+
+    return render(request, 'app/employee_loan_details_copy.html', context)

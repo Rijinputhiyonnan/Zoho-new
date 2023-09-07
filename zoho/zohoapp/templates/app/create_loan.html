@@ -5,8 +5,8 @@
 <style>
     .modal{
         z-index: 9999;
-     }
-
+        overflow: scroll;
+      }
 
 
     * {
@@ -260,19 +260,19 @@
 
           
 
-<div class="modal fade" id="newvendor">
+<div class="modal fade" id="PayrollModal">
     <div class="modal-dialog modal-xl">
       <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
         <div class="modal-header " style="background: rgb(32, 35, 37);">
-            <h3 class="m-3 text-uppercase">New Vendor</h3>
+            <h3 class="m-3 text-uppercase">New Employee</h3>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
         <div class="modal-body" style="background: rgb(32, 35, 37);">
             <div class="card p-3 m-3">
-              <form action="" method="post" class="needs-validation" novalidate autocomplete="off" id="modalVendor">
-
+              <form action="{% url 'payroll_create' %}" method="post" class="needs-validation" novalidate autocomplete="off" id="PayrollModal">
+                {% csrf_token %}
 
                 <div class="data col-6 col-lg-6 col-md-6 col-sm-12">
                     <div class="row pb-3">
@@ -694,10 +694,7 @@
             </div>
 
             <hr>
-            <div class="action-button">
-                <button class="btn btn-primary" type="submit">Add</button>
-                <button class="btn btn-danger" type="reset">Cancel</button>
-            </div>
+            
             <div class="text-center">
                 {% for message in messages %}
                 <div class="alert alert-success alert-dismissible fade show" role="alert" id="alert">
@@ -717,7 +714,7 @@
         <div class="col-md-4">
           <div class="d-flex">
             <button class="btn save_btn rounded-pill text-grey w-50 my-4 mx-3"
-            type="submit" data-dismiss="modal" id="itemSave">Submit
+            type="submit" data-dismiss="modal" data-target="#payrollModal" id="payrollModal">Submit
             </button> 
 
             <button type="button" class="close btn save_btn rounded-pill text-grey w-50 my-4" 
@@ -966,7 +963,27 @@
 </script>
     
         
-     
+     <!-- Include jQuery (add this in your HTML, usually in the <head> section) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- JavaScript to load content into the modal -->
+<script>
+    $(document).ready(function() {
+        // Function to load content into the modal
+        function loadPayrollModalContent() {
+            $.get("{% url 'payroll_create' %}", function(data) {
+                // Update the content of the modal with the loaded data
+                $("#payrollModal .modal-content").html(data);
+            });
+        }
+
+        // Attach a click event handler to the button
+        $("#payrollModalButton").on("click", function() {
+            loadPayrollModalContent(); // Load content when the button is clicked
+        });
+    });
+</script>
+
     
 
 {% endblock %}

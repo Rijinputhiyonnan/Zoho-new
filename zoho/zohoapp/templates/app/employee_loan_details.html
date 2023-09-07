@@ -156,7 +156,7 @@
 
                 <div class="bar pt-3">
                     <div class="left">
-                        
+                        {% for loan in loans %}
                         <a class="btn mx-1 fa fa-file-word" href="{% url 'employee_loan_template' payroll_id=loan.payroll.id %}">Template</a>
 
 
