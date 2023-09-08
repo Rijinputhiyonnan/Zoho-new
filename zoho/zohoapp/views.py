@@ -9781,6 +9781,8 @@ def edit_loan(request, loan_id):
     else:
         # Display the edit loan form with the loan data
         form = EditLoanForm(instance=loan)
+        
+        
 
     context = {
         'form': form,
@@ -9798,10 +9800,10 @@ def employee_loan_details(request, payroll_id):
     payroll = get_object_or_404(Payroll, id=payroll_id)
     loans = Loan.objects.filter(payroll=payroll)
     l=Loan.objects.all()
-
+    com=Loan.objects.filter(payroll=payroll)
     context = {
         'p': payroll,
-     
+        'c' : com,
         'loans': loans,
         'l' : l,
     }
@@ -9815,14 +9817,7 @@ def employee_loan_details(request, payroll_id):
 from django.shortcuts import render, get_object_or_404
 from .models import Loan
 
-def edit_loan(request, loan_id):
-    loan = get_object_or_404(Loan, id=loan_id)
-    
-    context = {
-        'loan': loan,
-    }
-    
-    return render(request, 'app/edit_loan.html', context)
+
 
 
 from django.shortcuts import get_object_or_404, redirect
@@ -9882,19 +9877,26 @@ def employee_loan_template(request, payroll_id):
     return render(request, 'app/employee_loan_template.html', context)
 
 
+from django.shortcuts import get_object_or_404, redirect
+from django.http import JsonResponse
 
-def employee_loan_details_copy(request, payroll_id):
-    payroll = get_object_or_404(Payroll, id=payroll_id)
-    loans = Loan.objects.filter(payroll=payroll)
-    l=Loan.objects.all()
+from .models import Loan
 
-    context = {
-        'p': payroll,
-     
-        'loans': loans,
-        'l' : l,
-    }
-    for loan in loans:
-        print(f"Loan ID: {loan.id}")
+def add_loan_comment(request, payroll_id):
+    loan = get_object_or_404(Loan, id=payroll_id)
 
-    return render(request, 'app/employee_loan_details_copy.html', context)
+    if request.method == 'POST':
+        comment = request.POST.get('comment', '')  # Get the comment data from the POST request
+
+        if comment:
+            loan.comment = comment
+            loan.save()
+            return JsonResponse({'success': True})
+        else:
+            return JsonResponse({'success': False, 'error': 'Comment cannot be empty'})
+
+# You can add this view to your URL patterns like this:
+# path('add_loan_comment/<int:loan_id>/', add_loan_comment, name='add_loan_comment')
+
+
+

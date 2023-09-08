@@ -2,148 +2,149 @@
 {% block content %}
 {% load static %}
 
+<!-- Include the necessary CSS styles here to match the create loan page style -->
 <style>
-    * {
-
-        font-family: "Gill Sans", sans-serif;
-        color: white;
-    }
-
-    input[type="text"],
-    input[type="date"],
-    input[type="number"],
-    input[type="email"],
-    input[type="file"],
-    .gen-info textarea,
-    .gen-info select,
-    .data select,
-    .data option,
-    .gen-info option {
-        color: rgb(7, 7, 7);
-        border: 1px solid rgb(0, 0, 0);
-    }
-
-    .gen-info .left {
-        padding-right: 2rem;
-    }
-
-
-    .action-button {
-        display: flex;
-        align-items: center;
-        /* justify-content: center; */
-    }
-
-    .action-button button {
-        width: 8vw;
-        font-size: 1.2vw;
-        margin: 0.5rem .3rem;
-    }
-
-    label {
-        font-size: 1.2vw;
-    }
-
-    .containerprof {
-
-        position: relative;
-
-    }
-
-    .input-container {
-        position: relative;
-        margin: 0 auto;
-        text-align: center;
-    }
+    /* Your CSS styles for the edit loan page go here */
 </style>
 
 <section>
     <div class="containerprof p-5">
         <div class="header pb-5">
-            <h3>EDIT LOAN</h3>
+            <h3>EDIT EMPLOYEE LOAN</h3>
             <hr>
         </div>
-        <form method="POST" action="{% url 'edit_loan' loan.id %}">
+        <form method="POST" action="{% url 'edit_loan' loan.id %}" id="editLoanForm">
             {% csrf_token %}
+            <!-- Form fields for editing the loan go here -->
+
             <div class="row">
-                <!-- Employee selection -->
-                <div class="col-6">
-                    <label for="employee">Select Employee</label>
-                    <select class="form-control" name="employee" id="employee" onchange="fillEmployeeDetails()">
-                        <option value="">Select an employee</option>
-                        {% for payroll in payrolls %}
-                        <option value="{{ payroll.id }}"
-                            data-email="{{ payroll.email }}"
-                            data-emp-number="{{ payroll.emp_number }}"
-                            data-salary="{{ payroll.salary }}"
-                            data-joindate="{{ payroll.joindate|date:'Y-m-d' }}"
-                            {% if payroll.id == loan.payroll.id %}selected{% endif %}>
-                            {{ payroll.employee_name }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                </div>
-                
-                <!-- Employee information -->
-                <div class="col-6">
-                    <label for="email">Email</label>
-                    <input type="email" class="form-control" name="email" id="email" readonly>
-                </div>
-                <div class="col-6">
-                    <label for="emp_id">Employee ID</label>
-                    <input type="text" class="form-control" name="emp_id" id="emp_id" readonly>
-                </div>
-                <div class="col-6">
-                    <label for="salary">Salary</label>
-                    <input type="number" class="form-control" name="salary" id="salary" readonly>
-                </div>
-                <div class="col-6">
-                    <label for="joindate">Joining Date</label>
-                    <input type="date" class="form-control" name="joindate" id="joindate" readonly>
-                </div>
-                
-                <!-- Loan information -->
-                <div class="col-6">
-                    <label for="loan_issue_date">Date of Loan Issue</label>
-                    <input type="date" class="form-control" name="loan_issue_date" id="loan_issue_date" value="{{ loan.date_issue }}" required>
-                </div>
-                <div class="col-6">
-                    <label for="loan_expiry_date">Expiry Date</label>
-                    <input type="date" class="form-control" name="loan_expiry_date" id="loan_expiry_date" value="{{ loan.date_expiry }}" required>
-                </div>
-                <div class="col-6">
-                    <label for="loan_amount">Loan Amount</label>
-                    <input type="number" class="form-control" name="loan_amount" id="loan_amount" value="{{ loan.loan_amount }}" required>
-                </div>
-                <div class="col-6">
-                    <label for="payment_method">Payment Method</label>
-                    <select class="form-control" name="payment_method" id="payment_method" required onchange="showAdditionalFields()">
-                        <option value="">Select</option>
-                        <option value="percentage_wise" {% if loan.monthly_cutting_type == 'percentage_wise' %}selected{% endif %}>Percentage Wise</option>
-                        <option value="amount_wise" {% if loan.monthly_cutting_type == 'amount_wise' %}selected{% endif %}>Amount Wise</option>
-                    </select>
-                </div>
-                
-                <!-- Additional fields based on payment method -->
-                <div class="col-6" id="percentageWiseFields">
-                    <label for="percentage">Percentage</label>
-                    <input type="number" class="form-control" name="percentage" id="percentage" step="0.01" min="0" max="100" oninput="updateMonthlyCuttingAmount()">
-                </div>
-                <div class="col-6" id="percentageWiseMonthlyFields">
-                    <label for="monthly_cutting_amount">Monthly Cutting Amount</label>
-                    <input type="number" class="form-control" name="monthly_cutting_amount" id="monthly_cutting_amount" step="0.01" min="0">
-                </div>
-                
-                <!-- Display error message -->
-                <div class="col-12">
-                    <div id="error-message" style="color: red;"></div>
-                </div>
-                
-                <!-- Action buttons -->
-                <div class="col-12 mt-4">
+                <div class="data col-6 col-lg-6 col-md-6 col-sm-12">
+                    <!-- Display payroll components -->
+                    <div class="row pb-3">
+                        <div class="col-6">
+                            <label for="">Employee Name</label>
+                        </div>
+                        <div class="input-container col-6">
+                            {{ loan.payroll.first_name }} {{ loan.payroll.last_name }}
+                        </div>
+                    </div>
+                    <div class="row pb-3">
+                        <div class="col-6">
+                            <label for="">Email</label>
+                        </div>
+                        <div class="input-container col-6">
+                            {{ loan.payroll.email }}
+                        </div>
+                    </div>
+                    <div class="row pb-3">
+                        <div class="col-6">
+                            <label for="">Employee ID</label>
+                        </div>
+                        <div class="input-container col-6">
+                            {{ loan.payroll.emp_number }}
+                        </div>
+                    </div>
+                    <div class="row pb-3">
+                        <div class="col-6">
+                            <label for="">Designation</label>
+                        </div>
+                        <div class="input-container col-6">
+                            {{ loan.payroll.designation }}
+                        </div>
+                    </div>
+                    <div class="row pb-3">
+                        <div class="col-6">
+                            <label for="">Joining Date</label>
+                        </div>
+                        <div class="input-container col-6">
+                            {{ loan.payroll.joindate }}
+                        </div>
+                    </div>
+                    <div class="row pb-3">
+                        <div class="col-6">
+                            <label for="">Salary</label>
+                        </div>
+                        <div class="input-container col-6">
+                            {{ loan.payroll.salary }}
+                        </div>
+                    </div>
+
+                    <!-- Include other payroll components as needed -->
+
+                   <!-- ... (previous code) ... -->
+
+<div class="row pb-3">
+    <div class="col-6">
+        <label for="">Date of Loan Issue</label>
+    </div>
+    <div class="input-container col-6">
+        <input type="date" class="form-control text-dark" name="date_issue" id="date_issue" value="{{ loan.date_issue|date:'Y-m-d' }}" required>
+    </div>
+</div>
+<div class="row pb-3">
+    <div class="col-6">
+        <label for="">Expiry Date</label>
+    </div>
+    <div class="input-container col-6">
+        <input type="date" class="form-control text-dark" name="date_expiry" id="date_expiry" value="{{ loan.date_expiry|date:'Y-m-d' }}" required>
+    </div>
+</div>
+
+<div class="row pb-3">
+    <div class="col-6">
+        <label for="">Loan Amount</label>
+    </div>
+    <div class="input-container col-6">
+        <input type="number" class="form-control text-dark" name="loan_amount" id="loan_amount" value="{{ loan.loan_amount }}" required>
+    </div>
+</div>
+
+<div class="row pb-3">
+    <div class="col-6">
+        <label for="payment_method" class="mr-2 mb-0" style="width: 150px;">Payment Method</label>
+    </div>
+    <div class="input-container col-6">
+        <select class="form-control text-dark" name="payment_method" id="payment_method" required onchange="showAdditionalFields()" id="date_expiry" value="{{ loan.monthly_cutting_type}}" required >
+            <option value="">Select</option>
+            <option value="percentage_wise">Percentage Wise</option>
+            <option value="amount_wise">Amount Wise</option>
+        </select>
+    </div>
+</div>
+
+<div class="row pb-3" id="percentageWiseFields">
+    <div class="col-6">
+        <label for="percentage" class="mr-2 mb-0" style="width: 150px;">Percentage</label>
+    </div>
+    <div class="input-container col-6">
+        <input type="number" class="form-control text-dark" name="percentage" id="percentage" step="0.01" min="0" max="100" oninput="updateMonthlyCuttingAmount()"  value="{{ loan.monthly_cutting_percentage}}" required >
+    </div>
+</div>
+
+<div class="row pb-3" id="percentageWiseMonthlyFields">
+    <div class="col-6 d-flex align-items-center">
+        <label for="monthly_cutting_amount" class="mr-2 mb-0" style="width: 150px;">Monthly Cutting Amount</label>
+    </div>
+    <div class="input-container col-6">
+        <input type="number" class="form-control text-dark" name="monthly_cutting_amount" id="monthly_cutting_amount" step="0.01" min="0" value="{{ loan.mmonthly_cutting_amount}}" required>
+    </div>
+</div>
+
+
+
+
+            <div id="error-message" style="color: red;"></div> <!-- Error message for cutting amount validation -->
+        </div>
+    </div>
+                    
+                    <!-- Include other loan fields for editing here -->
+
                     <div class="action-button">
-                        <button class="btn btn-primary" type="submit">Update</button>
-                        <a href="{% url 'employee_list' %}" class="btn btn-danger">Cancel</a>
+                        <button class="btn btn-primary" type="submit">Save Changes</button>
+                        <a class="btn btn-danger" href="{% url 'employee_list' %}">Cancel</a>
+                    </div>
+                    <div class="text-center">
+                        <!-- ... (Message alerts) ... -->
                     </div>
                 </div>
             </div>
@@ -152,8 +153,145 @@
 </section>
 
 
+<script>
+    // var loadAttachment = function (event) {
+    //                     var reader = new FileReader();
+    //                     reader.onload = function () {
+    //                         var output = document.getElementById('img2');
+    //                         output.innerHTML = reader.result.trim;
+    //                     };
+    //                     reader.readAsDataURL(event.target.files[0]);
+    //                 };
+    function bankdisplay() {
+        var e = document.getElementById("dropId").value;
 
-                   
+        if (e == 0) {
+            document.getElementById("bank").style.display = 'none'
+
+        }
+        else {
+            document.getElementById("bank").style.display = 'block'
+        }
+
+    }
+    function salFunction() {
+        var e = document.getElementById("sal");
+        var sal = e.value;
+        if (sal == 'Fixed') {
+            document.getElementById("fixed").style.display = 'block'
+            document.getElementById("variable").style.display = 'none'
+        }
+        else if (sal == 'Variable') {
+            document.getElementById("variable").style.display = 'block'
+            document.getElementById("fixed").style.display = 'none'
+        }
+
+    }
+    function calculateAmount(val) {
+        var a = document.getElementById("amnt").value;
+        var h = document.getElementById("hours").value;
+        var tot = h * a;
+        document.getElementById('vsalary').value = tot;
+
+    }
+
+    function tdsFunction() {
+        var e = document.getElementById("tds");
+        var sal = e.value;
+        if (sal == '1') {
+            document.getElementById("tds-div").style.display = 'block'
+        }
+        else {
+            document.getElementById("tds-div").style.display = 'none'
+        }
+
+    }
+    function tdsFunction2() {
+        var e = document.getElementById("pora");
+        var sal = e.value;
+        if (sal == 'Percentage') {
+            document.getElementById("p").style.display = 'block';
+            document.getElementById("a").style.display = 'none';
+        }
+        else if (sal == 'Amount') {
+            document.getElementById("a").style.display = 'block';
+            document.getElementById("p").style.display = 'none'
+        }
+    }
+    function emailvalidate() {
+        var email = document.getElementById('email')
+        var error = document.getElementById('error')
+        if (!email.value.match(/^[A-Za-z\._\-0-9]*[@][A-Za-z]*[\.][a-z]{2,4}$/)) {
+            error.style.fontSize = ".8rem"
+            error.innerHTML = "*Please enter a valid email"
+            return false;
+
+        }
+        error.innerHTML = ""
+        return true;
+    }
+    function phoneValidate(phn, pherror) {
+        if (!phn.value.match(/^[6-9]\d{9}$/)) {
+            pherror.style.display = "block"
+            pherror.style.fontSize = ".8rem"
+            pherror.innerHTML = "*Please enter a valid phone number"
+            return false;
+        }
+        pherror.style.display = "none"
+        pherror.innerHTML = ""
+        return true;
+    }
+    function empValidation(emp) {
+        emp.addEventListener("input", function () {
+            emp.value = emp.value.toUpperCase();
+        });
+
+    }
+    inputvalue = document.getElementById('ifsc')
+    inputvalue.addEventListener("input", function () {
+        inputvalue.value = inputvalue.value.toUpperCase();
+    });
+    const inputFields = document.querySelectorAll("input[type='text']");
+
+    inputFields.forEach(function (input) {
+        input.addEventListener("input", function () {
+            const inputValue = input.value;
+            input.value = inputValue.charAt(0).toUpperCase() + inputValue.slice(1);
+        });
+    });
+
+    document.getElementById("an").addEventListener("input", function () {
+        const input = this.value;
+        if (input.length > 14) {
+            this.value = input.slice(0, 14); // Truncate the input to 10 characters
+        }
+    });
+    document.getElementById("acc_no").addEventListener("input", function () {
+        const input = this.value;
+        if (input.length > 15) {
+            this.value = input.slice(0, 15); // Truncate the input to 10 characters
+        }
+    });
+
+    $(document).ready(function () {
+        $("#filladdress").on("click", function () {
+            if (this.checked) {
+                $("#adrs1").val($("#padrs1").val());
+                $("#adrs2").val($("#padrs2").val());
+
+            }
+            else {
+                $("#adrs1").val('');
+                $("#adrs2").val('');
+            }
+        });
+    });
+</script>
+
+
+
+
+                    
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
                     <script>
                         function fillEmployeeDetails() {
@@ -178,17 +316,17 @@
                             var amountWiseFields = document.getElementById('amountWiseFields');
                         
                             if (paymentMethod === 'percentage_wise') {
-                                percentageWiseFields.style.display = 'block';
-                                amountWiseFields.style.display = 'none';
+                                percentageWiseFields.style.visibility = 'visible';
+                                amountWiseFields.style.visibility = 'hidden';
                             } else if (paymentMethod === 'amount_wise') {
-                                percentageWiseFields.style.display = 'none';
-                                amountWiseFields.style.display = 'block';
+                                percentageWiseFields.style.visibility = 'hidden';
+                                amountWiseFields.style.visibility = 'visible';
                             } else {
-                                percentageWiseFields.style.display = 'none';
-                                amountWiseFields.style.display = 'none';
+                                percentageWiseFields.style.visibility = 'hidden';
+                                amountWiseFields.style.visibility = 'hidden';
                             }
                         }
-                       
+                        
                     
                     
                     
@@ -248,8 +386,7 @@
         }
     }
 </script>
-    
-        
-     
 
 {% endblock %}
+
+

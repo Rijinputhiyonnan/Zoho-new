@@ -121,7 +121,7 @@
                     <td class="pt-3">{{ employee.loan_info.loan_amount }}</td>
                     <td class="pt-3">{{ employee.loan_info.date_expiry }}</td>
                     <td class="pt-3">
-                        <a href="#" class="delete-link" data-id="{{ employee.loan_info.id }}">
+                        <a href="#" onclick="return confirm('Do you want to Delete this Employee loan details?');" class="delete-link" data-id="{{ employee.loan_info.id }}">
                             <i class="fa fa-trash text-danger" style="font-size: large;"></i>
                         </a>
                     </td>

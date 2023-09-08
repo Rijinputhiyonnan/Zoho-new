@@ -1,12 +1,124 @@
 {% extends 'base.html' %}
 {% block content %}
 {% load static %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-<script src="https://unpkg.com/@popperjs/core@2/dist/umd/popper.js"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
- 
 
-</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+
+
+<style>
+    .text-uppercase{
+        font-family: "Gill Sans", sans-serif;
+            color: Black;
+    }
+    .lo {
+
+        font-family: "Gill Sans", sans-serif;
+        color: white;
+    }
+
+
+
+    .list {
+        background-color: rgb(29, 29, 29);
+    }
+
+    .overview {
+        background-color: black;
+    }
+
+    .searchbar,
+    .overview .bar {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+        /* margin: 0 1rem; */
+    }
+
+    .searchbar .btn {
+        width: 5vw;
+        background-color: rgb(28, 117, 233);
+        font-size: 1vw;
+        color: rgb(255, 255, 255);
+    }
+
+    .table .bold {
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    .table tr:hover {
+        background-color: #573902;
+    }
+
+    .overview .bar .btn {
+        background-color: rgb(238, 164, 27);
+        color: #ffff;
+        padding: .3rem .3rem;
+        align-items: center;
+    }
+
+    .overview .bar .btn:hover,
+    .overview .bar .btn i:hover {
+        background-color: rgb(182, 180, 178);
+        color: #000000;
+    }
+
+    .p-name {
+        height: 2.5vw;
+    }
+
+    #div-to-pdf .p-info label,
+    #div-to-pdf .bank-div label {
+        color: #ffffff;
+        font-size: .8rem;
+    }
+
+    #div-to-pdf .gen-info label {
+        color: #000000;
+        font-size: .8rem;
+    }
+
+    #div-to-pdf .gen-info .bold {
+        color: #000000;
+        font-size: 1rem;
+    }
+
+    .div-to-pdf div {
+        color: #000000;
+    }
+
+
+    #div-to-pdf .p-info .bold,
+    #div-to-pdf .bank-div .bold {
+        font-size: 1rem;
+        color: #ffffff;
+        /* font-weight: bold; */
+    }
+
+    .modal {
+        z-index: 9999;
+        overflow: scroll;
+    }
+
+    .right .dropdown-menu {
+        width: 30vw;
+    }
+
+    .modal-backdrop {
+        background-color: rgb(0, 0, 0);
+    }
+
+    .modal .table th {
+        color: #ffffff;
+    }
+
+    .modal-content {
+        padding: 1.5rem;
+        width: 50vw;
+        height: auto !important;
+        margin: auto;
+    }
+</style>
 
 <style>
    
@@ -262,752 +374,965 @@
     }
 
   
+
+    
 </style>
-
-<div class="container-fulid containerprof">
-    <div id="details-list" class="vh-100 col-lg-6">
-        <div class="card radius-5 p-2">
-            <div class="card-body">
-                <div class="card-title">
-                    <div class="row p-1">
-                        <div class="col-md-10">
-                            <h6 class="mb-1 text-uppercase text-left">EMPLOYEE LOAN</h6>
-                        </div>
-                    </div>
-                    <div class="row p-0 d-flex">
-                        <div class="col-md-7">
-                            <input type="text" id="search" placeholder="Search..." class="form-control text-dark bg-light" autocomplete="off"  >
-                        </div>
-
-                        <div class="col-md-2 mt-2 mx-1">
-                            <a class="btn text-center btn-primary bi bi-funnel px-3 py-1" data-bs-toggle="dropdown"
-                                role="button"></a>
-                          
-                        </div>
-                        <div class="col-md-2 mr-4 mt-2">
-                            <a href="{% url 'create_loan' %}" class="btn btn-primary fa fa-plus px-3 pt-1"
-                                role="button">
-                            </a>
-                        </div>
-                    </div>
-
+<section>
+    <div class="row p-3">
+        <div class="list col-4 col-lg-4 col-md-3  col-sm-2 py-3">
+            <div class="header">
+                <h5>ALL EMPLOYEES LOAN LIST</h5>
+            </div>
+            <div class="searchbar">
+                <input class="form-control" type="text" placeholder="Search by Name" name="search" id="search"
+                    onkeyup="searchFunction()"
+                    style="color: rgb(255, 255, 255);background: transparent;margin-right: 5px;">
+                <a class="btn btn-outline-primary mx-1" href="" data-bs-toggle="dropdown" aria-haspopup="true"
+                    aria-expanded="false" role="button">
+                    <i class="fa fa-filter"></i>
+                </a>
+                <div class="dropdown-menu ">
+                    <a class="dropdown-item" href="javascript:sortTable(0)">Name A-Z</a>
+                    <a class="dropdown-item" href="javascript:rsortTable(0)">Name Z-A</a>
                 </div>
-                <div class="border-bottom"></div>
-
-                <div class="row mt-5 bills">
-                    {% for l in l %}
+                <a class="btn btn-outline-primary mr-1" href="{% url 'create_loan' %}"><i class="fa fa-plus"></i></a>
+            </div>
+            <hr>
+            <table class="table table-borderless " id="mytable">
+                <tr></tr>
+                {% for l in l %}
                 <tr class='clickable-row' data-href="{% url 'employee_loan_template' l.payroll_id %}">
                     <td class="pt-2">
-                        <p class="bold">{{ l.payroll.first_name }} {{ l.payroll.last_name }}</p>
-                        <p>{{ l.date_issue }}</p>
+                        <p class="bold lo">{{ l.payroll.first_name }} {{ l.payroll.last_name }}</p>
+                        <p class="lo">{{ l.date_issue }}</p>
                     </td>
-                    <td class="pt-2">{{ l.loan_amount }}</td>
+                    <td class="pt-2 lo"><p>{{ l.loan_amount }}</p></td>
                 </tr>
                 {% endfor %}
-                <script>
-
-                    jQuery(document).ready(function ($) {
-                        $(".clickable-row").click(function () {
-                            window.location = $(this).data("href");
-                        });
-                    });
-                
-                    function searchFunction() {
-                        var input, filter, table, tr, td, i, txtValue;
-                        input = document.getElementById("search");
-                        filter = input.value.toLowerCase();
-                        table = document.getElementById("mytable");
-                        tr = table.getElementsByTagName("tr");
-                        // input.style.borderColor = "green";
-                        for (i = 0; i < tr.length; i++) {
-                            let rowVisible = false;
-                            td = tr[i].getElementsByTagName("td");
-                            for (j = 0; j < td.length; j++) {
-                                if (td[j]) {
-                                    txtValue = td[j].textContent || td[j].innerText;
-                                    if (txtValue.toLowerCase().indexOf(filter) > -1) {
-                                        rowVisible = true;
-                                        break;
-                                    }
-                                }
-                            }
-                
-                            // Show/hide the row based on the search results
-                            tr[i].style.display = rowVisible ? "" : "none";
-                        }
-                    }
-                </script>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div id="quick-template" class="quick-template">
-        <div class="card radius-15 " style="border-bottom: 0.5px solid; color: dimgray;">
-            <div class="card-body">
-                <div class="card-title">
-                    <h3 class="mb-0" id="prof_name">{{recur_bill.profile_name}}</h3>
-                </div>
-
-                <div class="d-flex" style="float: right; margin-right: 25px;">
-                    <div class="m-0">
-                        <a href="" class=" far fa-comment-alt btns px-2 py-2" title="COMMENTS"
-                            data-toggle="modal" data-target="#cmnts"> </a>
-                    
-                        {% for loan in loans %}
-                        <a href="{% url 'edit_loan' loan_id=loan.id %}" class=" fa fa-pencil btns px-2 py-2"
-                        data-toggle="tooltip" title="EDIT"> </a>
-                  <a href="{% url 'delete_loan' loan.id  %} " class="delete fa fa-trash btns px-2 py-2"
-                   data-toggle="tooltip" title="DELETE" onclick="return confirm('Do you want to Delete this Employee loan details?');"> </a>
-                   {% endfor %}
-                    </div>
-
-                    <div class="mx-1">
-                   
-                        <a href=" " class="fa fa-file-pdf btns toPDF px-2 py-2" id="toPDF"
-                        data-toggle="tooltip" title="PDF"></a>
-
-                        <a href="" class=" fa fa-print btns px-2 py-2"   data-toggle="tooltip"
-                            title="PRINT" onclick="window.print()"> </a>
-
-                        <a href="" class="fa fa-envelope btns px-2 py-2" 
-                            title="MAIL" data-toggle="modal" data-target="#emails" > </a>
-
-                        
-                    </div>
-                    <div class="m-0">
-                        <div class="dropdown m-0 p-0">
-                            <a href=" " class=" fas fa-paperclip dropdown-toggle btns px-2 py-2"  
-                                data-bs-toggle="dropdown" id="attachmentDropdown" aria-haspopup="true" aria-expanded="false"> 
-                            </a>
-
-                            <div class="dropdown-menu" aria-labelledby="attachmentDropdown">
-                                <a class="dropdown-item" style="cursor: pointer;" data-toggle="modal"
-                                    data-target="#files"><i class="fa fa-paperclip"></i> Attach File</a>
-                                {% if recur_bill.document != "" %}
-                                <a class="dropdown-item" download href="{{recur_bill.document.url }}"><i
-                                        class="fa fa-download"></i> Download File</a>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-
-                <div class="tab">
-                    <a class="tablinks mx-2 btns px-2 py-2" onclick="openTab(event, 'Template')" role="button"><i
-                            class="fa fa-file-word "></i> Template</a>
-                    <a class="tablinks  btns px-2 py-2" href="{% url 'employee_loan_details' payroll_id=p.id %}"role="button"><i class="fa fa-eye"></i>
-                        Overview</a>
-                </div>
-            </div>
-            <hr class="hr">
-
-
-            <div id="Template" class=" print-only page tabcontent p-5 m-3" style="display: block; background-color:azure">
-                <div class="row pt-0 m-0 text-center">
-                    <div class="col-4 "></div>
-                    <div class="col-4 ">
-                        <h4 class="text-uppercase text-dark" >Employee Loan Details</h4>
-                    </div>
-                    <div class="col-4 "></div>
-                </div>
-                <div class="row extra-info pt-2 mt-3">
-                    <div class="col-1 "></div>
-                    <div class="col-5 ">
-                        <h3 class="text-uppercase" style="color: black;"><b>{{company.company_name }}</b></h3>
-                        <p class="address mx-2 p-2"> {{company.address}}<br>
-                            {{company.city}} <br>
-                            {{company.state}}<br>
-                            {{company.pincode}}<br>
-                        </p>                    
-                    </div>
-                    <div class="col-1 "></div>
-                    <div class="col-5">
-                        
-                        <section class="d-flex justify-content-between">
-                            <div class="top-right">
-                                <div class="graphic-path text-center">
-                                    
-                                    
-                                    
-                                    <h5 class="text-capitalize"  >{{p.first_name}} {{p.last_name}}</h5>
-                                    
-
-                                </div>
-                                <div class="position-relative">
-                                    
-                                    <p>Designation : &nbsp <span style="color: black;">{{p.designation}}</span></p>
-                                    <p>Employee ID : <span style="color: black;">{{p.emp_number}}</span></p>
-                                    
-                                    <p>Email : &nbsp <span style="color: black;">{{p.email}}</span></p> 
-                                    <p>Phone : &nbsp <span style="color: black;">{{p.Phone}}</span></p> 
-                                </div>
-                            </div>
-                           
-                        </section>
-
-                    </div>
-                </div>
-
-
-                <section class="store-user mt-2">
-                    <div class="col-12">
-                        
-
-                    </div>
-                </section>
-
-                <section class="product-area mt-0">
-                    <table class="table ">
-                        <thead style="background-color:burlywood; color: black;">
-                            <tr>
-                               
-                                <td>Loan Amount</td>
-                                <td>Loan Issue Date</td>
-                                <td>Loan Expiry Date</td>
-                                
-                            </tr>
-                        </thead>
-                        <tbody style=":hover{color: #ddd; background-color: transparent;}">
-
-                            {% for b in loans %}
-                            <tr >
-                                
-                                <td>{{b.loan_amount}}</td>
-                                <td>{{b.date_issue}} </td>
-                                <td>{{b.date_expiry}}</td>
-                                
-                            </tr>
-                            {% endfor %}
-
-                        </tbody>
-                    </table>
-                </section>
-
-                <section class="balance-info p-5">
-                   
-                    </div>
-                </section>
-
-            </div>
-
-
-            <!-- overview -->
-            <div id="Overview" class="tabcontent mt-0 border-0 p-4 mx-0" style="overflow-x: hidden; border-top: #ccc double 2px; background-color: burlywood ;border-radius: 5px;">
-
-                <h3 class="mb-0 mx-5 text-muted" style="color: rgb(161, 195, 226);">{{ company.company_name }}</h3>
-                <center>
-                    <h2 class="mb-4" style=" color: #434141;">RECURRING BILLS</h2>
-                </center>
-
-                <div class="row g-0">
-                    <div class="col-md-7">
-                        <div class="p-5">
-                            <p class="text-grey">Bill Amount</p>
-                            <div class="d-flex justify-content-between align-items-center mb-5">
-                                <b>
-                                    <span style=" color: #434141;">
-                                        ₹ <input type="text" value="{{ recur_bill.grand_total|floatformat:2 }}"
-                                            class="amnt text-dark" style="font-size: 18px; color: #434141;">
-                                    </span>
-                                </b>
-                            </div>
-                            <hr class="my-4">
-
-
-                            <div class="row mb-4 d-flex justify-content-between align-items-center">
-                                <div class="col-md-6 mt-3">
-                                    <h6 class="mb-0 text-grey ">Profile Name :</h6>
-                                </div>
-                                <div class="col-md-6 mt-3">
-                                    <p class="mb-0 " style="font-size: 18px; color: #434141;">{{ recur_bill.profile_name }}</p>
-                                </div>
-                            </div>
-
-                            <div class="row mb-4 d-flex justify-content-between align-items-center">
-                                <div class="col-md-6 mt-3">
-                                    <h6 class="mb-0 text-grey " >Repeat Every :</h6>
-                                </div>
-                                <div class="col-md-6 mt-3">
-                                    <p class="mb-0" style="font-size: 18px; color: #434141;">{{ recur_bill.repeat_every }}</p>
-                                </div>
-                            </div>
-                            <div class="row mb-4 d-flex justify-content-between align-items-center">
-                                <div class="col-md-6 mt-3">
-                                    <h6 class="mb-0 text-grey">Start Date :</h6>
-                                </div>
-                                <div class="col-md-6 mt-3">
-                                    <p class="mb-0" style="font-size: 18px; color: #434141;">{{ recur_bill.start_date |date:'d-m-Y' }}</p>
-                                </div>
-
-                            </div>
-
-                            <div class="row mb-4 d-flex justify-content-between align-items-center">
-
-                                <div class="col-md-6 mt-3">
-                                    <h6 class="mb-0 text-grey">End Date :</h6>
-                                </div>
-                                <div class="col-md-6 mt-3">
-                                    <p class="mb-0" style="font-size: 18px; color: #434141;">{{ recur_bill.end_date |date:'d-m-Y' }}</p>
-                                </div>
-                            </div>
-
-                            <div class="row mb-4 d-flex justify-content-between align-items-center">
-                                <div class="col-md-6 mt-3">
-                                    <h6 class="mb-0 text-grey">Payment Terms:</h6>
-                                </div>
-                                <div class="col-md-6 mt-3">
-                                    <p class="mb-0" style="font-size: 18px; color: #434141;"> NET {{ recur_bill.payment_terms }}</p>
-                                </div>
-                            </div>
-
-                            <div class="row mb-4 d-flex justify-content-between align-items-center">
-                                <div class="col-md-6 mt-3">
-                                    <h6 class="mb-0 text-grey">Tax :</h6>
-                                </div>
-                                <div class="col-md-6 mt-3">
-                                    <span style="font-size: 18px; color: #434141;">{{ gst_or_igst }} - </span>
-                                    {% for bi in tax %}
-                                        <input type="text" value="{{ bi|floatformat:2 }}" style="font-size: 18px; color: #434141; width: 55px;" class="tax 1 tx">
-                                    <span class="text-muted">%</span><br><span style="margin-left: 55px;"></span>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            <div class="row mb-4 d-flex justify-content-between align-items-center">
-                                <div class="col-md-6 mt-3">
-                                    <h6 class="mb-0 text-grey">Source of Supply :</h6>
-                                </div>
-                                <div class="col-md-6 mt-3">
-                                    <p class="mb-0 text-capitalize" style="font-size: 18px; color: #434141;">{{ recur_bill.source_supply }}</p>
-                                </div>
-
-                            </div>
-                            <div class="row mb-4 d-flex justify-content-between align-items-center">
-                                <div class="col-md-6 mt-3">
-                                    <h6 class="mb-0 text-grey">Note :</h6>
-                                </div>
-                                <div class="col-md-6 mt-3">
-                                    <p class="mb-0 text-capitalize" style="font-size: 18px; color: #434141;">{{ recur_bill.note }}</p>
-                                </div>
-
-                            </div>
-                            <!-- <hr class="my-4"> -->
-                        </div>
-                    </div>
-                    <div class="col-md-5  " style="background-color:#8b3131; border-radius: 5px;" >
-                        <div class="p-5">
-                            <div class="d-block justify-content-between mb-5">
-                                <div class="col-md-12 mt-3">
-                                    <h5 style="color: #ccc;">Vendor :</h5>
-                                </div><br>
-                                <div class="col-md-12 my-0 mx-5">
-                                    <h6 class="text-capitalize" style="color: azure;">{{ vendor_name }}</h6>
-                                </div>
-                            </div>
-                            <div class="d-block justify-content-between mb-5">
-                                <div class="col-md-12 mt-3">
-                                    <h5 style="color: #ccc;">Customer :</h5>
-                                </div><br>
-                                <div class="col-md-12 my-0 mx-5">
-                                    <h6 class="text-capitalize " style="color: azure;">{{ customer_name }}
-                                    </h6>
-                                </div>
-                            </div>
-
-                            <hr class="my-4">
-
-                            <div class="d-flex justify-content-between mb-5">
-                                <div class="col-md-5 mt-3">
-                                    <h6 style="color: #ccc;">Subtotal :</h5><br>
-                                </div>
-                                <div class="col-md-7 mt-3 mx-3">
-                                    <input type="text" value="{{ recur_bill.sub_total|floatformat:2 }} INR" class="amnt"
-                                        style="font-size: 16px; color: azure;" readonly>
-                                </div>
-                            </div>
-                            <div class="justify-content-between mb-5 d-none" id="igst">
-                                <div class="col-md-4 mt-3">
-                                    <h6 style="color: #ccc;">IGST :</h5><br>
-                                </div>
-                                <div class="col-md-8 mt-3 mx-3">
-                                    <input type="text" value="{{ recur_bill.igst|floatformat:2 }} INR" class="amnt"
-                                        style="font-size: 16px; color: azure;" readonly>
-                                </div>
-                            </div>
-                            <div class=" justify-content-between mb-5 d-none" id="cgst">
-                                <div class="col-md-4 mt-3">
-                                    <h6 style="color: #ccc;">CGST :</h5><br>
-                                </div>
-                                <div class="col-md-8 mt-3 mx-3">
-                                    <input type="text" value="{{ recur_bill.cgst|floatformat:2 }} INR" class="amnt"
-                                        style="font-size: 16px; color: azure;" readonly>
-                                </div>
-                            </div>
-                            <div class=" justify-content-between mb-5  d-none" id="sgst">
-                                <div class="col-md-4 mt-3">
-                                    <h6 style="color: #ccc;">SGST :</h5><br>
-                                </div>
-                                <div class="col-md-8 mt-3 mx-3">
-                                    <input type="text" value="{{ recur_bill.sgst|floatformat:2 }} INR" class="amnt"
-                                        style="font-size: 16px; color: azure;" readonly>
-                                </div>
-                            </div>
-                            <div class="d-flex justify-content-between mb-5">
-                                <div class="col-md-8 mt-3">
-                                    <h6 style="color: #ccc;">Shipping Charge :</h5><br>
-                                </div>
-                                <div class="col-md-4 mt-3 mx-3">
-                                    <input type="text" value="{{ recur_bill.shipping_charge }} INR" class="amnt"
-                                        style="font-size: 16px; color: azure;" readonly>
-                                </div>
-                            </div>
-
-                            <div class="d-flex justify-content-between mb-5">
-                                <div class="col-md-6 mt-3">
-                                    <h6 style="color: #ccc;">Grand Total :</h5><br>
-                                </div>
-                                <div class="col-md-6 mt-3 mx-3">
-                                    <input type="text" value="{{ recur_bill.grand_total|floatformat:2 }} INR"
-                                        class="amnt " style="font-size: 16px; color: azure;" readonly>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
-    <!-- comment modal -->
-
-    <div class="modal fade " id="cmnts"
-        style="width: 750px; margin-left: 350px; justify-content: center; overflow: hidden;">
-        <div class="modal-dialog modal-xl m-5 p-5">
-            <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
-                <div class="modal-header " style="background: rgb(32, 35, 37);">
-                    <h5 class="m-3 text-uppercase text-light">Enter Comment</h5>
-                    <button type="button" class="close text-dark bg-none" data-dismiss="modal"
-                        aria-label="Close">&times;</button>
-
-                </div>
-                <div class="modal-body" style="background: rgb(32, 35, 37); justify-content: center; overflow: hidden;">
-                    <div class="card p-0 m-0">
-                        <form action="" method="post" class="needs-validation" novalidate autocomplete="off"
-                            id="modalComment">
-                            <div class="row mt-2">
-                                <input type="hidden" value="{{recur_bill.id}}" id="com_id">
-                                <div class="col-md-6 mt-2">
-                                    {% if recur_bill.comments %}
-                                    <textarea class="form-control text-dark bg-light" id="comment" name="comment" required
-                                        style="height: 200px; width: 550px;">{{recur_bill.comments}}</textarea>
-                                    {% else %}
-                                    <textarea class="form-control text-dark bg-light" id="comment" name="comment" required
-                                        style="height: 200px; width: 550px;"></textarea>
-                                    {% endif %}
-                                </div>
-                            </div>
-
-                            <div class="row mt-5">
-                                <div class="col-md-4"></div>
-                                <div class="col-md-4">
-                                    <div class="d-flex">
-                                        <button class="btn save_btn rounded-pill text-grey w-50 my-4 mx-3" type="submit"
-                                            data-dismiss="modal" id="commentSave">Save </button>
-
-
-                                        <button type="button"
-                                            class="close btn save_btn rounded-pill text-grey w-50 my-4"
-                                            data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">Cancel</span>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="col-md-4"></div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- attach file modal -->
-
-    <div class="modal fade" id="files" style="width: 750px; margin-left: 350px;">
-        <div class="modal-dialog modal-xl m-5 p-5">
-            <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
-                <div class="modal-header " style="background: rgb(32, 35, 37);">
-                    <h5 class="m-3 text-uppercase text-light" id="exampleModalLabel">Add File</h5>
-                    <button type="button" class="close text-dark bg-none" data-dismiss="modal"
-                        aria-label="Close">&times;</button>
-                </div>
-                <div class="modal-body" style="background: rgb(32, 35, 37); justify-content: center; overflow: hidden;">
-                    <div class="card p-0 m-0">
-                        <form action="" id="modalAddfile">
-                            <div class="row mt-2 mx-5 text-center">
-                                <input type="hidden" value="{{recur_bill.id}}" id="file_id">
-                                <input type="file" class="form-control text-dark bg-light" name="file" id="filess" style="width: 400px;">
-
-                            </div>
-
-                            <div class="row mt-5">
-                                <div class="col-md-4"></div>
-                                <div class="col-md-4">
-                                    <div class="d-flex">
-                                        <button
-                                            class=" font-weight-bold save_btn rounded-pill text-light w-50 my-4 mx-2"
-                                            type="submit" data-dismiss="modal" id="fileSave">Save </button>
-
-
-                                        <button type="button"
-                                            class="font-weight-bold save_btn rounded-pill text-light w-50 my-4"
-                                            data-dismiss="modal" aria-label="Close"> Cancel</button>
-                                    </div>
-                                </div>
-                                <div class="col-md-4"></div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-    <!-- email modal -->
-
-    <div class="modal fade p-3" id="emails" style="width: 800px; margin-left: 350px; overflow-x: hidden;">
-        <div class="modal-dialog modal-xl m-5 p-5">
-            <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
-                <div class="modal-header " style="background: rgb(32, 35, 37);">
-                    <h5 class="m-3 text-uppercase text-light" id="exampleModalLabel">Send Email</h5>
-                    <button type="button" class="close text-dark bg-none" data-dismiss="modal"
-                        aria-label="Close">&times;</button>
-                </div>
-                <div class="modal-body" style="background: rgb(32, 35, 37); justify-content: center; overflow: hidden;">
-                    <div class="card p-0 m-0">
-                        <form action="" id="modalEmail">
-                            <!-- <input type="hidden" value="{{recur_bill.id}}" id="email_id"> -->
-                            <div class="row mt-2">
-                                <div class="col-md-3 mt-2">
-                                  <label for="">To : </label><br>
-                                </div>
-                                <div class="col-md-6 mt-2">
-                                  <input type="text" class="form-control text-dark bg-light" id="to" name="to" required style="width: 350px;">
-                                </div>
-                            </div>
-
-                            <div class="row mt-2">
-                                <div class="col-md-3 mt-2">
-                                  <label for="">From : </label><br>
-                                </div>
-                                <div class="col-md-6 mt-2">
-                                  <input type="text" class="form-control text-dark bg-light" id="from" name="from" required style="width: 350px;">
-                                </div>
-                            </div>
-
-                            <div class="row mt-2">
-                                <div class="col-md-3 mt-2">
-                                  <label for="">Subject : </label><br>
-                                </div>
-                                <div class="col-md-6 mt-2">
-                                  <input type="text" class="form-control text-dark bg-light" id="sub" name="sub" required style="width:350px;">
-                                </div>
-                            </div>
-
-                            <div class="row mt-2">
-                                <div class="col-md-3 mt-2">
-                                  <label for="">Message : </label><br>
-                                </div>
-                                <div class="col-md-6 mt-2">
-                                    <textarea class="form-control text-dark bg-light" id="msg" name="msg" required
-                                    style="height: 200px; width: 350px;"> </textarea>
-                                </div>
-                            </div>
-
-                            <div class="row mt-5">
-                                <div class="col-md-4"></div>
-                                <div class="col-md-4">
-                                    <div class="d-flex">
-                                        <button
-                                            class=" font-weight-bold save_btn rounded-pill text-light w-50 my-4 mx-2"
-                                            type="submit" data-dismiss="modal" id="emailSave">Send </button>
-
-
-                                        <button type="button"
-                                            class="font-weight-bold save_btn rounded-pill text-light w-50 my-4"
-                                            data-dismiss="modal" aria-label="Close"> Cancel</button>
-                                    </div>
-                                </div>
-                                <div class="col-md-4"></div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-</div>
-<div id="editor"></div>
-<!-- </div> -->
-
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/print-js/1.6.0/print.js"></script>
- 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
-
-
-<script>
-    function openTab(evt, tabName) {
-        var i, tabcontent, tablinks;
-        tabcontent = document.getElementsByClassName("tabcontent");
-
-        for (i = 0; i < tabcontent.length; i++) {
-            tabcontent[i].style.display = "none";
-        }
-
-        tablinks = document.getElementsByClassName("tablinks");
-
-        for (i = 0; i < tablinks.length; i++) {
-            tablinks[i].className = tablinks[i].className.replace(" active", "");
-        }
-
-        document.getElementById(tabName).style.display = "block";
-        evt.currentTarget.className += " active";
-    }
-
-    function showTax() {
-        if ('{{gst_or_igst}}' == "GST") {
-            $("#sgst").removeClass('d-none')
-            $('#sgst').addClass('d-flex')
-            $("#cgst").removeClass('d-none')
-            $('#cgst').addClass('d-flex')
-        }
-        else {
-            $("#igst").removeClass('d-none')
-            $('#igst').addClass('d-flex')
-        }
-    }
-    window.onload = showTax;
-
-
-    $(document).ready(function () {
-        $("#commentSave").click(function () {
-
-            $.ajax({
-
-                type: 'POST',
-                url: "{% url 'recurbill_comment' %}",
-
-                data: {
-                    id: $("#com_id").val(),
-                    comment: $("#comment").val(),
-
-                    csrfmiddlewaretoken: '{{ csrf_token }}'
-
-                },
-
-                success: function (response) {
-                    document.getElementById("modalComment").reset();
-                },
-            });
-        });
-    });
-
-
-    $(document).ready(function () {
-        $("#fileSave").click(function () {
-
-            $.ajax({
-
-                type: 'POST',
-                
-
-                data: {
-                    id: $("#file_id").val(),
-                    file: $("#filess").val(),
-
-                    csrfmiddlewaretoken: '{{ csrf_token }}'
-
-                },
-
-                success: function (response) {
-                    document.getElementById("modalAddfile").reset();
-                },
-            });
-        });
-    });
-
-
-    $(document).ready(function () {
-        $("#emailSave").click(function () {
-
-            $.ajax({
-
-                type: 'POST',
-                
-
-                data: {
-                    // id: $("#email_id").val(),
-                    recipient: $("#to").val(),
-                    sender: $("#from").val(),
-                    subject : $("#sub").val(),
-                    message : $("#msg").val(),
-
-
-                    csrfmiddlewaretoken: '{{ csrf_token }}'
-
-                },
-
-                success: function (response) {
-                    document.getElementById("modalEmail").reset();
-                },
-            });
-        });
-    });
-
-    $(document).ready(function() {
-  $('#search').keyup(function() {
-    var searchText = $(this).val().toLowerCase();
-
-    $('.bills a').each(function() {
-      var profileName = $(this).find('.pname').text().toLowerCase();
-      if (profileName.indexOf(searchText) === -1) {
-        $(this).hide();
-      } else {
-        $(this).show();
-      }
-    });
-  });
-});
-
-$(document).ready(function () {
-        console.log('print');
-
-        $(document).on('click', '.toPDF', function (event) {
-            console.log('print1');
-            event.preventDefault();
-            var element = document.getElementById('Template');
+            </table>
             
-            var opt =
-            {
-                margin: 0,
-                filename: 'recurring bill_'+$("#pid").text() + '.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 3 },
-                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-            };
-            html2pdf().set(opt).from(element).save();
+        </div>
+        <div class="overview col-8 col-lg-8 col-md-9  col-sm-10 py-3">
+            <div id="overview">
+                <div class="p-name">
+                    <h3 class="px-2 pb-2" id="id1">{{p.first_name}} {{p.last_name}}</h3>
+                </div>
+
+                <div class="bar pt-3">
+                    <div class="left">
+                        {% for loan in loans %}
+                        <a class="btn mx-1 fa fa-file-word" href="{% url 'employee_loan_template' payroll_id=loan.payroll.id %}">Template</a>
+
+
+                    
+                        <a class="btn mx-1, fa fa-eye"  href="{% url 'employee_loan_details' payroll_id=p.id %}">Overview</a>
+                    </div>
+                    {% endfor %}
+                    <div class="right">
+                        {% for loan in loans %}
+                        <a class="btn ml-1" href="{% url 'edit_loan' loan_id=loan.id %}" data-toggle="tooltip" title="Edit"><i
+                                class="fas fa-edit"></i></a>
+                                {% endfor %}
+                                <a href=" " class=" toPDF  btn btn_print ml-1" id="toPDF"
+                                data-toggle="tooltip" title="PDF"><i class="mdi mdi-file-pdf"></i></a>
+                            <a href="" class=" fa fa-print btn"   data-toggle="tooltip"
+                            title="PRINT" onclick="window.print()"> </a>
+                        <!-- onclick="generatePDF()" -->
+                        
+                        <script type="text/javascript">
+                            $(document).ready(function ($) {
+                                console.log('print');
+
+                                $(document).on('click', '.btn_print', function (event) {
+                                    console.log('print1');
+                                    event.preventDefault();
+                                    var element = document.getElementById('div-to-pdf');
+                                    var opt =
+                                    {
+                                        margin: 1,
+                                        filename: 'employee loan' + '.pdf',
+                                        image: { type: 'jpeg', quality: 0.98 },
+                                        html2canvas: { scale: 2 },
+                                        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+                                    };
+                                    html2pdf().set(opt).from(element).save();
+
+                                });
+
+                            });
+                        </script>
+                        
+                        <a class="btn ml-1" href="" id="dd1" data-bs-toggle="dropdown" aria-haspopup="true"
+                            data-toggle="tooltip" title="Download Attachments" aria-expanded="false" role="button">
+                            <i class="fas fa-download"></i>
+                        </a>
+                        <div class="dropdown-menu">
+                            {% if attach %}
+                            <table class="table table-borderless">
+                                {% for a in attach %}
+                                <tr>
+                                    <td>{{forloop.counter}}.</td>
+                                    <td><a href="{% url 'file_download' a.id %}">{{a.attachment.name}}</a></td>
+                                    <td><a href="{% url 'deletefile' a.id %}"><i class="fas fa-trash"></i></a></td>
+                                </tr>
+                                {% endfor %}
+                            </table>
+                            {% else %}
+                            <div class="text-center">No Attachment found</div>
+                            {% endif %}
+                        </div>
+                        {% for loan in loans %}
+                        <a class="btn ml-1" href="{% url 'delete_loan' loan.id %}" data-toggle="tooltip" data-placement="top" title="Delete Loan"
+
+                            title="Delete" onclick="return confirm('Do you want to Delete this Employee loan details?');"><i class="fa fa-trash"></i></a>
+                            {% endfor %}
+                        <a class="btn ml-1" href="" data-toggle="modal" data-target="#commentModal"
+                            data-toggle="tooltip" title="comment"><i class="far fa-comment"></i></a>
+                        <label for="file-input" class="btn ml-1 border-0" data-toggle="tooltip"
+                            title="Upload Attachments">
+                            <i class="fas fa-paperclip"></i>
+                        </label>
+                        <input id="file-input" type="file" name="file" style="display:none;" onchange="uploadFile()">
+                        <button class="btn btn-primary" onclick="toggleLoanActiveStatus({{ loan.id }})" id="active-button">
+                            {% if loan.active %}
+                                Deactivate
+                            {% else %}
+                                Activate
+                            {% endif %}
+                        </button>
+                        
+                    </div>
+                </div>
+                <hr>
+                
+
+                <div id="Template" class=" print-only page tabcontent p-5 m-3" style="display: block; background-color:azure">
+                    <div class="row pt-0 m-0 text-center">
+                        <div class="col-4 "></div>
+                        <div class="col-4 ">
+                            <h4 class="text-uppercase text-dark" >Employee Loan Details</h4>
+                        </div>
+                        <div class="col-4 "></div>
+                    </div>
+                    <div class="row extra-info pt-2 mt-3">
+                        <div class="col-1 "></div>
+                        <div class="col-5 ">
+                            <h3 class="text-uppercase" style="color: black;"><b>{{ company.company_name }}</b></h3>
+
+                            <p class="address mx-2 p-2"> {{company.address}}<br>
+                                {{company.city}} <br>
+                                {{company.state}}<br>
+                                {{company.pincode}}<br>
+                            </p>                    
+                        </div>
+                        <div class="col-1 "></div>
+                        <div class="col-5">
+                            
+                            <section class="d-flex justify-content-between">
+                                <div class="top-right">
+                                    <div class="graphic-path text-center">
+                                        
+                                        
+                                        
+                                        <h5 class="text-capitalize"  >{{p.first_name}} {{p.last_name}}</h5>
+                                        
+    
+                                    </div>
+                                    <div class="position-relative">
+                                        
+                                        <p>Designation : &nbsp <span style="color: black;">{{p.designation}}</span></p>
+                                        <p>Employee ID : &nbsp <span style="color: black;">{{p.emp_number}}</span></p>
+                                        
+                                        <p>Email : &nbsp <span style="color: black;">{{p.email}}</span></p> 
+                                        <p>Phone : &nbsp <span style="color: black;">{{p.Phone}}</span></p> 
+                                    </div>
+                                </div>
+                               
+                            </section>
+    
+                        </div>
+                    </div>
+    
+    
+                    <section class="store-user mt-2">
+                        <div class="col-12">
+                            
+    
+                        </div>
+                    </section>
+    
+                    <section class="product-area mt-0">
+                        <table class="table ">
+                            <thead style="background-color:burlywood; color: black;">
+                                <tr>
+                                    <td>Particulars</td>
+                                    <td>Loan Amount</td>
+                                    <td>Loan Issue Date</td>
+                                    <td>Loan Expiry Date</td>
+                                    
+                                </tr>
+                            </thead>
+                            <tbody style=":hover{color: #ddd; background-color: transparent;}">
+    
+                                {% for b in loans %}
+                                <tr >
+                                    <td><h7>Loan Issue</h7></td>
+                                    <td>{{b.loan_amount}}</td>
+                                    <td>{{b.date_issue}} </td>
+                                    <td>{{b.date_expiry}}</td>
+                                    
+                                </tr>
+                                {% endfor %}
+    
+                            </tbody>
+                        </table>
+                    </section>
+    
+                    <section class="balance-info p-5">
+                       
+                        </div>
+                    </section>
+    
+                </div>
+    
+    
+                <!-- overview -->
+                <div id="Overview" class="tabcontent mt-0 border-0 p-4 mx-0" style="overflow-x: hidden; border-top: #ccc double 2px; background-color: burlywood ;border-radius: 5px;">
+    
+                    <h3 class="mb-0 mx-5 text-muted" style="color: rgb(161, 195, 226);">{{ company.company_name }}</h3>
+                    <center>
+                        <h2 class="mb-4" style=" color: #434141;">RECURRING BILLS</h2>
+                    </center>
+    
+                    <div class="row g-0">
+                        <div class="col-md-7">
+                            <div class="p-5">
+                                <p class="text-grey">Bill Amount</p>
+                                <div class="d-flex justify-content-between align-items-center mb-5">
+                                    <b>
+                                        <span style=" color: #434141;">
+                                            ₹ <input type="text" value="{{ recur_bill.grand_total|floatformat:2 }}"
+                                                class="amnt text-dark" style="font-size: 18px; color: #434141;">
+                                        </span>
+                                    </b>
+                                </div>
+                                <hr class="my-4">
+    
+    
+                                <div class="row mb-4 d-flex justify-content-between align-items-center">
+                                    <div class="col-md-6 mt-3">
+                                        <h6 class="mb-0 text-grey ">Profile Name :</h6>
+                                    </div>
+                                    <div class="col-md-6 mt-3">
+                                        <p class="mb-0 " style="font-size: 18px; color: #434141;">{{ recur_bill.profile_name }}</p>
+                                    </div>
+                                </div>
+    
+                                <div class="row mb-4 d-flex justify-content-between align-items-center">
+                                    <div class="col-md-6 mt-3">
+                                        <h6 class="mb-0 text-grey " >Repeat Every :</h6>
+                                    </div>
+                                    <div class="col-md-6 mt-3">
+                                        <p class="mb-0" style="font-size: 18px; color: #434141;">{{ recur_bill.repeat_every }}</p>
+                                    </div>
+                                </div>
+                                <div class="row mb-4 d-flex justify-content-between align-items-center">
+                                    <div class="col-md-6 mt-3">
+                                        <h6 class="mb-0 text-grey">Start Date :</h6>
+                                    </div>
+                                    <div class="col-md-6 mt-3">
+                                        <p class="mb-0" style="font-size: 18px; color: #434141;">{{ recur_bill.start_date |date:'d-m-Y' }}</p>
+                                    </div>
+    
+                                </div>
+    
+                                <div class="row mb-4 d-flex justify-content-between align-items-center">
+    
+                                    <div class="col-md-6 mt-3">
+                                        <h6 class="mb-0 text-grey">End Date :</h6>
+                                    </div>
+                                    <div class="col-md-6 mt-3">
+                                        <p class="mb-0" style="font-size: 18px; color: #434141;">{{ recur_bill.end_date |date:'d-m-Y' }}</p>
+                                    </div>
+                                </div>
+    
+                                <div class="row mb-4 d-flex justify-content-between align-items-center">
+                                    <div class="col-md-6 mt-3">
+                                        <h6 class="mb-0 text-grey">Payment Terms:</h6>
+                                    </div>
+                                    <div class="col-md-6 mt-3">
+                                        <p class="mb-0" style="font-size: 18px; color: #434141;"> NET {{ recur_bill.payment_terms }}</p>
+                                    </div>
+                                </div>
+    
+                                <div class="row mb-4 d-flex justify-content-between align-items-center">
+                                    <div class="col-md-6 mt-3">
+                                        <h6 class="mb-0 text-grey">Tax :</h6>
+                                    </div>
+                                    <div class="col-md-6 mt-3">
+                                        <span style="font-size: 18px; color: #434141;">{{ gst_or_igst }} - </span>
+                                        {% for bi in tax %}
+                                            <input type="text" value="{{ bi|floatformat:2 }}" style="font-size: 18px; color: #434141; width: 55px;" class="tax 1 tx">
+                                        <span class="text-muted">%</span><br><span style="margin-left: 55px;"></span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="row mb-4 d-flex justify-content-between align-items-center">
+                                    <div class="col-md-6 mt-3">
+                                        <h6 class="mb-0 text-grey">Source of Supply :</h6>
+                                    </div>
+                                    <div class="col-md-6 mt-3">
+                                        <p class="mb-0 text-capitalize" style="font-size: 18px; color: #434141;">{{ recur_bill.source_supply }}</p>
+                                    </div>
+    
+                                </div>
+                                <div class="row mb-4 d-flex justify-content-between align-items-center">
+                                    <div class="col-md-6 mt-3">
+                                        <h6 class="mb-0 text-grey">Note :</h6>
+                                    </div>
+                                    <div class="col-md-6 mt-3">
+                                        <p class="mb-0 text-capitalize" style="font-size: 18px; color: #434141;">{{ recur_bill.note }}</p>
+                                    </div>
+    
+                                </div>
+                                <!-- <hr class="my-4"> -->
+                            </div>
+                        </div>
+                        <div class="col-md-5  " style="background-color:#8b3131; border-radius: 5px;" >
+                            <div class="p-5">
+                                <div class="d-block justify-content-between mb-5">
+                                    <div class="col-md-12 mt-3">
+                                        <h5 style="color: #ccc;">Vendor :</h5>
+                                    </div><br>
+                                    <div class="col-md-12 my-0 mx-5">
+                                        <h6 class="text-capitalize" style="color: azure;">{{ vendor_name }}</h6>
+                                    </div>
+                                </div>
+                                <div class="d-block justify-content-between mb-5">
+                                    <div class="col-md-12 mt-3">
+                                        <h5 style="color: #ccc;">Customer :</h5>
+                                    </div><br>
+                                    <div class="col-md-12 my-0 mx-5">
+                                        <h6 class="text-capitalize " style="color: azure;">{{ customer_name }}
+                                        </h6>
+                                    </div>
+                                </div>
+    
+                                <hr class="my-4">
+    
+                                <div class="d-flex justify-content-between mb-5">
+                                    <div class="col-md-5 mt-3">
+                                        <h6 style="color: #ccc;">Subtotal :</h5><br>
+                                    </div>
+                                    <div class="col-md-7 mt-3 mx-3">
+                                        <input type="text" value="{{ recur_bill.sub_total|floatformat:2 }} INR" class="amnt"
+                                            style="font-size: 16px; color: azure;" readonly>
+                                    </div>
+                                </div>
+                                <div class="justify-content-between mb-5 d-none" id="igst">
+                                    <div class="col-md-4 mt-3">
+                                        <h6 style="color: #ccc;">IGST :</h5><br>
+                                    </div>
+                                    <div class="col-md-8 mt-3 mx-3">
+                                        <input type="text" value="{{ recur_bill.igst|floatformat:2 }} INR" class="amnt"
+                                            style="font-size: 16px; color: azure;" readonly>
+                                    </div>
+                                </div>
+                                <div class=" justify-content-between mb-5 d-none" id="cgst">
+                                    <div class="col-md-4 mt-3">
+                                        <h6 style="color: #ccc;">CGST :</h5><br>
+                                    </div>
+                                    <div class="col-md-8 mt-3 mx-3">
+                                        <input type="text" value="{{ recur_bill.cgst|floatformat:2 }} INR" class="amnt"
+                                            style="font-size: 16px; color: azure;" readonly>
+                                    </div>
+                                </div>
+                                <div class=" justify-content-between mb-5  d-none" id="sgst">
+                                    <div class="col-md-4 mt-3">
+                                        <h6 style="color: #ccc;">SGST :</h5><br>
+                                    </div>
+                                    <div class="col-md-8 mt-3 mx-3">
+                                        <input type="text" value="{{ recur_bill.sgst|floatformat:2 }} INR" class="amnt"
+                                            style="font-size: 16px; color: azure;" readonly>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-between mb-5">
+                                    <div class="col-md-8 mt-3">
+                                        <h6 style="color: #ccc;">Shipping Charge :</h5><br>
+                                    </div>
+                                    <div class="col-md-4 mt-3 mx-3">
+                                        <input type="text" value="{{ recur_bill.shipping_charge }} INR" class="amnt"
+                                            style="font-size: 16px; color: azure;" readonly>
+                                    </div>
+                                </div>
+    
+                                <div class="d-flex justify-content-between mb-5">
+                                    <div class="col-md-6 mt-3">
+                                        <h6 style="color: #ccc;">Grand Total :</h5><br>
+                                    </div>
+                                    <div class="col-md-6 mt-3 mx-3">
+                                        <input type="text" value="{{ recur_bill.grand_total|floatformat:2 }} INR"
+                                            class="amnt " style="font-size: 16px; color: azure;" readonly>
+                                    </div>
+                                </div>
+    
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    
+            </div>
+        </div>
+    
+        <!-- comment modal -->
+    
+        <div class="modal fade " id="cmnts"
+            style="width: 750px; margin-left: 350px; justify-content: center; overflow: hidden;">
+            <div class="modal-dialog modal-xl m-5 p-5">
+                <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
+                    <div class="modal-header " style="background: rgb(32, 35, 37);">
+                        <h5 class="m-3 text-uppercase text-light">Enter Comment</h5>
+                        <button type="button" class="close text-dark bg-none" data-dismiss="modal"
+                            aria-label="Close">&times;</button>
+    
+                    </div>
+                    <div class="modal-body" style="background: rgb(32, 35, 37); justify-content: center; overflow: hidden;">
+                        <div class="card p-0 m-0">
+                            <form action="" method="post" class="needs-validation" novalidate autocomplete="off"
+                                id="modalComment">
+                                <div class="row mt-2">
+                                    <input type="hidden" value="{{recur_bill.id}}" id="com_id">
+                                    <div class="col-md-6 mt-2">
+                                        {% if recur_bill.comments %}
+                                        <textarea class="form-control text-dark bg-light" id="comment" name="comment" required
+                                            style="height: 200px; width: 550px;">{{recur_bill.comments}}</textarea>
+                                        {% else %}
+                                        <textarea class="form-control text-dark bg-light" id="comment" name="comment" required
+                                            style="height: 200px; width: 550px;"></textarea>
+                                        {% endif %}
+                                    </div>
+                                </div>
+    
+                                <div class="row mt-5">
+                                    <div class="col-md-4"></div>
+                                    <div class="col-md-4">
+                                        <div class="d-flex">
+                                            <button class="btn save_btn rounded-pill text-grey w-50 my-4 mx-3" type="submit"
+                                                data-dismiss="modal" id="commentSave">Save </button>
+    
+    
+                                            <button type="button"
+                                                class="close btn save_btn rounded-pill text-grey w-50 my-4"
+                                                data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">Cancel</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4"></div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <!-- attach file modal -->
+    
+        <div class="modal fade" id="files" style="width: 750px; margin-left: 350px;">
+            <div class="modal-dialog modal-xl m-5 p-5">
+                <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
+                    <div class="modal-header " style="background: rgb(32, 35, 37);">
+                        <h5 class="m-3 text-uppercase text-light" id="exampleModalLabel">Add File</h5>
+                        <button type="button" class="close text-dark bg-none" data-dismiss="modal"
+                            aria-label="Close">&times;</button>
+                    </div>
+                    <div class="modal-body" style="background: rgb(32, 35, 37); justify-content: center; overflow: hidden;">
+                        <div class="card p-0 m-0">
+                            <form action="" id="modalAddfile">
+                                <div class="row mt-2 mx-5 text-center">
+                                    <input type="hidden" value="{{recur_bill.id}}" id="file_id">
+                                    <input type="file" class="form-control text-dark bg-light" name="file" id="filess" style="width: 400px;">
+    
+                                </div>
+    
+                                <div class="row mt-5">
+                                    <div class="col-md-4"></div>
+                                    <div class="col-md-4">
+                                        <div class="d-flex">
+                                            <button
+                                                class=" font-weight-bold save_btn rounded-pill text-light w-50 my-4 mx-2"
+                                                type="submit" data-dismiss="modal" id="fileSave">Save </button>
+    
+    
+                                            <button type="button"
+                                                class="font-weight-bold save_btn rounded-pill text-light w-50 my-4"
+                                                data-dismiss="modal" aria-label="Close"> Cancel</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4"></div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+    
+        <!-- email modal -->
+    
+        <div class="modal fade p-3" id="emails" style="width: 800px; margin-left: 350px; overflow-x: hidden;">
+            <div class="modal-dialog modal-xl m-5 p-5">
+                <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
+                    <div class="modal-header " style="background: rgb(32, 35, 37);">
+                        <h5 class="m-3 text-uppercase text-light" id="exampleModalLabel">Send Email</h5>
+                        <button type="button" class="close text-dark bg-none" data-dismiss="modal"
+                            aria-label="Close">&times;</button>
+                    </div>
+                    <div class="modal-body" style="background: rgb(32, 35, 37); justify-content: center; overflow: hidden;">
+                        <div class="card p-0 m-0">
+                            <form action="" id="modalEmail">
+                                <!-- <input type="hidden" value="{{recur_bill.id}}" id="email_id"> -->
+                                <div class="row mt-2">
+                                    <div class="col-md-3 mt-2">
+                                      <label for="">To : </label><br>
+                                    </div>
+                                    <div class="col-md-6 mt-2">
+                                      <input type="text" class="form-control text-dark bg-light" id="to" name="to" required style="width: 350px;">
+                                    </div>
+                                </div>
+    
+                                <div class="row mt-2">
+                                    <div class="col-md-3 mt-2">
+                                      <label for="">From : </label><br>
+                                    </div>
+                                    <div class="col-md-6 mt-2">
+                                      <input type="text" class="form-control text-dark bg-light" id="from" name="from" required style="width: 350px;">
+                                    </div>
+                                </div>
+    
+                                <div class="row mt-2">
+                                    <div class="col-md-3 mt-2">
+                                      <label for="">Subject : </label><br>
+                                    </div>
+                                    <div class="col-md-6 mt-2">
+                                      <input type="text" class="form-control text-dark bg-light" id="sub" name="sub" required style="width:350px;">
+                                    </div>
+                                </div>
+    
+                                <div class="row mt-2">
+                                    <div class="col-md-3 mt-2">
+                                      <label for="">Message : </label><br>
+                                    </div>
+                                    <div class="col-md-6 mt-2">
+                                        <textarea class="form-control text-dark bg-light" id="msg" name="msg" required
+                                        style="height: 200px; width: 350px;"> </textarea>
+                                    </div>
+                                </div>
+    
+                                <div class="row mt-5">
+                                    <div class="col-md-4"></div>
+                                    <div class="col-md-4">
+                                        <div class="d-flex">
+                                            <button
+                                                class=" font-weight-bold save_btn rounded-pill text-light w-50 my-4 mx-2"
+                                                type="submit" data-dismiss="modal" id="emailSave">Send </button>
+    
+    
+                                            <button type="button"
+                                                class="font-weight-bold save_btn rounded-pill text-light w-50 my-4"
+                                                data-dismiss="modal" aria-label="Close"> Cancel</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4"></div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    <div id="editor"></div>
+    <!-- </div> -->
+    
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/print-js/1.6.0/print.js"></script>
+     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+    
+    
+    <script>
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+    
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+    
+            tablinks = document.getElementsByClassName("tablinks");
+    
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+    
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+    
+        
+    
+    
+        $(document).ready(function () {
+            $("#commentSave").click(function () {
+    
+                $.ajax({
+    
+                    type: 'POST',
+                    url: "{% url 'recurbill_comment' %}",
+    
+                    data: {
+                        id: $("#com_id").val(),
+                        comment: $("#comment").val(),
+    
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+    
+                    },
+    
+                    success: function (response) {
+                        document.getElementById("modalComment").reset();
+                    },
+                });
+            });
+        });
+    
+    
+        $(document).ready(function () {
+            $("#fileSave").click(function () {
+    
+                $.ajax({
+    
+                    type: 'POST',
+                    
+    
+                    data: {
+                        id: $("#file_id").val(),
+                        file: $("#filess").val(),
+    
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+    
+                    },
+    
+                    success: function (response) {
+                        document.getElementById("modalAddfile").reset();
+                    },
+                });
+            });
+        });
+    
+    
+        $(document).ready(function () {
+            $("#emailSave").click(function () {
+    
+                $.ajax({
+    
+                    type: 'POST',
+                    
+    
+                    data: {
+                        // id: $("#email_id").val(),
+                        recipient: $("#to").val(),
+                        sender: $("#from").val(),
+                        subject : $("#sub").val(),
+                        message : $("#msg").val(),
+    
+    
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+    
+                    },
+    
+                    success: function (response) {
+                        document.getElementById("modalEmail").reset();
+                    },
+                });
+            });
+        });
+    
+        $(document).ready(function() {
+      $('#search').keyup(function() {
+        var searchText = $(this).val().toLowerCase();
+    
+        $('.bills a').each(function() {
+          var profileName = $(this).find('.pname').text().toLowerCase();
+          if (profileName.indexOf(searchText) === -1) {
+            $(this).hide();
+          } else {
+            $(this).show();
+          }
+        });
+      });
+    });
+    
+    $(document).ready(function () {
+            console.log('print');
+    
+            $(document).on('click', '.toPDF', function (event) {
+                console.log('print1');
+                event.preventDefault();
+                var element = document.getElementById('Template');
+                
+                var opt =
+                {
+                    margin: 0,
+                    filename: 'Employee loan'+$("#pid").text() + '.pdf',
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 3 },
+                    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+                };
+                html2pdf().set(opt).from(element).save();
+    
+            });
+    
+     });
+    
+    </script>
+
+
+
+    <script type="text/javascript">
+        $(document).ready(function ($) {
+            console.log('print');
+
+            $(document).on('click', '.btn_print', function (event) {
+                console.log('print1');
+                event.preventDefault();
+                var element = document.getElementById('div-to-pdf');
+                var opt =
+                {
+                    margin: 1,
+                    filename: 'employee loan' + '.pdf',
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2 },
+                    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+                };
+                html2pdf().set(opt).from(element).save();
+
+            });
 
         });
+    </script>
 
- });
+
+
+
+
+    
+<script>
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                // Check if the cookie name matches the CSRF cookie name
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    function uploadFile() {
+        const fileInput = document.getElementById("file-input");
+        const file = fileInput.files[0];
+        const csrfToken = getCookie('csrftoken')
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        fetch("/payroll_file/{{p.id}}", {
+            method: "POST",
+            headers: { 'X-CSRFToken': csrfToken },
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                // Handle the response from the server (if needed)
+                console.log(data);
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            });
+    }
+
+
 
 </script>
+<script>
 
+    jQuery(document).ready(function ($) {
+        $(".clickable-row").click(function () {
+            window.location = $(this).data("href");
+        });
+    });
+
+    function searchFunction() {
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("search");
+        filter = input.value.toLowerCase();
+        table = document.getElementById("mytable");
+        tr = table.getElementsByTagName("tr");
+        // input.style.borderColor = "green";
+        for (i = 0; i < tr.length; i++) {
+            let rowVisible = false;
+            td = tr[i].getElementsByTagName("td");
+            for (j = 0; j < td.length; j++) {
+                if (td[j]) {
+                    txtValue = td[j].textContent || td[j].innerText;
+                    if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                        rowVisible = true;
+                        break;
+                    }
+                }
+            }
+
+            // Show/hide the row based on the search results
+            tr[i].style.display = rowVisible ? "" : "none";
+        }
+    }
+</script>
+<script>
+    function sortTable(columnIndex) {
+        let sortAscending = false
+        const table = document.getElementById("mytable");
+        const rows = Array.from(table.rows).slice(1); // Exclude the header row
+
+        rows.sort((row1, row2) => {
+            const cellValue1 = row1.cells[columnIndex].textContent.toLowerCase();
+            const cellValue2 = row2.cells[columnIndex].textContent.toLowerCase();
+
+            if (cellValue1 < cellValue2) {
+                return -1;
+            } else if (cellValue1 > cellValue2) {
+                return 1;
+            } else {
+                return 0;
+            }
+        });
+
+        // Clear the table body
+        while (table.rows.length > 1) {
+            table.deleteRow(1);
+        }
+
+        // Append the sorted rows back to the table
+        rows.forEach(row => table.appendChild(row));
+        sortAscending = !sortAscending;
+    }
+
+    function rsortTable(columnIndex) {
+        let sortAscending = false
+        const table = document.getElementById("mytable");
+        const rows = Array.from(table.rows).slice(1); // Exclude the header row
+
+        rows.sort((row1, row2) => {
+            const cellValue1 = row1.cells[columnIndex].textContent.toLowerCase();
+            const cellValue2 = row2.cells[columnIndex].textContent.toLowerCase();
+
+            if (sortAscending) {
+                if (cellValue1 < cellValue2) {
+                    return -1;
+                } else if (cellValue1 > cellValue2) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            } else {
+                if (cellValue1 > cellValue2) {
+                    return -1;
+                } else if (cellValue1 < cellValue2) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            }
+        });
+
+        // Clear the table body
+        while (table.rows.length > 1) {
+            table.deleteRow(1);
+        }
+
+        // Append the sorted rows back to the table
+        rows.forEach(row => table.appendChild(row));
+
+        // Toggle the sorting order for the next click
+        sortAscending = !sortAscending;
+    }
+
+
+
+
+
+    function toggleLoanActiveStatus(loanId) {
+        // Send an AJAX request to toggle the active status
+        $.ajax({
+            url: `/toggle_loan_active/${loanId}/`,
+            method: 'POST',
+            dataType: 'json',
+            success: function (data) {
+                // Update the button text and style based on the response
+                const activeButton = document.getElementById('active-button');
+                if (data.active) {
+                    activeButton.textContent = 'Deactivate';
+                    activeButton.classList.remove('btn-success');
+                    activeButton.classList.add('btn-danger');
+                } else {
+                    activeButton.textContent = 'Activate';
+                    activeButton.classList.remove('btn-danger');
+                    activeButton.classList.add('btn-success');
+                }
+            },
+            error: function (error) {
+                console.error('Error:', error);
+            }
+        });
+    }
+    
+</script>
+
+<script>
+
+ <!-- onclick="generatePDF()" -->
+                        
+ $(document).ready(function () {
+    console.log('print');
+
+    $(document).on('click', '.toPDF', function (event) {
+        console.log('print1');
+        event.preventDefault();
+        var element = document.getElementById('Template');
+        
+        var opt =
+        {
+            margin: 0,
+            filename: 'recurring bill_'+$("#pid").text() + '.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 3 },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(element).save();
+
+    });
+
+});
+</script>
 {% endblock %}
+
+<!-- edit com attach dele active/inactive -->

@@ -116,6 +116,14 @@
         margin: 0 auto;
         text-align: center;
     }
+
+    .fixed-width-label {
+        display: inline-block;
+        width: 150px; /* Set your desired fixed width */
+        margin-right: 10px; /* Add margin for spacing if needed */
+    }
+
+    
 </style>
 <section>
     <div class="containerprof p-5">
@@ -225,16 +233,20 @@
                     
                     <div class="row pb-3" id="percentageWiseFields">
                         <div class="col-6">
-                            <label for="percentage" class="mr-2 mb-0" style="width: 150px;">Percentage</label>
+                            <label for="percentage" class="fixed-width-label">Percentage</label>
                         </div>
                         <div class="input-container col-6">
                             <input type="number" class="form-control text-dark" name="percentage" id="percentage" step="0.01" min="0" max="100" oninput="updateMonthlyCuttingAmount()">
                         </div>
                     </div>
                     
+                    
+                    
                     <div class="row pb-3" id="percentageWiseMonthlyFields">
-                        <div class="col-6 d-flex align-items-center">
+                        <div class="col-6">
                             <label for="monthly_cutting_amount" class="mr-2 mb-0" style="width: 150px;">Monthly Cutting Amount</label>
+                        </div>
+                        <div class="input-container col-6">
                             <input type="number" class="form-control text-dark" name="monthly_cutting_amount" id="monthly_cutting_amount" step="0.01" min="0">
                         </div>
                     </div>
@@ -891,16 +903,17 @@
                             var amountWiseFields = document.getElementById('amountWiseFields');
                         
                             if (paymentMethod === 'percentage_wise') {
-                                percentageWiseFields.style.display = 'block';
-                                amountWiseFields.style.display = 'none';
+                                percentageWiseFields.style.visibility = 'visible';
+                                amountWiseFields.style.visibility = 'hidden';
                             } else if (paymentMethod === 'amount_wise') {
-                                percentageWiseFields.style.display = 'none';
-                                amountWiseFields.style.display = 'block';
+                                percentageWiseFields.style.visibility = 'hidden';
+                                amountWiseFields.style.visibility = 'visible';
                             } else {
-                                percentageWiseFields.style.display = 'none';
-                                amountWiseFields.style.display = 'none';
+                                percentageWiseFields.style.visibility = 'hidden';
+                                amountWiseFields.style.visibility = 'hidden';
                             }
                         }
+                        
                        
                     
                     

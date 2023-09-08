@@ -218,7 +218,7 @@
                         {% for loan in loans %}
                         <a class="btn ml-1" href="{% url 'delete_loan' loan.id %}" data-toggle="tooltip" data-placement="top" title="Delete Loan"
 
-                            title="Delete"><i class="fa fa-trash"></i></a>
+                            title="Delete" onclick="return confirm('Do you want to Delete this Employee loan details?');"><i class="fa fa-trash"></i></a>
                             {% endfor %}
                         <a class="btn ml-1" href="" data-toggle="modal" data-target="#commentModal"
                             data-toggle="tooltip" title="comment"><i class="far fa-comment"></i></a>
@@ -254,16 +254,12 @@
                         </h3>
                     </div>
                     <div class="gen-info col-6 " style="padding-left: 3rem;">
-                        <div class="photo text-center py-3" style="height: 30vh;">
-                            <a href="{% url 'img_download' p.id %}" download>
-                                <img class="img-fluid" src="{{p.image.url}}" alt="" width="150px" name="img">
-                            </a>
-
-                        </div>
+                       
                         <div class="row text-center">
                             <h5 class="h4 text-dark">{{p.title}} {{p.first_name}} {{p.last_name}}</h5>
                             <div class="h5">({{p.alias}}) {{p.gender}}</div>
                         </div>
+                        
                         <div class="row mt-5">
                             <div class="col-4"><label for="">Email :</label></div>
                             <div class="col-8">
@@ -400,14 +396,17 @@
                 <div class="modal-header">
                     <h3 class="modal-title" id="exampleModalLabel">Add Comments</h3>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+                        <span aria-hidden="true">&times;</span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
+                            <path d="M.646 1.646a.5.5 0 0 1 .708 0L8 7.293 15.646.646a.5.5 0 1 1 .708.708L8.707 8l7.647 7.646a.5.5 0 0 1-.708.708L8 8.707l-7.646 7.647a.5.5 0 0 1-.708-.708L7.293 8 .646 1.646a.5.5 0 0 1 0-.708z"/>
+                          </svg>
                     </button>
                 </div>
-
-                <form action="{% url 'add_payrollcomment' p.id %}" method="POST" enctype="multipart/form-data">
+               
+                <form action="{% url 'add_loan_comment' l.id %}" method="POST" enctype="multipart/form-data">
+                    
                     {% csrf_token %}
                     <div class="modal-body">
-                        <textarea type="text" class="form-control text-dark" name="comments"></textarea>
+                        <textarea type="text" class="form-control text-dark" name="comment"></textarea>
                         <div class="container-fluid">
 
                             <table class="table  mt-4">
@@ -419,12 +418,12 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for c in com %}
+                                    {% for c in c %}
                                     <tr class="table-row">
                                         <td>{{forloop.counter }}</td>
-                                        <td>{{c.comment}}</td>
+                                        <td>{{c.lc.comment}}</td>
                                         <td><a class="text-danger"
-                                                href="{% url 'delete_payrollcomment' c.id  %}">Delete</a></td>
+                                                href="{% url 'delete_loan_comment' c.id  %}">Delete</a></td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>

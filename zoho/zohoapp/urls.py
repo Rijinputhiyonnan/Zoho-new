@@ -473,8 +473,13 @@ urlpatterns = [
 
 path('employee_loan_template/<int:payroll_id>/', views.employee_loan_template, name='employee_loan_template'),
 
+ path('add_loan_comment/<int:loan_id/', views.add_loan_comment, name='add_loan_comment'),
 
-path('employee/<int:payroll_id>/loan_copy/', views.employee_loan_details_copy, name='employee_loan_details_copy'),
+
+   
+
+
+
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
