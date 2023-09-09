@@ -9877,10 +9877,7 @@ def employee_loan_template(request, payroll_id):
     return render(request, 'app/employee_loan_template.html', context)
 
 
-from django.shortcuts import get_object_or_404, redirect
-from django.http import JsonResponse
 
-from .models import Loan
 
 def add_loan_comment(request, payroll_id):
     loan = get_object_or_404(Loan, id=payroll_id)
@@ -9895,8 +9892,6 @@ def add_loan_comment(request, payroll_id):
         else:
             return JsonResponse({'success': False, 'error': 'Comment cannot be empty'})
 
-# You can add this view to your URL patterns like this:
-# path('add_loan_comment/<int:loan_id>/', add_loan_comment, name='add_loan_comment')
 
 
 
