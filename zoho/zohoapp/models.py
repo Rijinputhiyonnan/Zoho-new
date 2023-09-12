@@ -1130,3 +1130,11 @@ class Loan(models.Model):
                 raise ValueError("Monthly cutting amount cannot be greater than or equal to salary")
         super().save(*args, **kwargs)
 
+class LoanComment(models.Model):
+    loan = models.ForeignKey('Loan', on_delete=models.CASCADE)
+    payroll = models.ForeignKey('Payroll', on_delete=models.CASCADE)  # ForeignKey to Payroll
+    text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'Comment on Loan {self.loan.id}'

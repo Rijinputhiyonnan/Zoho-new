@@ -105,12 +105,15 @@
     </div>
     <div class="input-container col-6">
         <select class="form-control text-dark" name="payment_method" id="payment_method" required onchange="showAdditionalFields()" id="date_expiry" value="{{ loan.monthly_cutting_type}}" required >
-            <option value="">Select</option>
+            {% if loan.monthly_cutting_type == 'percentage' %} 
             <option value="percentage_wise">Percentage Wise</option>
-            <option value="amount_wise">Amount Wise</option>
+            {%else%}
+            <option value="amount">Amount Wise</option>
+            {%endif%}
         </select>
     </div>
 </div>
+
 
 <div class="row pb-3" id="percentageWiseFields">
     <div class="col-6">
@@ -386,6 +389,60 @@
         }
     }
 </script>
+
+
+
+<script>
+    // Function to handle form submission and validation
+    function handleFormSubmission() {
+        // Get the selected payment method
+        var paymentMethod = document.getElementById('payment_method').value;
+        
+        // Validate the form based on the selected payment method
+        if (paymentMethod === 'percentage_wise') {
+            // Validate percentage and monthly cutting amount
+            var percentage = parseFloat(document.getElementById('percentage').value);
+            var salary = parseFloat(document.getElementById('salary').value);
+            var monthlyCuttingAmount = parseFloat(document.getElementById('monthly_cutting_amount').value);
+            
+            if (isNaN(percentage) || isNaN(salary) || isNaN(monthlyCuttingAmount) || percentage < 0 || percentage > 100 || monthlyCuttingAmount < 0 || monthlyCuttingAmount > salary) {
+                document.getElementById('error-message').innerText = "Invalid percentage or monthly cutting amount.";
+                return false; // Prevent form submission
+            } else {
+                document.getElementById('error-message').innerText = ""; // Clear error message
+                return true; // Allow form submission
+            }
+        } else if (paymentMethod === 'amount_wise') {
+            // Validate monthly cutting amount
+            var monthlyCuttingAmount = parseFloat(document.getElementById('monthly_cutting_amount').value);
+            var salary = parseFloat(document.getElementById('salary').value);
+            
+            if (isNaN(monthlyCuttingAmount) || monthlyCuttingAmount < 0 || monthlyCuttingAmount > salary) {
+                document.getElementById('error-message').innerText = "Invalid monthly cutting amount.";
+                return false; // Prevent form submission
+            } else {
+                document.getElementById('error-message').innerText = ""; // Clear error message
+                return true; // Allow form submission
+            }
+        }
+        
+        return true; // Allow form submission for other cases
+    }
+
+    // Function to update the monthly cutting amount when percentage changes
+    function updateMonthlyCuttingAmount() {
+        var percentage = parseFloat(document.getElementById('percentage').value);
+        var salary = parseFloat(document.getElementById('salary').value);
+        
+        if (!isNaN(percentage) && !isNaN(salary)) {
+            var monthlyCuttingAmount = (percentage / 100) * salary;
+            document.getElementById('monthly_cutting_amount').value = monthlyCuttingAmount.toFixed(2);
+        } else {
+            document.getElementById('monthly_cutting_amount').value = '';
+        }
+    }
+</script>
+    
 
 {% endblock %}
 
