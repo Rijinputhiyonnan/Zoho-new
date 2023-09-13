@@ -9762,34 +9762,59 @@ def delete_loan(request, loan_id):
 
 
 
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Payroll, Loan
 
-
-from django.shortcuts import render, redirect, get_object_or_404
-from .models import Loan
-from .forms import EditLoanForm  # Import the edit loan form
-
-def edit_loan(request, loan_id):
-    # Retrieve the loan to be edited based on its ID
-    loan = get_object_or_404(Loan, id=loan_id)
+def edit_loan(request, loan_id): 
+    error_message = None
+    loan = get_object_or_404(Loan, id=loan_id)  
 
     if request.method == 'POST':
         # Process form submission
-        form = EditLoanForm(request.POST, instance=loan)  # Bind the loan object to the form
-        if form.is_valid():
-            form.save()  # Update the loan object in the database
-            return redirect('employee_list')  # Redirect to the employee list page after successful update
-    else:
-        # Display the edit loan form with the loan data
-        form = EditLoanForm(instance=loan)
+        issue_date = request.POST.get('date_issue')
+        expiry_date = request.POST.get('date_expiry')
+        loan_amount = request.POST.get('loan_amount')
         
-        
+        # Check if 'payment_method' exists and has been updated
+        if 'payment_method' in request.POST:
+            cutting_type = request.POST.get('payment_method')
+        else:
+            cutting_type = loan.monthly_cutting_type
+
+        # Check if 'cutting_type' is "percentage_wise" and calculate cutting_amount
+        if cutting_type == 'percentage_wise':
+            cutting_percentage = request.POST.get('percentage')
+            cutting_amount = (float(cutting_percentage) / 100) * float(loan.payroll.salary)
+        else:
+            # 'cutting_type' is "amount_wise" or not provided, set cutting_percentage and cutting_amount to existing values
+            cutting_percentage = loan.monthly_cutting_percentage
+            cutting_amount = request.POST.get('monthly_cutting_amount')
+        if float(cutting_amount) > float(loan.payroll.salary):
+            error_message = "Monthly cutting amount cannot exceed the salary of the employee."
+
+        else:
+            # Update loan details
+            loan.date_issue = issue_date
+            loan.date_expiry = expiry_date
+            loan.loan_amount = loan_amount
+            loan.monthly_cutting_percentage = cutting_percentage
+            loan.monthly_cutting_amount = cutting_amount
+            loan.monthly_cutting_type = cutting_type  # Update the 'cutting_type' if provided
+            loan.save()
+
+            return redirect('employee_list')  # Redirect to the employee list page
 
     context = {
-        'form': form,
-        'loan': loan,
+        'loan': loan,  # Pass loan object to the template
+        'error_message': error_message,
     }
 
     return render(request, 'app/edit_loan.html', context)
+
+
+
+
+
 
 
 
@@ -9800,12 +9825,23 @@ def employee_loan_details(request, payroll_id):
     payroll = get_object_or_404(Payroll, id=payroll_id)
     loans = Loan.objects.filter(payroll=payroll)
     l=Loan.objects.all()
-    com=Loan.objects.filter(payroll=payroll)
+    comments = LoanComment.objects.filter(loan__in=loans)
+    ''' if request.method == 'POST':
+        comment_text = request.POST.get('comment', '')  # Get the comment from the form
+        loan_id = request.POST.get('loan_id', '')  # Get the associated loan ID from the form
+        
+        if comment_text and loan_id:
+            loan = get_object_or_404(Loan, id=loan_id)
+            comment = LoanComment(comment=comment_text, loan=loan)
+            comment.save()
+            # Redirect to the same page after saving the comment
+            return redirect('employee_loan_details', payroll_id=payroll_id)'''
+
     context = {
         'p': payroll,
-        'c' : com,
         'loans': loans,
         'l' : l,
+        'comments': comments,
     }
     for loan in loans:
         print(f"Loan ID: {loan.id}")
@@ -9877,23 +9913,27 @@ def employee_loan_template(request, payroll_id):
     return render(request, 'app/employee_loan_template.html', context)
 
 
-from django.shortcuts import get_object_or_404, redirect
-from django.http import JsonResponse
-
-from .models import Loan
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Loan, LoanComment
+from django.contrib import messages
 
 def add_loan_comment(request, loan_id):
-    loan = get_object_or_404(Loan, id=loan_id)
-
+    print("add_loan_comment view is called.")  # Add this print statement
+    
+    loan = Loan.objects.get(id=loan_id)
     if request.method == 'POST':
-        comment = request.POST.get('comment', '')  # Get the comment data from the POST request
+        comment_text = request.POST['comment']
+        comment = LoanComment(comment=comment_text, loan=loan)
+        comment.save()
+        print("Comment saved successfully.")  # Add this print statement
+    else:
+        print("Request method is not POST.")  # Add this print statement
+    
+    return redirect('employee_loan_details', payroll_id=loan.payroll.id)
 
-        if comment:
-            loan.comment = comment
-            loan.save()
-            return JsonResponse({'success': True})
-        else:
-            return JsonResponse({'success': False, 'error': 'Comment cannot be empty'})
+    # ...
+
+
 
 
 

@@ -1106,7 +1106,7 @@ class Loan(models.Model):
         validators=[MinValueValidator(0.0)]
     )
 
-    comment = models.TextField(blank=True)
+    
     attach = models.FileField(upload_to='loan_attachments/', blank=True)
     active = models.BooleanField(default=True)
 
@@ -1132,8 +1132,8 @@ class Loan(models.Model):
 
 class LoanComment(models.Model):
     loan = models.ForeignKey('Loan', on_delete=models.CASCADE)
-    payroll = models.ForeignKey('Payroll', on_delete=models.CASCADE)  # ForeignKey to Payroll
-    text = models.TextField()
+    payroll = models.ForeignKey('Payroll', on_delete=models.CASCADE)  
+    comment = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
