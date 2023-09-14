@@ -473,7 +473,8 @@ urlpatterns = [
 
 path('employee_loan_template/<int:payroll_id>/', views.employee_loan_template, name='employee_loan_template'),
 
-  path('add_loan_comment/<int:loan_id>/', views.add_loan_comment, name='add_loan_comment'),
+  path('add_loan_comment/<int:payroll_id>/', views.add_loan_comment, name='add_loan_comment'),
+ path('delete_loan_comment/<int:comment_id>/', views.delete_loan_comment, name='delete_loan_comment'),
 
 
 

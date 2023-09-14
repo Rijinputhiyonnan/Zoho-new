@@ -1131,7 +1131,7 @@ class Loan(models.Model):
         super().save(*args, **kwargs)
 
 class LoanComment(models.Model):
-    loan = models.ForeignKey('Loan', on_delete=models.CASCADE)
+    
     payroll = models.ForeignKey('Payroll', on_delete=models.CASCADE)  
     comment = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)

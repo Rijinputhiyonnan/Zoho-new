@@ -404,11 +404,11 @@
                
 
     
- 
+ {%for loan in loans%}
                 
-                <form method="post" action="{% url 'employee_loan_details' p.id %}">
+                <form method="post" action="{% url 'add_loan_comment' payroll_id=loan.payroll.id %}">
                   
-
+{%endfor%}
 
                     
                     {% csrf_token %}
@@ -430,7 +430,9 @@
                                     <tr class="table-row">
                                         <td>{{forloop.counter }}</td>
                                         <td>{{c.comment}}</td>
-                                        <td></td>
+                                        
+                                        <td><a class="text-danger"
+                                            href="{% url 'delete_loan_comment' c.id %}">Delete</a></td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>

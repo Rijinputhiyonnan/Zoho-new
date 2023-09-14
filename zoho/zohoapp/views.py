@@ -9825,7 +9825,7 @@ def employee_loan_details(request, payroll_id):
     payroll = get_object_or_404(Payroll, id=payroll_id)
     loans = Loan.objects.filter(payroll=payroll)
     l=Loan.objects.all()
-    comments = LoanComment.objects.filter(loan__in=loans)
+    comments = LoanComment.objects.filter(payroll=payroll)
     ''' if request.method == 'POST':
         comment_text = request.POST.get('comment', '')  # Get the comment from the form
         loan_id = request.POST.get('loan_id', '')  # Get the associated loan ID from the form
@@ -9913,25 +9913,59 @@ def employee_loan_template(request, payroll_id):
     return render(request, 'app/employee_loan_template.html', context)
 
 
-from django.shortcuts import render, redirect, get_object_or_404
-from .models import Loan, LoanComment
-from django.contrib import messages
 
-def add_loan_comment(request, loan_id):
+from django.shortcuts import get_object_or_404, redirect
+from .models import Payroll, Loan, LoanComment
+
+'''def add_loan_comment(request, payroll_id):
     print("add_loan_comment view is called.")  # Add this print statement
+    payroll = get_object_or_404(Payroll, id=payroll_id)
     
-    loan = Loan.objects.get(id=loan_id)
     if request.method == 'POST':
         comment_text = request.POST['comment']
-        comment = LoanComment(comment=comment_text, loan=loan)
+        loan_id = request.POST['loan_id']  # Retrieve the loan_id from the form
+        loan = get_object_or_404(Loan, id=loan_id)  # Get the associated loan
+        
+        comment = LoanComment(text=comment_text, loan=loan)
         comment.save()
         print("Comment saved successfully.")  # Add this print statement
     else:
         print("Request method is not POST.")  # Add this print statement
     
-    return redirect('employee_loan_details', payroll_id=loan.payroll.id)
+    # Redirect back to the employee_loan_details page for the same payroll_id
+    return redirect('employee_loan_details', payroll_id=payroll_id)'''
 
-    # ...
+def add_loan_comment(request,payroll_id):
+    
+    payroll = get_object_or_404(Payroll, id=payroll_id)
+    
+    if request.method== 'POST':
+        comments=request.POST['comment']
+        c= LoanComment(comment=comments,payroll=payroll)
+        c.save()
+    return redirect('employee_loan_details',payroll_id=payroll_id)
+
+
+
+def delete_loan_comment(request, comment_id):
+    try:
+        # Get the loan comment using the provided comment_id
+        comment = get_object_or_404(LoanComment, id=comment_id)
+        
+        # Get the associated payroll for redirection
+        payroll = comment.payroll
+        
+        # Delete the comment
+        comment.delete()
+        
+        # Redirect to the appropriate view (e.g., 'employee_loan_details')
+        return redirect('employee_loan_details', payroll_id=payroll.id)
+    except LoanComment.DoesNotExist:
+        # Handle the case where the comment does not exist
+        return redirect('employee_loan_details', payroll_id=payroll.id)
+
+
+
 
 
 
