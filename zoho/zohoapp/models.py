@@ -1107,7 +1107,7 @@ class Loan(models.Model):
     )
 
     
-    attach = models.FileField(upload_to='loan_attachments/', blank=True)
+    
     active = models.BooleanField(default=True)
 
     def __str__(self):
@@ -1138,3 +1138,12 @@ class LoanComment(models.Model):
 
     def __str__(self):
         return f'Comment on Loan {self.loan.id}'
+    
+    
+class LoanAttach(models.Model):
+    
+    payroll = models.ForeignKey('Payroll', on_delete=models.CASCADE)  
+    attach = models.FileField(upload_to='loan_attachments/', blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    

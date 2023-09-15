@@ -476,9 +476,14 @@ path('employee_loan_template/<int:payroll_id>/', views.employee_loan_template, n
   path('add_loan_comment/<int:payroll_id>/', views.add_loan_comment, name='add_loan_comment'),
  path('delete_loan_comment/<int:comment_id>/', views.delete_loan_comment, name='delete_loan_comment'),
 
+path('add_loan_attach/<int:payroll_id>/', views.add_loan_attach, name='add_loan_attach'),
+
+   path('download_loan_attach/<int:payroll_id>/', views.download_loan_attach, name='download_loan_attach'),
+  path('delete_loan_attach/<int:attach_id>/', views.delete_loan_attach, name='delete_loan_attach'),
 
 
-   
+path('loan_active/<int:loan_id>',views.loan_active,name='loan_active'),
+path('loan_deactive/<int:loan_id>',views.loan_deactive,name='loan_deactive'),
 
 
 ]

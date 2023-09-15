@@ -112,6 +112,24 @@
         height: auto !important;
         margin: auto;
     }
+
+
+    
+.table-container {
+    display: inline-block;
+    overflow-x: auto; 
+    max-width: 100%; 
+}
+
+
+.truncate-text {
+    max-width: 350px; 
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+}
+
 </style>
 <section>
     <div class="row p-3">
@@ -120,6 +138,7 @@
                 <h5>ALL EMPLOYEES LOAN LIST</h5>
             </div>
             <div class="searchbar">
+                
                 <input class="form-control" type="text" placeholder="Search by Name" name="search" id="search"
                     onkeyup="searchFunction()"
                     style="color: rgb(255, 255, 255);background: transparent;margin-right: 5px;">
@@ -127,10 +146,15 @@
                     aria-expanded="false" role="button">
                     <i class="fa fa-filter"></i>
                 </a>
+                {% for l in l %}
                 <div class="dropdown-menu ">
-                    <a class="dropdown-item" href="javascript:sortTable(0)">Name A-Z</a>
-                    <a class="dropdown-item" href="javascript:rsortTable(0)">Name Z-A</a>
+                   
+                    <a class="dropdown-item" href="{% url 'employee_loan_details' l.payroll_id %}" style="font-size: 14px;">All</a>
+<a class="dropdown-item" href="{% url 'employee_loan_details' l.payroll_id %}?status=active" style="font-size: 14px;">Active</a>
+<a class="dropdown-item" href="{% url 'employee_loan_details' l.payroll_id %}?status=inactive" style="font-size: 14px;">Inactive</a>
+
                 </div>
+                {% endfor %}
                 <a class="btn btn-outline-primary mr-1" href="{% url 'create_loan' %}"><i class="fa fa-plus"></i></a>
             </div>
             <hr>
@@ -202,15 +226,17 @@
                         </a>
                         <div class="dropdown-menu">
                             {% if attach %}
+                            <div class="table-container">
                             <table class="table table-borderless">
                                 {% for a in attach %}
                                 <tr>
                                     <td>{{forloop.counter}}.</td>
-                                    <td><a href="{% url 'file_download' a.id %}">{{a.attachment.name}}</a></td>
-                                    <td><a href="{% url 'deletefile' a.id %}"><i class="fas fa-trash"></i></a></td>
+                                    <td><a href="{% url 'download_loan_attach' a.payroll_id %}"><div class="truncate-text">{{ a.attach.name }}</div></a></td>
+                                    <td><a href="{% url 'delete_loan_attach' a.id %}"><i class="fas fa-trash"></i></a></td>
                                 </tr>
                                 {% endfor %}
                             </table>
+                        </div>
                             {% else %}
                             <div class="text-center">No Attachment found</div>
                             {% endif %}
@@ -219,24 +245,63 @@
                         <a class="btn ml-1" href="{% url 'delete_loan' loan.id %}" data-toggle="tooltip" data-placement="top" title="Delete Loan"
 
                             title="Delete" onclick="return confirm('Do you want to Delete this Employee loan details?');"><i class="fa fa-trash"></i></a>
-                            {% endfor %}
+                            
                         <a class="btn ml-1" href="" data-toggle="modal" data-target="#commentModal"
                             data-toggle="tooltip" title="comment"><i class="far fa-comment"></i></a>
-                        <label for="file-input" class="btn ml-1 border-0" data-toggle="tooltip"
-                            title="Upload Attachments">
-                            <i class="fas fa-paperclip"></i>
-                        </label>
-                        <input id="file-input" type="file" name="file" style="display:none;" onchange="uploadFile()">
-                        <button class="btn btn-primary" onclick="toggleLoanActiveStatus({{ loan.id }})" id="active-button">
-                            {% if loan.active %}
-                                Deactivate
-                            {% else %}
-                                Activate
-                            {% endif %}
-                        </button>
+                            <form  class="btn ml-1" method="post" action="{% url 'add_loan_attach' payroll_id=loan.payroll.id %}" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <label for="file-input"  data-toggle="tooltip" title="Upload Attachments">
+                                    <i class="fas fa-paperclip"></i>
+                                </label>
+                                <input id="file-input" type="file" name="file" style="display: none;" onchange="uploadFile()">
+                                <input type="hidden" id="payroll-id" value="{{ loan.payroll.id }}">
+                            </form>
+                            {% endfor %}
+                            
+
+                    <script>    
+                        function uploadFile() {
+                            const fileInput = document.getElementById("file-input");
+                            const file = fileInput.files[0];
+                            const csrfToken = getCookie('csrftoken');
+                            const payrollId = document.getElementById("payroll-id").value;
+                            
+                            const formData = new FormData();
+                            formData.append("file", file);
+                            
+                            fetch(`/add_loan_attach/${payrollId}/`, {
+                                method: "POST",
+                                headers: { 'X-CSRFToken': csrfToken },
+                                body: formData
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                // Handle the response from the server (if needed)
+                                const messageDiv = document.getElementById("upload-message");
+        if (data.message) {
+            // Display the success message
+            messageDiv.textContent = data.message;
+            messageDiv.style.color = "green";
+        }
+        messageDiv.style.display = "block";
+    })
+    .catch(error => {
+        console.error("Error:", error);
+    });
+}
                         
+                    </script>                    
+{%for loan in loans%}
+{% if loan.active %}
+                    <a class="btn ml-1" href="{% url 'loan_deactive' loan.id %}" id="sts">Active</a>
+                    {%else%}
+                    <a class="btn ml-1" href="{% url 'loan_active' loan.id %}" id="sts">Deactive</a>
+                    {%endif%}
+                    {%endfor%}
+                        <div id="upload-message" style="display:none;"></div>
                     </div>
                 </div>
+                
                 <hr>
                 
 
@@ -468,29 +533,7 @@
         }
         return cookieValue;
     }
-    function uploadFile() {
-        const fileInput = document.getElementById("file-input");
-        const file = fileInput.files[0];
-        const csrfToken = getCookie('csrftoken')
-
-        const formData = new FormData();
-        formData.append("file", file);
-
-        fetch("/payroll_file/{{p.id}}", {
-            method: "POST",
-            headers: { 'X-CSRFToken': csrfToken },
-            body: formData
-        })
-            .then(response => response.json())
-            .then(data => {
-                // Handle the response from the server (if needed)
-                console.log(data);
-            })
-            .catch(error => {
-                console.error("Error:", error);
-            });
-    }
-
+   
 
 
 </script>

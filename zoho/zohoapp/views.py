@@ -9822,10 +9822,20 @@ from django.shortcuts import render, get_object_or_404
 from .models import Payroll, Loan
 
 def employee_loan_details(request, payroll_id):
+    status = request.GET.get('status', 'all')
+
+    if status == 'active':
+        loans = Loan.objects.filter(payroll_id=payroll_id, active=True)
+    elif status == 'inactive':
+        loans = Loan.objects.filter(payroll_id=payroll_id, active=False)
+    else:
+        loans = Loan.objects.filter(payroll_id=payroll_id)
+
     payroll = get_object_or_404(Payroll, id=payroll_id)
     loans = Loan.objects.filter(payroll=payroll)
     l=Loan.objects.all()
     comments = LoanComment.objects.filter(payroll=payroll)
+    attach = LoanAttach.objects.filter(payroll=payroll)
     ''' if request.method == 'POST':
         comment_text = request.POST.get('comment', '')  # Get the comment from the form
         loan_id = request.POST.get('loan_id', '')  # Get the associated loan ID from the form
@@ -9842,6 +9852,7 @@ def employee_loan_details(request, payroll_id):
         'loans': loans,
         'l' : l,
         'comments': comments,
+        'attach' : attach
     }
     for loan in loans:
         print(f"Loan ID: {loan.id}")
@@ -9966,10 +9977,80 @@ def delete_loan_comment(request, comment_id):
 
 
 
+from django.http import JsonResponse
+
+def add_loan_attach(request, payroll_id):
+    if request.method == "POST" and request.FILES.get("file"):
+        files = request.FILES["file"]
+        payroll = get_object_or_404(Payroll, id=payroll_id)
+        a = LoanAttach(attach=files, payroll=payroll)
+        a.save()
+
+        # Return a JSON response indicating success
+        response_data = {'message': 'File uploaded successfully'}
+        return JsonResponse(response_data)
+
+    
+
+        
+        
+    else:
+        return redirect('employee_loan_details', payroll_id=payroll_id)
+
+
+
+def download_loan_attach(request,payroll_id):
+    p= Payrollfiles.objects.get(id=payroll_id)
+    file = p.attachment
+    response = FileResponse(file)
+    response['Content-Disposition'] = f'attachment; filename="{file.name}"'
+    return response
 
 
 
 
 
 
+def delete_loan_attach(request, attach_id):
+    try:
+        # Get the loan comment using the provided comment_id
+        attach = get_object_or_404(LoanAttach, id=attach_id)
+        
+        # Get the associated payroll for redirection
+        payroll = attach.payroll
+        
+        # Delete the comment
+        attach.delete()
+        
+        # Redirect to the appropriate view (e.g., 'employee_loan_details')
+        return redirect('employee_loan_details', payroll_id=payroll.id)
+    except LoanAttach.DoesNotExist:
+        # Handle the case where the comment does not exist
+        # Redirect to an appropriate view or return an error response
+        return redirect('employee_loan_details', payroll_id=payroll.id)  # You may want to change this behavior if needed
+
+
+
+
+def loan_active(request, loan_id):
+  
+    l = get_object_or_404(Loan, id=loan_id)
+
+    # Activate the bank account
+    l.active = True
+    l.save()
+
+    # Redirect to a success page
+    return redirect('employee_loan_details' ,payroll_id=loan_id)
+
+def loan_deactive(request, loan_id):
+  
+    l = get_object_or_404(Loan, id=loan_id)
+
+    # Activate the bank account
+    l.active = False
+    l.save()
+
+    # Redirect to a success page
+    return redirect('employee_loan_details' ,payroll_id=loan_id)
 
