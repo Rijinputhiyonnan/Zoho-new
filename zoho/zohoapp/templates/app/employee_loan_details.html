@@ -129,7 +129,14 @@
     text-overflow: ellipsis;
     display: inline-block;
 }
+#mytable tr {
+    display: table-row;
+}
 
+
+.actoinacto .dropdown-item:hover {
+    background-color: #0baef4;
+}
 </style>
 <section>
     <div class="row p-3">
@@ -146,22 +153,20 @@
                     aria-expanded="false" role="button">
                     <i class="fa fa-filter"></i>
                 </a>
-                {% for l in l %}
-                <div class="dropdown-menu ">
-                   
-                    <a class="dropdown-item" href="{% url 'employee_loan_details' l.payroll_id %}" style="font-size: 14px;">All</a>
-<a class="dropdown-item" href="{% url 'employee_loan_details' l.payroll_id %}?status=active" style="font-size: 14px;">Active</a>
-<a class="dropdown-item" href="{% url 'employee_loan_details' l.payroll_id %}?status=inactive" style="font-size: 14px;">Inactive</a>
-
+               
+                <div class="dropdown-menu actoinacto" >
+                    <a class="dropdown-item filter-link" data-status="all" href="#" style="font-size: 14px;">All</a>
+                    <a class="dropdown-item filter-link" data-status="active" href="#" style="font-size: 14px;">Active</a>
+                    <a class="dropdown-item filter-link" data-status="inactive" href="#" style="font-size: 14px;">Inactive</a>
                 </div>
-                {% endfor %}
+                
                 <a class="btn btn-outline-primary mr-1" href="{% url 'create_loan' %}"><i class="fa fa-plus"></i></a>
             </div>
             <hr>
             <table class="table table-borderless" id="mytable">
                 <tr></tr>
                 {% for l in l %}
-                <tr class='clickable-row' data-href="{% url 'employee_loan_details' l.payroll_id %}">
+                <tr class='clickable-row' data-href="{% url 'employee_loan_details' l.payroll_id %}" data-status="{{ l.active }}">
                     <td class="pt-2">
                         <p class="bold">{{ l.payroll.first_name }} {{ l.payroll.last_name }}</p>
                         <p>{{ l.date_issue }}</p>
@@ -170,6 +175,29 @@
                 </tr>
                 {% endfor %}
             </table>
+            
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const filterLinks = document.querySelectorAll(".filter-link");
+        const tableRows = document.querySelectorAll(".clickable-row");
+
+        filterLinks.forEach(function (link) {
+            link.addEventListener("click", function (event) {
+                event.preventDefault();
+
+                const status = link.getAttribute("data-status");
+
+                tableRows.forEach(function (row) {
+                    if (status === "all" || (status === "active" && row.getAttribute("data-status") === "True") || (status === "inactive" && row.getAttribute("data-status") === "False")) {
+                        row.style.display = "table-row";
+                    } else {
+                        row.style.display = "none";
+                    }
+                });
+            });
+        });
+    });
+</script>
             
         </div>
         <div class="overview col-8 col-lg-8 col-md-9  col-sm-10 py-3">
@@ -229,11 +257,18 @@
                             <div class="table-container">
                             <table class="table table-borderless">
                                 {% for a in attach %}
+                                {% for loan in loans %}
                                 <tr>
                                     <td>{{forloop.counter}}.</td>
-                                    <td><a href="{% url 'download_loan_attach' a.payroll_id %}"><div class="truncate-text">{{ a.attach.name }}</div></a></td>
+                                    <td>
+                                        
+                                        <a href="{% url 'download_loan_attach' payroll_id=loan.payroll.id attachment_id=a.id %}">
+                                            <div class="truncate-text">{{ a.attach.name }}</div>
+                                        </a>
+                                    </td>
                                     <td><a href="{% url 'delete_loan_attach' a.id %}"><i class="fas fa-trash"></i></a></td>
                                 </tr>
+                                {% endfor %}
                                 {% endfor %}
                             </table>
                         </div>

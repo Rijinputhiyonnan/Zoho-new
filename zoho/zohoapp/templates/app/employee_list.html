@@ -36,7 +36,7 @@
     }
 </style>
 <style>
-    /* Your existing styles here */
+    
 
     /* Additional styles for the popup */
     .popup {
@@ -68,6 +68,11 @@
     .popup-buttons button {
         margin-left: 1rem;
     }
+
+
+    .actoinacto .dropdown-item:hover {
+        background-color: #0baef4;
+    }
 </style>
 
 <section>
@@ -89,10 +94,10 @@
                     <a class="btn btn-outline-primary" href="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                     role="button"><i class="fa fa-filter"></i>
                     </a>
-                    <div class="dropdown-menu" id="filterMenu">
-                        <a class="dropdown-item" href="#" data-value="All">All</a>
-                        <a class="dropdown-item" href="#" data-value="Active">Active</a>
-                        <a class="dropdown-item" href="#" data-value="Inactive">Inactive</a>
+                    <div class="dropdown-menu actoinacto">
+                        <a class="dropdown-item filter-link" data-status="all" href="#" style="font-size: 14px;">All</a>
+                        <a class="dropdown-item filter-link" data-status="active" href="#" style="font-size: 14px;">Active</a>
+                        <a class="dropdown-item filter-link" data-status="inactive" href="#" style="font-size: 14px;">Inactive</a>
                     </div>
                     <a class="btn btn-outline-primary" href="{% url 'create_loan' %}"><i class="fa fa-plus"></i>NEW</a>
                 </div>
@@ -113,7 +118,7 @@
             </thead>
             <tbody>
                 {% for employee in employees %}
-                <tr class="clickable-row" data-href="{% url 'employee_loan_details' employee.id %}">
+                <tr class="clickable-row" data-href="{% url 'employee_loan_details' employee.id %}" data-status="{{employee.loan_info.active }}">
                     <td class="pt-3">{{ employee.joindate }}</td>
                     <td class="pt-3">{{ employee.first_name }} {{ employee.last_name }}</td>
                     <td class="pt-3">{{ employee.email }}</td>
@@ -132,6 +137,28 @@
             
             
         </table>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const filterLinks = document.querySelectorAll(".filter-link");
+                const tableRows = document.querySelectorAll(".clickable-row");
+        
+                filterLinks.forEach(function (link) {
+                    link.addEventListener("click", function (event) {
+                        event.preventDefault();
+        
+                        const status = link.getAttribute("data-status");
+        
+                        tableRows.forEach(function (row) {
+                            if (status === "all" || (status === "active" && row.getAttribute("data-status") === "True") || (status === "inactive" && row.getAttribute("data-status") === "False")) {
+                                row.style.display = "table-row";
+                            } else {
+                                row.style.display = "none";
+                            }
+                        });
+                    });
+                });
+            });
+        </script>
     </div>
 </section>
 <!-- Popup for delete confirmation -->

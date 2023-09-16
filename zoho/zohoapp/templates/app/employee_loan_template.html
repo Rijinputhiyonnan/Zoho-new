@@ -46,9 +46,7 @@
         font-weight: 600;
     }
 
-    .table tr:hover {
-        background-color: #573902;
-    }
+    
 
     .overview .bar .btn {
         background-color: rgb(238, 164, 27);
@@ -228,7 +226,7 @@
     
 
     td {
-        color: rgba(0, 0, 0, 0.5);
+        color: #ffffff;
     }
 
     .card-registration .select-input.form-control[readonly]{
@@ -373,8 +371,153 @@
         background-color: #555;
     }
 
-  
+    
+    .table-container {
+        display: inline-block;
+        overflow-x: auto; 
+        max-width: 100%; 
+    }
+    
+    
+    .truncate-text {
+        max-width: 350px; 
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: inline-block;
+    }
+    #mytable tr {
+        display: table-row;
+    }
+    * {
 
+        font-family: "Gill Sans", sans-serif;
+        color: white;
+    }
+
+    .list {
+        background-color: rgb(29, 29, 29);
+    }
+
+    .overview {
+        background-color: black;
+    }
+
+    .searchbar,
+    .overview .bar {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+        /* margin: 0 1rem; */
+    }
+
+    .searchbar .btn {
+        width: 5vw;
+        background-color: rgb(28, 117, 233);
+        font-size: 1vw;
+        color: rgb(255, 255, 255);
+    }
+
+    .table .bold {
+        font-size: 1rem;
+        font-weight: 600;
+    }
+ .horin:hover {
+        background-color: rgb(19, 19, 19);
+    }
+
+    .overview .bar .btn {
+        background-color: rgb(238, 164, 27);
+        color: #ffff;
+        padding: .3rem .3rem;
+        align-items: center;
+    }
+
+    .overview .bar .btn:hover,
+    .overview .bar .btn i:hover {
+        background-color: rgb(182, 180, 178);
+        color: #000000;
+    }
+
+    .p-name {
+        height: 2.5vw;
+    }
+
+    #div-to-pdf .p-info label,
+    #div-to-pdf .bank-div label {
+        color: #ffffff;
+        font-size: .8rem;
+    }
+
+    #div-to-pdf .gen-info label {
+        color: #000000;
+        font-size: .8rem;
+    }
+
+    #div-to-pdf .gen-info .bold {
+        color: #000000;
+        font-size: 1rem;
+    }
+
+    .div-to-pdf div {
+        color: #000000;
+    }
+
+
+    #div-to-pdf .p-info .bold,
+    #div-to-pdf .bank-div .bold {
+        font-size: 1rem;
+        color: #ffffff;
+        /* font-weight: bold; */
+    }
+
+    .modal {
+        z-index: 9999;
+        overflow: scroll;
+    }
+
+    .right .dropdown-menu {
+        width: 30vw;
+    }
+
+    .modal-backdrop {
+        background-color: rgb(0, 0, 0);
+    }
+
+    .modal .table th {
+        color: #ffffff;
+    }
+
+    .modal-content {
+        padding: 1.5rem;
+        width: 50vw;
+        height: auto !important;
+        margin: auto;
+    }
+
+
+    
+.table-container {
+    display: inline-block;
+    overflow-x: auto; 
+    max-width: 100%; 
+}
+
+
+.truncate-text {
+    max-width: 350px; 
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+}
+#mytable tr {
+    display: table-row;
+}
+
+.actoinacto .dropdown-item:hover {
+    background-color: #0baef4;
+}
     
 </style>
 <section>
@@ -391,17 +534,19 @@
                     aria-expanded="false" role="button">
                     <i class="fa fa-filter"></i>
                 </a>
-                <div class="dropdown-menu ">
-                    <a class="dropdown-item" href="javascript:sortTable(0)">Name A-Z</a>
-                    <a class="dropdown-item" href="javascript:rsortTable(0)">Name Z-A</a>
+                <div class="dropdown-menu actoinacto">
+                    <a class="dropdown-item filter-link" data-status="all" href="#" style="font-size: 14px;">All</a>
+                    <a class="dropdown-item filter-link" data-status="active" href="#" style="font-size: 14px;">Active</a>
+                    <a class="dropdown-item filter-link" data-status="inactive" href="#" style="font-size: 14px;">Inactive</a>
                 </div>
+                
                 <a class="btn btn-outline-primary mr-1" href="{% url 'create_loan' %}"><i class="fa fa-plus"></i></a>
             </div>
             <hr>
             <table class="table table-borderless " id="mytable">
                 <tr></tr>
                 {% for l in l %}
-                <tr class='clickable-row' data-href="{% url 'employee_loan_template' l.payroll_id %}">
+                <tr class='clickable-row horin' data-href="{% url 'employee_loan_template' l.payroll_id %}"  data-status="{{ l.active }}">
                     <td class="pt-2">
                         <p class="bold lo">{{ l.payroll.first_name }} {{ l.payroll.last_name }}</p>
                         <p class="lo">{{ l.date_issue }}</p>
@@ -410,7 +555,28 @@
                 </tr>
                 {% endfor %}
             </table>
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    const filterLinks = document.querySelectorAll(".filter-link");
+                    const tableRows = document.querySelectorAll(".clickable-row");
             
+                    filterLinks.forEach(function (link) {
+                        link.addEventListener("click", function (event) {
+                            event.preventDefault();
+            
+                            const status = link.getAttribute("data-status");
+            
+                            tableRows.forEach(function (row) {
+                                if (status === "all" || (status === "active" && row.getAttribute("data-status") === "True") || (status === "inactive" && row.getAttribute("data-status") === "False")) {
+                                    row.style.display = "table-row";
+                                } else {
+                                    row.style.display = "none";
+                                }
+                            });
+                        });
+                    });
+                });
+            </script>
         </div>
         <div class="overview col-8 col-lg-8 col-md-9  col-sm-10 py-3">
             <div id="overview">
@@ -468,15 +634,17 @@
                         </a>
                         <div class="dropdown-menu">
                             {% if attach %}
-                            <table class="table table-borderless">
+                            <div class="table-container">
+                            <table class="table table-borderless" >
                                 {% for a in attach %}
                                 <tr>
                                     <td>{{forloop.counter}}.</td>
-                                    <td><a href="{% url 'file_download' a.id %}">{{a.attachment.name}}</a></td>
-                                    <td><a href="{% url 'deletefile' a.id %}"><i class="fas fa-trash"></i></a></td>
+                                    <td><a href="{% url 'download_loan_attach' a.payroll_id %}"><div class="truncate-text">{{ a.attach.name }}</div></a></td>
+                                    <td><a href="{% url 'delete_loan_attach_template' a.id %}"><i class="fas fa-trash"></i></a></td>
                                 </tr>
                                 {% endfor %}
                             </table>
+                        </div>
                             {% else %}
                             <div class="text-center">No Attachment found</div>
                             {% endif %}
@@ -485,24 +653,61 @@
                         <a class="btn ml-1" href="{% url 'delete_loan' loan.id %}" data-toggle="tooltip" data-placement="top" title="Delete Loan"
 
                             title="Delete" onclick="return confirm('Do you want to Delete this Employee loan details?');"><i class="fa fa-trash"></i></a>
-                            {% endfor %}
+                            
                         <a class="btn ml-1" href="" data-toggle="modal" data-target="#commentModal"
                             data-toggle="tooltip" title="comment"><i class="far fa-comment"></i></a>
-                        <label for="file-input" class="btn ml-1 border-0" data-toggle="tooltip"
-                            title="Upload Attachments">
-                            <i class="fas fa-paperclip"></i>
-                        </label>
-                        <input id="file-input" type="file" name="file" style="display:none;" onchange="uploadFile()">
-                        <button class="btn btn-primary" onclick="toggleLoanActiveStatus({{ loan.id }})" id="active-button">
-                            {% if loan.active %}
-                                Deactivate
-                            {% else %}
-                                Activate
-                            {% endif %}
-                        </button>
+
+
+                            <form  class="btn ml-1" method="post" action="{% url 'add_loan_attach_template' payroll_id=loan.payroll.id %}" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <label for="file-input"  data-toggle="tooltip" title="Upload Attachments">
+                                    <i class="fas fa-paperclip"></i>
+                                </label>
+                                <input id="file-input" type="file" name="file" style="display: none;" onchange="uploadFile()">
+                                <input type="hidden" id="payroll-id" value="{{ loan.payroll.id }}">
+                            </form>
+                            {% endfor %}
+                            
+
+                    <script>    
+                        function uploadFile() {
+                            const fileInput = document.getElementById("file-input");
+                            const file = fileInput.files[0];
+                            const csrfToken = getCookie('csrftoken');
+                            const payrollId = document.getElementById("payroll-id").value;
+                            
+                            const formData = new FormData();
+                            formData.append("file", file);
+                            
+                            fetch(`/add_loan_attach_template/${payrollId}/`, {
+                                method: "POST",
+                                headers: { 'X-CSRFToken': csrfToken },
+                                body: formData
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                // Handle the response from the server (if needed)
+                                const messageDiv = document.getElementById("upload-message");
+        if (data.message) {
+            // Display the success message
+            messageDiv.textContent = data.message;
+            messageDiv.style.color = "green";
+        }
+        messageDiv.style.display = "block";
+    })
+    .catch(error => {
+        console.error("Error:", error);
+    });
+}
                         
+                    </script>                    
+                    <div id="upload-message" style="display:none;"></div>
                     </div>
+                    
                 </div>
+                
+                
+            </div>
                 <hr>
                 
 
@@ -517,7 +722,7 @@
                     <div class="row extra-info pt-2 mt-3">
                         <div class="col-1 "></div>
                         <div class="col-5 ">
-                            <h3 class="text-uppercase" style="color: black;"><b>{{ company.company_name }}</b></h3>
+                            <h3 class="text-uppercase" style="color: black;"><b style="color: black;">{{ company.company_name }}</b></h3>
 
                             <p class="address mx-2 p-2"> {{company.address}}<br>
                                 {{company.city}} <br>
@@ -572,11 +777,11 @@
                                     
                                 </tr>
                             </thead>
-                            <tbody style=":hover{color: #ddd; background-color: transparent;}">
+                            <tbody >
     
                                 {% for b in loans %}
                                 <tr >
-                                    <td><h7>Loan Issue</h7></td>
+                                    <td><h7 style="color: black;">Loan Issue</h7></td>
                                     <td>{{b.loan_amount}}</td>
                                     <td>{{b.date_issue}} </td>
                                     <td>{{b.date_expiry}}</td>
@@ -784,100 +989,69 @@
             </div>
         </div>
     
-        <!-- comment modal -->
-    
-        <div class="modal fade " id="cmnts"
-            style="width: 750px; margin-left: 350px; justify-content: center; overflow: hidden;">
-            <div class="modal-dialog modal-xl m-5 p-5">
-                <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
-                    <div class="modal-header " style="background: rgb(32, 35, 37);">
-                        <h5 class="m-3 text-uppercase text-light">Enter Comment</h5>
-                        <button type="button" class="close text-dark bg-none" data-dismiss="modal"
-                            aria-label="Close">&times;</button>
-    
-                    </div>
-                    <div class="modal-body" style="background: rgb(32, 35, 37); justify-content: center; overflow: hidden;">
-                        <div class="card p-0 m-0">
-                            <form action="" method="post" class="needs-validation" novalidate autocomplete="off"
-                                id="modalComment">
-                                <div class="row mt-2">
-                                    <input type="hidden" value="{{recur_bill.id}}" id="com_id">
-                                    <div class="col-md-6 mt-2">
-                                        {% if recur_bill.comments %}
-                                        <textarea class="form-control text-dark bg-light" id="comment" name="comment" required
-                                            style="height: 200px; width: 550px;">{{recur_bill.comments}}</textarea>
-                                        {% else %}
-                                        <textarea class="form-control text-dark bg-light" id="comment" name="comment" required
-                                            style="height: 200px; width: 550px;"></textarea>
-                                        {% endif %}
-                                    </div>
-                                </div>
-    
-                                <div class="row mt-5">
-                                    <div class="col-md-4"></div>
-                                    <div class="col-md-4">
-                                        <div class="d-flex">
-                                            <button class="btn save_btn rounded-pill text-grey w-50 my-4 mx-3" type="submit"
-                                                data-dismiss="modal" id="commentSave">Save </button>
-    
-    
-                                            <button type="button"
-                                                class="close btn save_btn rounded-pill text-grey w-50 my-4"
-                                                data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">Cancel</span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4"></div>
-                                </div>
-                            </form>
-                        </div>
+        <!-- Comments Modal -->
+    <div class="modal fade" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" style="background-color: #3b3b3b;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="exampleModalLabel">Add Comments</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
+                        <path d="M.646 1.646a.5.5 0 0 1 .708 0L8 7.293 15.646.646a.5.5 0 1 1 .708.708L8.707 8l7.647 7.646a.5.5 0 0 1-.708.708L8 8.707l-7.646 7.647a.5.5 0 0 1-.708-.708L7.293 8 .646 1.646a.5.5 0 0 1 0-.708z"/>
+                      </svg>
+                </button>
+            </div>
+           
+
+
+{%for loan in loans%}
+            
+            <form method="post" action="{% url 'add_loan_comment_template' payroll_id=loan.payroll.id %}">
+              
+{%endfor%}
+
+                
+                {% csrf_token %}
+                <div class="modal-body">
+                    <textarea type="text" class="form-control text-dark" name="comment"></textarea>
+                    <input type="hidden" value="{{loans.id}}" name="loans_id" >
+                    <div class="container-fluid">
+
+                        <table class="table  mt-4">
+                            <thead>
+                                <tr>
+                                    <th>sl no.</th>
+                                    <th>Comments</th>
+                                    <th>Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for c in comments %}
+                                <tr class="table-row">
+                                    <td>{{forloop.counter }}</td>
+                                    <td>{{c.comment}}</td>
+                                    
+                                    <td><a class="text-danger"
+                                        href="{% url 'delete_loan_comment_template' c.id %}">Delete</a></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-            </div>
-        </div>
-    
-        <!-- attach file modal -->
-    
-        <div class="modal fade" id="files" style="width: 750px; margin-left: 350px;">
-            <div class="modal-dialog modal-xl m-5 p-5">
-                <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
-                    <div class="modal-header " style="background: rgb(32, 35, 37);">
-                        <h5 class="m-3 text-uppercase text-light" id="exampleModalLabel">Add File</h5>
-                        <button type="button" class="close text-dark bg-none" data-dismiss="modal"
-                            aria-label="Close">&times;</button>
-                    </div>
-                    <div class="modal-body" style="background: rgb(32, 35, 37); justify-content: center; overflow: hidden;">
-                        <div class="card p-0 m-0">
-                            <form action="" id="modalAddfile">
-                                <div class="row mt-2 mx-5 text-center">
-                                    <input type="hidden" value="{{recur_bill.id}}" id="file_id">
-                                    <input type="file" class="form-control text-dark bg-light" name="file" id="filess" style="width: 400px;">
-    
-                                </div>
-    
-                                <div class="row mt-5">
-                                    <div class="col-md-4"></div>
-                                    <div class="col-md-4">
-                                        <div class="d-flex">
-                                            <button
-                                                class=" font-weight-bold save_btn rounded-pill text-light w-50 my-4 mx-2"
-                                                type="submit" data-dismiss="modal" id="fileSave">Save </button>
-    
-    
-                                            <button type="button"
-                                                class="font-weight-bold save_btn rounded-pill text-light w-50 my-4"
-                                                data-dismiss="modal" aria-label="Close"> Cancel</button>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4"></div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+
+                    <button type="submit" class="btn btn-primary" id="save">Save</button>
                 </div>
-            </div>
+            </form>
         </div>
+    </div>
+</div>
+</section>
+        
     
     
         <!-- email modal -->
@@ -1148,29 +1322,7 @@
         }
         return cookieValue;
     }
-    function uploadFile() {
-        const fileInput = document.getElementById("file-input");
-        const file = fileInput.files[0];
-        const csrfToken = getCookie('csrftoken')
-
-        const formData = new FormData();
-        formData.append("file", file);
-
-        fetch("/payroll_file/{{p.id}}", {
-            method: "POST",
-            headers: { 'X-CSRFToken': csrfToken },
-            body: formData
-        })
-            .then(response => response.json())
-            .then(data => {
-                // Handle the response from the server (if needed)
-                console.log(data);
-            })
-            .catch(error => {
-                console.error("Error:", error);
-            });
-    }
-
+    
 
 
 </script>
