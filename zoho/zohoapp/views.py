@@ -9733,10 +9733,6 @@ def create_loan(request):
 
 
 
-
-from django.shortcuts import render
-from .models import Payroll, Loan
-
 def employee_list(request):
     employees_with_loans = Payroll.objects.filter(loan__isnull=False)
 
@@ -9750,20 +9746,12 @@ def employee_list(request):
 
 
 
-from django.shortcuts import get_object_or_404
 
 def delete_loan(request, loan_id):
     loan = get_object_or_404(Loan, id=loan_id)
     loan.delete()
-    return redirect('employee_list')  # Redirect to the list of employee loans
+    return redirect('employee_list')  
 
-
-
-
-
-
-from django.shortcuts import render, get_object_or_404, redirect
-from .models import Payroll, Loan
 
 def edit_loan(request, loan_id): 
     error_message = None
@@ -9815,12 +9803,6 @@ def edit_loan(request, loan_id):
 
 
 
-
-
-
-from django.shortcuts import render, get_object_or_404
-from .models import Payroll, Loan
-
 def employee_loan_details(request, payroll_id):
     status = request.GET.get('status', 'all')
 
@@ -9861,15 +9843,6 @@ def employee_loan_details(request, payroll_id):
 
 
 
-from django.shortcuts import render, get_object_or_404
-from .models import Loan
-
-
-
-
-from django.shortcuts import get_object_or_404, redirect
-
-from .models import Loan
 
 def activate_loan(request, loan_id):
     loan = get_object_or_404(Loan, id=loan_id)
@@ -10141,4 +10114,118 @@ def loan_deactive(request, loan_id):
 
     # Redirect to a success page
     return redirect('employee_loan_details' ,payroll_id=loan_id)
+
+
+def createpayroll2(request):
+    if request.method=='POST':
+        title=request.POST['title']
+        fname=request.POST['fname']
+        lname=request.POST['lname']
+        alias=request.POST['alias']
+        joindate=request.POST['joindate2']
+        saltype=request.POST['saltype']
+        if (saltype == 'Fixed'):
+            salary=request.POST['fsalary']
+        else:
+            salary=request.POST['vsalary']
+        image=request.FILES.get('file')
+        if image == None:
+            image="image/img.png"
+        empnum=request.POST['empnum']
+        designation = request.POST['designation']
+        location=request.POST['location']
+        gender=request.POST['gender']
+        dob=request.POST['dob']
+        blood=request.POST['blood']
+        fmname=request.POST['fm_name']
+        sname=request.POST['s_name']
+        email=request.POST['email2']        
+        add1=request.POST['address']
+        add2=request.POST['address2']
+        address=add1+" "+add2
+        padd1=request.POST['paddress'] 
+        padd2=request.POST['paddress2'] 
+        paddress= padd1+padd2
+        phone=request.POST['phone']
+        ephn=request.POST['ephone']
+        if ephn=="":
+            ephone=None
+        else:
+            ephone=request.POST['ephone']
+        
+        isdts=request.POST['tds']
+        if isdts == '1':
+            istdsval=request.POST['pora']
+            if istdsval == 'Percentage':
+                tds=request.POST['pcnt']
+            elif istdsval == 'Amount':
+                tds=request.POST['amnt']
+        else:
+            istdsval='No'
+            tds = 0
+        itn=request.POST['itn']
+        an=request.POST['an']        
+        uan=request.POST['uan'] 
+        pfn=request.POST['pfn']
+        pran=request.POST['pran']
+        payroll= Payroll(title=title,first_name=fname,last_name=lname,alias=alias,image=image,joindate=joindate,salary_type=saltype,salary=salary,emp_number=empnum,designation=designation,location=location,
+                         gender=gender,dob=dob,blood=blood,parent=fmname,spouse_name=sname,address=address,permanent_address=paddress ,Phone=phone,emergency_phone=ephone,
+                         email=email,ITN=itn,Aadhar=an,UAN=uan,PFN=pfn,PRAN=pran,isTDS=istdsval,TDS=tds)
+        payroll.save()
+
+        bank=request.POST['bank']
+        if(bank == '1'):
+            accno=request.POST['acc_no']       
+            ifsc=request.POST['ifsc']       
+            bname=request.POST['b_name']       
+            branch=request.POST['branch']
+            ttype=request.POST['ttype']
+            b=Bankdetails(payroll=payroll,acc_no=accno,IFSC=ifsc,bank_name=bname,branch=branch,transaction_type=ttype)
+            b.save()
+        attach=request.FILES.get('attach')       
+        if(attach):
+            att=Payrollfiles(attachment=attach,payroll=payroll)
+        # messages.success(request,'Saved succefully !')
+        print(bank)
+        return redirect('create_loan')
+    else:
+        return redirect('create_loan')
+    
+    
+
+
+from django.http import JsonResponse
+from .models import Payroll
+
+def loan_dropdown(request):
+    # Get the list of all payrolls
+    payrolls = Payroll.objects.all()
+
+    # Create a dictionary to store payroll options
+    options = {}
+
+    # Iterate through the payrolls and add them to the options dictionary
+    for payroll in payrolls:
+        options[payroll.id] = {
+            'employee_name': payroll.employee_name,
+            'designation': payroll.designation,
+            'location': payroll.location,
+            'salary': payroll.salary,
+        }
+
+    # Return the options as a JSON response
+    return JsonResponse(options)
+
+
+def vendor_dropdown(request):
+    user = User.objects.get(id=request.user.id)
+
+    options = {}
+    option_objects = vendor_table.objects.filter(user = user)
+    for option in option_objects:
+        
+        options[option.id] = [option.salutation, option.first_name, option.last_name, option.id]
+    return JsonResponse(options)
+
+
 

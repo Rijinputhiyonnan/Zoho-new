@@ -489,7 +489,8 @@ path('add_loan_comment_template/<int:payroll_id>/', views.add_loan_comment_templ
  path('delete_loan_comment_template/<int:comment_id>/', views.delete_loan_comment_template, name='delete_loan_comment_template'),
 path('delete_loan_attach_template/<int:attach_id>/', views.delete_loan_attach_template, name='delete_loan_attach_template'),
 path('add_loan_attach_template/<int:payroll_id>/', views.add_loan_attach_template, name='add_loan_attach_template'),
-
+ path('createpayroll2',views.createpayroll2,name='createpayroll2'),
+ path('loan_dropdown',views.loan_dropdown,name = 'loan_dropdown'),
 
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

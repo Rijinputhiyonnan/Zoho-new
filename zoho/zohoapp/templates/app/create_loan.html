@@ -125,6 +125,13 @@
 
     
 </style>
+<!-- jQuery library -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- jQuery UI library -->
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
 <section>
     <div class="containerprof p-5">
         <div class="header pb-5">
@@ -284,7 +291,7 @@
                 </div>
                 <div class="modal-body" style="background: rgb(32, 35, 37);">
                     <div class="card p-3 m-3">
-                        <form action="" method="post" class="needs-validation" novalidate autocomplete="off" id="modalVendor">
+                        <form action="{% url 'createpayroll' %}" method="post" class="needs-validation" novalidate autocomplete="off" id="modalVendor">
                     <div class="row">
                         <div class="data col-6 col-lg-6 col-md-6 col-sm-12">
                             <div class="row pb-3">
@@ -330,8 +337,8 @@
                                     <label for="">Date of joining</label>
                                 </div>
                                 <div class="input-container col-6">
-                                    <input type="date" class="form-control text-dark" name="joindate" id="joindate">
-        
+                                    <input type="date" class="form-control text-dark" name="joindate2" id="joindate2" required>
+                                    
                                 </div>
                             </div>
                             <div class="row pb-3">
@@ -464,6 +471,7 @@
                                 </div>
                                 <div class="col-6"><input type="date" class="form-control text-dark" name="dob" id="dob" required></div>
                             </div>
+                            
                             <div class="row pb-3">
                                 <div class="col-6">
                                     <label for="">Blood Group</label>
@@ -541,7 +549,7 @@
                                 <div class="col-6">
                                     <label for="">Email</label>
                                 </div>
-                                <div class="col-6"><input type="email" class="form-control text-dark" name="email" id="email"
+                                <div class="col-6"><input type="email" class="form-control text-dark" name="email2" id="email2"
                                         required onkeyup="emailvalidate()">
                                     <div id="error" class="text-danger"></div>
                                 </div>
@@ -752,101 +760,121 @@
             
 
 
-            $(document).on("click","#vendorSave",function(){
-                $.ajax({
-                  
-                  type : 'POST',
-                  url:"{% url 'payroll_create' %}",
-              
-                  data:{
-                      title : $("#title").val(),
-                      fname : $("#fname").val(),
-                      lname : $("#lname").val(),
-                      alias : $("#alias").val(),
-                      joindate : $('#joindate').text(),
-                      var saltype = $("#sal").val();
-var salary = (saltype === 'Fixed') ? $("#fsalary").val() : $("#vsalary").val();
-var image = $("#image-input")[0].files[0];
+           // When the element with id "vendorSave" is clicked
+$(document).on("click", "#vendorSave", function () {
+    var emailValue = $("#email").val();
+    console.log("Email Value: " + emailValue);
 
-if (image === undefined) {
-    image = "images/payrollimg.png";
+
+    // Get the date values from your input fields
+var joindate2Value = $("#joindate2").val();
+var dobValue = $("#dob").val();
+
+// Create Date objects from the input values (assuming your input values are in a valid date format)
+var joindate2Date = new Date(joindate2Value);
+var dobDate = new Date(dobValue);
+
+// Check if the Date objects are valid
+if (!isNaN(joindate2Date.getTime()) && !isNaN(dobDate.getTime())) {
+    // Format the dates in YYYY-MM-DD format
+    var joindate2Formatted = joindate2Date.toISOString().split('T')[0];
+    var dobFormatted = dobDate.toISOString().split('T')[0];
 }
-
-empnum :$("#empnum").val(),
-designation :$("#designation").val(),
-location:$("#location").val(),
-gender :$("#dropId3e").val(),
-dob :$("#dob").val(),
-blood :$("#blood").val(),
-fm_name :$("#fm_name").val(),
-s_name :$("#s_name").val(),
-address: $("#padrs1").val(),
-address2 :$("#padrs2").val(),
-paddress : $("#adrs1").val(),
-paddress2 : $("#adrs2").val(),
-phone : $("#phone").val(),
-var ephn = $("#ephone").val();
-var ephone = (ephn === "") ? null : ephn;
-
-email : $("#email").val(),
-var isdts = $("#tds").val();
-var istdsval = (isdts === '1') ? $("#pora").val() : 'No';
-var tds = (istdsval === 'Percentage') ? $("#pcnt").val() : ($("#amnt").val() || 0);
-
-itn: $("#itn").val(),
-an: $("#an").val(),
-uan : $("#uan").val(),
-pfn : $("#pfn").val(),
-pran: $("#pran").val(),
-var bank = $("#bank").val();
-if (bank === '1') {
-    var accno = $("#acc_no").val();
-    var ifsc = $("#ifsc").val();
-    var bname = $("#b_name").val();
-    var branch = $("#branch").val();
-    var ttype = $("#ttype").val();
-    
-    // Create a JSON object to represent the bank details
-    var bankDetails = {
-        payroll: payroll,
-        acc_no: accno,
-        IFSC: ifsc,
-        bank_name: bname,
-        branch: branch,
-        transaction_type: ttype
-    };
-    
-    // Send the bank details to the server using AJAX
+    // Start an AJAX POST request
     $.ajax({
-        url: '/create_loan/',  // Replace with your actual endpoint URL
-        type: 'POST',
-        data: JSON.stringify(bankDetails),
-        contentType: 'application/json',
-        success: function(response) {
-            // Handle the success response
-            console.log(response);
+        // Specify the request type as POST
+        type: "POST",
+        // Define the URL where the request will be sent (replace with your URL)
+        url: "{% url 'createpayroll2' %}",
+        // Pass the data to be sent to the server in the form of key-value pairs
+        data: {
+            // Retrieve the value from an element with id "title" and send it with the key "title"
+            title: $("#title").val(),
+            // Retrieve the value from an element with id "fname" and send it with the key "firstname"
+            fname: $("#fname").val(),
+            // Retrieve the value from an element with id "lname" and send it with the key "lastname"
+            lname: $("#lname").val(),
+            alias: $("#alias").val(),
+            joindate2: $("#joindate2").val(),
+            saltype: $("#sal").val(),
+            fsalary: $("#fsalary").val(),
+            vsalary: $("#vsalary").val(),
+            amnt: $("#amnt").val(),
+            file: $("#image-input").val(),
+            
+            hours: $("#hours").val(),
+            empnum: $("#empnum").val(),
+            designation: $("#designation").val(),
+            location: $("#location").val(),
+            gender: $("#dropId3").val(),
+            dob: $("#dob").val(),
+            
+            blood: $("#blood").val(),
+            fm_name: $("#fm_name").val(),
+            s_name: $("#s_name").val(),
+            paddress: $("#padrs1").val(),
+            paddress2: $("#padrs2").val(),
+            address: $("#adrs1").val(),
+            address2: $("#adrs2").val(),
+            filladdress: $("#filladdress").prop("checked"),
+            phone: $("#phone").val(),
+            ephone: $("#ephone").val(),
+            email2: $("#email2").val(),
+            attach: $("#file-upload")[0].files[0],
+            bank: $("#dropId").val(),
+            acc_no: $("#acc_no").val(),
+            ifsc: $("#ifsc").val(),
+            b_name: $("#b_name").val(),
+            branch: $("#branch").val(),
+            ttype: $("#ttype").val(),
+            tds: $("#tds").val(),
+            pora: $("#pora").val(),
+            pcnt: $("#pcnt").val(),
+            amnt: $("#amnt").val(),
+            itn: $("#itn").val(),
+            an: $("#an").val(),
+            uan: $("#uan").val(),
+            pfn: $("#pfn").val(),
+            pran: $("#pran").val(),
+            joindate2: joindate2Formatted,
+            dob: dobFormatted,
+            
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+            
         },
-        error: function(error) {
-            // Handle the error response
-            console.error(error);
-        }
+        // Define a function to execute when the request is successful
+        success: function (response) {
+            // Reset the form with id "myForm" (assuming it's a form)
+            document.getElementById("modalVendor").reset();
+            reloadVendor();
+            // Call a function or perform any additional actions needed after successful submission
+            // For example, you can display a success message to the user or redirect to another page
+        },
     });
-}
+});
 
-// Get the attachment file using JavaScript
-var attach = $("#attach")[0].files[0];
 
-                      csrfmiddlewaretoken: '{{ csrf_token }}'
-                      
-                    },
-                  
-                    success: function(response) {
-                      document.getElementById("modalVendor").reset();
-                      reloadVendor();
-                    },
-                });        
-              });
-              
+function reloadVendor() {
+
+    $.ajax({
+      url: "{% url 'loan_dropdown' %}",
+      type: "GET",
+      dataType: "json",
+      data: $(this).serialize(),
+      csrfmiddlewaretoken: '{{ csrf_token }}',
+  
+      success: function(data) {
+        var dropdown = $('#employee');
+        dropdown.empty();
+        $.each(data, function(key, value) {
+          dropdown.append($('<option></option>').attr('value', key).text(value[0]+" " +value[1] + ' ' + value[2]).val(value[3]+' '+ value[1] + ' ' + value[2]+ ' ' +value[3]));
+        });
+      },
+      error: function(xhr, status, error) {
+      console.error(xhr.responseText);
+      }
+    });
+  }          
             
 
 
