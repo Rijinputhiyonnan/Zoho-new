@@ -491,6 +491,9 @@ path('delete_loan_attach_template/<int:attach_id>/', views.delete_loan_attach_te
 path('add_loan_attach_template/<int:payroll_id>/', views.add_loan_attach_template, name='add_loan_attach_template'),
  path('createpayroll2',views.createpayroll2,name='createpayroll2'),
  path('loan_dropdown',views.loan_dropdown,name = 'loan_dropdown'),
+ path('loan_dropwithoutreload/<int:employee_id>/', views.loan_dropwithoutreload, name='loan_dropwithoutreload'),
+
+
 
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

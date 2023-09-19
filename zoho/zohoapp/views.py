@@ -10194,10 +10194,9 @@ def createpayroll2(request):
     
 
 
-from django.http import JsonResponse
-from .models import Payroll
 
-def loan_dropdown(request):
+
+'''def loan_dropdown(request):
     # Get the list of all payrolls
     payrolls = Payroll.objects.all()
 
@@ -10214,7 +10213,7 @@ def loan_dropdown(request):
         }
 
     # Return the options as a JSON response
-    return JsonResponse(options)
+    return JsonResponse(options)'''
 
 
 def vendor_dropdown(request):
@@ -10229,3 +10228,35 @@ def vendor_dropdown(request):
 
 
 
+def loan_dropdown(request):
+  
+
+    options = {}
+    option_objects = Payroll.objects.all()  # Retrieve all Payroll objects
+    for option in option_objects:
+        options[option.id] = [
+            option.first_name,
+            option.last_name,
+        ]
+    return JsonResponse(options)
+
+
+
+
+
+
+def loan_dropwithoutreload(request, employee_id):
+    
+    employee = get_object_or_404(Payroll, id=employee_id)
+
+    
+    employee_details = {
+        'email': employee.email,
+        'emp_number': employee.emp_number,
+        'salary': employee.salary,
+        'joindate': employee.joindate.strftime('%Y-%m-%d'),
+        
+    }
+
+    # Return the employee details as a JSON response
+    return JsonResponse(employee_details)

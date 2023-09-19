@@ -138,7 +138,7 @@
             <h3>CREATE EMPLOYEE LOAN</h3>
             <hr>
         </div>
-        <form method="POST" action="{% url 'create_loan' %}" id="myForm" onsubmit="return handleFormSubmission()">
+        <form method="POST" action="{% url 'create_loan' %}" id="myForm" >
             {% csrf_token %}
             <div class="row">
                 <div class="data col-6 col-lg-6 col-md-6 col-sm-12">
@@ -719,7 +719,7 @@
                     <div class="col-md-4">
                       <div class="d-flex">
                         <button class="btn save_btn rounded-pill text-grey w-50 my-4 mx-3"
-                        type="submit" data-dismiss="modal" id="vendorSave">Submit
+                        type="button" data-dismiss="modal" id="vendorSave">Submit
                         </button> 
   
                         <button type="button" class="close btn save_btn rounded-pill text-grey w-50 my-4" 
@@ -820,7 +820,7 @@ if (!isNaN(joindate2Date.getTime()) && !isNaN(dobDate.getTime())) {
             phone: $("#phone").val(),
             ephone: $("#ephone").val(),
             email2: $("#email2").val(),
-            attach: $("#file-upload")[0].files[0],
+            attach: $("#file-upload").val(),
             bank: $("#dropId").val(),
             acc_no: $("#acc_no").val(),
             ifsc: $("#ifsc").val(),
@@ -855,32 +855,87 @@ if (!isNaN(joindate2Date.getTime()) && !isNaN(dobDate.getTime())) {
 
 
 function reloadVendor() {
-
     $.ajax({
-      url: "{% url 'loan_dropdown' %}",
-      type: "GET",
-      dataType: "json",
-      data: $(this).serialize(),
-      csrfmiddlewaretoken: '{{ csrf_token }}',
-  
-      success: function(data) {
-        var dropdown = $('#employee');
-        dropdown.empty();
-        $.each(data, function(key, value) {
-          dropdown.append($('<option></option>').attr('value', key).text(value[0]+" " +value[1] + ' ' + value[2]).val(value[3]+' '+ value[1] + ' ' + value[2]+ ' ' +value[3]));
-        });
-      },
-      error: function(xhr, status, error) {
-      console.error(xhr.responseText);
-      }
-    });
-  }          
+        url: "{% url 'loan_dropdown' %}",
+        type: "GET",
+        dataType: "json",
+        data: $(this).serialize(),
+        csrfmiddlewaretoken: '{{ csrf_token }}',
+
+        success: function(data) {
+            var dropdown = $('#employee');
+            dropdown.empty();
             
+            // Add a default option with a value of '' and the text you want to display
+            dropdown.append($('<option></option>').attr('value', '').text('Select an employee'));
+
+            $.each(data, function(key, value) {
+                dropdown.append($('<option></option>').attr('value', key).text(value[0] + " " + value[1]).val(value[0] + ' ' + value[1]));
+            });
+        },
+        error: function(xhr, status, error) {
+            console.error(xhr.responseText);
+        }
+    });
+}
+
+
+$('#employee').change(function() {
+    var selectedEmployee = $(this).val(); // Get the selected employee ID
+
+    if (selectedEmployee) {
+        // Split the selectedEmployee value to get the employee's ID
+        var employeeId = selectedEmployee.split(' ')[0];
+
+        // Update the text field with the selected employee's name
+        $("#employeeName").val(selectedEmployee);
+
+        // Use an AJAX request to fetch the details of the selected employee
+        $.ajax({
+            url: "/loan_dropwithoutreload/" + employeeId + "/", // Replace with the correct URL
+            type: "GET",
+            dataType: "json",
+            success: function(employeeDetails) {
+                // Fill the other form fields with the retrieved employeeDetails
+                $("#email").val(employeeDetails.email);
+                $("#emp-number").val(employeeDetails.emp_number);
+                $("#salary").val(employeeDetails.salary);
+                $("#joindate").val(employeeDetails.joindate);
+                // Add more fields as needed
+            },
+            error: function(xhr, status, error) {
+                console.error(xhr.responseText);
+            }
+        });
+    } else {
+        // Clear the text field and other form fields if no employee is selected
+        $("#employeeName").val("");
+        $("#email").val("");
+        $("#emp-number").val("");
+        $("#salary").val("");
+        $("#joindate").val("");
+        // Clear more fields as needed
+    }
+});
 
 
 
 
 
+
+function fillEmployeeDetails() {
+    var selectedOption = $("#employee option:selected");
+    
+    var email = selectedOption.data("email");
+    var empNumber = selectedOption.data("emp-number");
+    var salary = selectedOption.data("salary");
+    var joinDate = selectedOption.data("joindate");
+    
+    $("#email").val(email);
+    $("#emp_id").val(empNumber);
+    $("#salary").val(salary);
+    $("#joindate").val(joinDate);
+}
 
 
 
@@ -1025,15 +1080,15 @@ function reloadVendor() {
                     
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
                     <script>
-                        function fillEmployeeDetails() {
-                            var selectedOption = document.getElementById("employee").selectedOptions[0];
+                       ///function fillEmployeeDetails() {
+                          /// var selectedOption = document.getElementById("employee").selectedOptions[0];
                             
-                            var email = selectedOption.getAttribute("data-email");
+                          var email = selectedOption.getAttribute("data-email");
                             var empNumber = selectedOption.getAttribute("data-emp-number");
-                            var salary = selectedOption.getAttribute("data-salary");
-                            var joinDate = selectedOption.getAttribute("data-joindate");
+                           var salary = selectedOption.getAttribute("data-salary");
+                           var joinDate = selectedOption.getAttribute("data-joindate");
                             
-                            document.getElementById("email").value = email;
+                           document.getElementById("email").value = email;
                             document.getElementById("emp_id").value = empNumber;
                             document.getElementById("salary").value = salary;
                             document.getElementById("joindate").value = joinDate;
