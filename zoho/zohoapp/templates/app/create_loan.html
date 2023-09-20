@@ -153,12 +153,12 @@
                             <select class="form-control text-dark" name="employee" id="employee" onchange="fillEmployeeDetails()">
                                 <option value="">Select an employee</option>
                                 {% for payroll in payrolls %}
-                                    <option value="{{ payroll.id }}"
+                                    <option  value="{{ payroll.id }}"
                                         data-email="{{ payroll.email }}"
                                         data-emp-number="{{ payroll.emp_number }}"
                                         data-salary="{{ payroll.salary }}"
                                         data-joindate="{{ payroll.joindate|date:'Y-m-d' }}">
-                                        {{ payroll.employee_name }}
+                                        {{ payroll.employee_name }} 
                                     </option>
                                 {% endfor %}
                             </select>
@@ -844,15 +844,13 @@ if (!isNaN(joindate2Date.getTime()) && !isNaN(dobDate.getTime())) {
         },
         // Define a function to execute when the request is successful
         success: function (response) {
-            // Reset the form with id "myForm" (assuming it's a form)
+            
             document.getElementById("modalVendor").reset();
             reloadVendor();
-            // Call a function or perform any additional actions needed after successful submission
-            // For example, you can display a success message to the user or redirect to another page
+            
         },
     });
 });
-
 
 function reloadVendor() {
     $.ajax({
@@ -861,16 +859,21 @@ function reloadVendor() {
         dataType: "json",
         data: $(this).serialize(),
         csrfmiddlewaretoken: '{{ csrf_token }}',
-
         success: function(data) {
             var dropdown = $('#employee');
             dropdown.empty();
-            
-            // Add a default option with a value of '' and the text you want to display
+
             dropdown.append($('<option></option>').attr('value', '').text('Select an employee'));
 
             $.each(data, function(key, value) {
-                dropdown.append($('<option></option>').attr('value', key).text(value[0] + " " + value[1]).val(value[0] + ' ' + value[1]));
+                var option = $('<option></option>').attr('value', key).text(value['employee_name']).val(key);
+
+                option.data('email', value['email']);
+                option.data('salary', value['salary']);
+                option.data('emp-number', value['employee']);  // Set the employee number data attribute
+                option.data('join-date', value['join_date']);
+
+                dropdown.append(option);
             });
         },
         error: function(xhr, status, error) {
@@ -878,7 +881,6 @@ function reloadVendor() {
         }
     });
 }
-
 
 $('#employee').change(function() {
     var selectedEmployee = $(this).val(); // Get the selected employee ID
@@ -940,8 +942,69 @@ function fillEmployeeDetails() {
 
 
 
+function showAdditionalFields() {
+    var paymentMethod = document.getElementById('payment_method').value;
+    var percentageWiseFields = document.getElementById('percentageWiseFields');
+    var amountWiseFields = document.getElementById('amountWiseFields');
 
+    if (paymentMethod === 'percentage_wise') {
+        percentageWiseFields.style.visibility = 'visible';
+        amountWiseFields.style.visibility = 'hidden';
+    } else if (paymentMethod === 'amount_wise') {
+        percentageWiseFields.style.visibility = 'hidden';
+        amountWiseFields.style.visibility = 'visible';
+    } else {
+        percentageWiseFields.style.visibility = 'hidden';
+        amountWiseFields.style.visibility = 'hidden';
+    }
+}
+function handleFormSubmission() {
+    // Get the selected payment method
+    var paymentMethod = document.getElementById('payment_method').value;
+    
+    // Validate the form based on the selected payment method
+    if (paymentMethod === 'percentage_wise') {
+        // Validate percentage and monthly cutting amount
+        var percentage = parseFloat(document.getElementById('percentage').value);
+        var salary = parseFloat(document.getElementById('salary').value);
+        var monthlyCuttingAmount = parseFloat(document.getElementById('monthly_cutting_amount').value);
+        
+        if (isNaN(percentage) || isNaN(salary) || isNaN(monthlyCuttingAmount) || percentage < 0 || percentage > 100 || monthlyCuttingAmount < 0 || monthlyCuttingAmount > salary) {
+            document.getElementById('error-message').innerText = "Invalid percentage or monthly cutting amount.";
+            return false; // Prevent form submission
+        } else {
+            document.getElementById('error-message').innerText = ""; // Clear error message
+            return true; // Allow form submission
+        }
+    } else if (paymentMethod === 'amount_wise') {
+        // Validate monthly cutting amount
+        var monthlyCuttingAmount = parseFloat(document.getElementById('monthly_cutting_amount').value);
+        var salary = parseFloat(document.getElementById('salary').value);
+        
+        if (isNaN(monthlyCuttingAmount) || monthlyCuttingAmount < 0 || monthlyCuttingAmount > salary) {
+            document.getElementById('error-message').innerText = "Invalid monthly cutting amount.";
+            return false; // Prevent form submission
+        } else {
+            document.getElementById('error-message').innerText = ""; // Clear error message
+            return true; // Allow form submission
+        }
+    }
+    
+    return true; // Allow form submission for other cases
+}
 
+// Function to update the monthly cutting amount when percentage changes
+function updateMonthlyCuttingAmount() {
+    var percentage = parseFloat(document.getElementById('percentage').value);
+    var salary = parseFloat(document.getElementById('salary').value);
+    
+    if (!isNaN(percentage) && !isNaN(salary)) {
+        var monthlyCuttingAmount = (percentage / 100) * salary;
+        document.getElementById('monthly_cutting_amount').value = monthlyCuttingAmount.toFixed(2);
+    } else {
+        document.getElementById('monthly_cutting_amount').value = '';
+    }
+}
 
 
             function bankdisplay() {
@@ -1079,99 +1142,14 @@ function fillEmployeeDetails() {
 
                     
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-                    <script>
-                       ///function fillEmployeeDetails() {
-                          /// var selectedOption = document.getElementById("employee").selectedOptions[0];
-                            
-                          var email = selectedOption.getAttribute("data-email");
-                            var empNumber = selectedOption.getAttribute("data-emp-number");
-                           var salary = selectedOption.getAttribute("data-salary");
-                           var joinDate = selectedOption.getAttribute("data-joindate");
-                            
-                           document.getElementById("email").value = email;
-                            document.getElementById("emp_id").value = empNumber;
-                            document.getElementById("salary").value = salary;
-                            document.getElementById("joindate").value = joinDate;
-                        }
-
-
-
-                        function showAdditionalFields() {
-                            var paymentMethod = document.getElementById('payment_method').value;
-                            var percentageWiseFields = document.getElementById('percentageWiseFields');
-                            var amountWiseFields = document.getElementById('amountWiseFields');
-                        
-                            if (paymentMethod === 'percentage_wise') {
-                                percentageWiseFields.style.visibility = 'visible';
-                                amountWiseFields.style.visibility = 'hidden';
-                            } else if (paymentMethod === 'amount_wise') {
-                                percentageWiseFields.style.visibility = 'hidden';
-                                amountWiseFields.style.visibility = 'visible';
-                            } else {
-                                percentageWiseFields.style.visibility = 'hidden';
-                                amountWiseFields.style.visibility = 'hidden';
-                            }
-                        }
-                        
-                       
-                    
-                    
-                    
-                    
-                    </script>
+               
                     
                     
                 
 
 <script>
     // Function to handle form submission and validation
-    function handleFormSubmission() {
-        // Get the selected payment method
-        var paymentMethod = document.getElementById('payment_method').value;
-        
-        // Validate the form based on the selected payment method
-        if (paymentMethod === 'percentage_wise') {
-            // Validate percentage and monthly cutting amount
-            var percentage = parseFloat(document.getElementById('percentage').value);
-            var salary = parseFloat(document.getElementById('salary').value);
-            var monthlyCuttingAmount = parseFloat(document.getElementById('monthly_cutting_amount').value);
-            
-            if (isNaN(percentage) || isNaN(salary) || isNaN(monthlyCuttingAmount) || percentage < 0 || percentage > 100 || monthlyCuttingAmount < 0 || monthlyCuttingAmount > salary) {
-                document.getElementById('error-message').innerText = "Invalid percentage or monthly cutting amount.";
-                return false; // Prevent form submission
-            } else {
-                document.getElementById('error-message').innerText = ""; // Clear error message
-                return true; // Allow form submission
-            }
-        } else if (paymentMethod === 'amount_wise') {
-            // Validate monthly cutting amount
-            var monthlyCuttingAmount = parseFloat(document.getElementById('monthly_cutting_amount').value);
-            var salary = parseFloat(document.getElementById('salary').value);
-            
-            if (isNaN(monthlyCuttingAmount) || monthlyCuttingAmount < 0 || monthlyCuttingAmount > salary) {
-                document.getElementById('error-message').innerText = "Invalid monthly cutting amount.";
-                return false; // Prevent form submission
-            } else {
-                document.getElementById('error-message').innerText = ""; // Clear error message
-                return true; // Allow form submission
-            }
-        }
-        
-        return true; // Allow form submission for other cases
-    }
-
-    // Function to update the monthly cutting amount when percentage changes
-    function updateMonthlyCuttingAmount() {
-        var percentage = parseFloat(document.getElementById('percentage').value);
-        var salary = parseFloat(document.getElementById('salary').value);
-        
-        if (!isNaN(percentage) && !isNaN(salary)) {
-            var monthlyCuttingAmount = (percentage / 100) * salary;
-            document.getElementById('monthly_cutting_amount').value = monthlyCuttingAmount.toFixed(2);
-        } else {
-            document.getElementById('monthly_cutting_amount').value = '';
-        }
-    }
+    
 </script>
     
         

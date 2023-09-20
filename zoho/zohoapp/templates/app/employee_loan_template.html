@@ -637,11 +637,13 @@
                             <div class="table-container">
                             <table class="table table-borderless" >
                                 {% for a in attach %}
+                                {% for loan in loans %}
                                 <tr>
                                     <td>{{forloop.counter}}.</td>
-                                    <td><a href="{% url 'download_loan_attach' a.payroll_id %}"><div class="truncate-text">{{ a.attach.name }}</div></a></td>
+                                    <td><a href="{% url 'download_loan_attach' payroll_id=loan.payroll.id attachment_id=a.id  %}"><div class="truncate-text">{{ a.attach.name }}</div></a></td>
                                     <td><a href="{% url 'delete_loan_attach_template' a.id %}"><i class="fas fa-trash"></i></a></td>
                                 </tr>
+                                {% endfor %}
                                 {% endfor %}
                             </table>
                         </div>

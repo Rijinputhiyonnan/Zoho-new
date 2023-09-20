@@ -10229,16 +10229,18 @@ def vendor_dropdown(request):
 
 
 def loan_dropdown(request):
-  
-
     options = {}
-    option_objects = Payroll.objects.all()  # Retrieve all Payroll objects
+    option_objects = Payroll.objects.all()  
     for option in option_objects:
-        options[option.id] = [
-            option.first_name,
-            option.last_name,
-        ]
+        options[option.id] = {
+            'employee_name': option.first_name + ' ' + option.last_name,
+            'email': option.email,
+            'salary': option.salary,
+            'employee': option.emp_number,
+            'join_date': option.joindate.strftime('%Y-%m-%d'),  
+        }
     return JsonResponse(options)
+
 
 
 
