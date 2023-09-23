@@ -1,3 +1,4 @@
+<!-- RIJIN -->
 {% extends 'base.html' %}
 {% block content %}
 {% load static %}
@@ -703,13 +704,14 @@
 }
                         
                     </script>                    
-                    <div id="upload-message" style="display:none;"></div>
+                    
                     </div>
                     
                 </div>
                 
                 
             </div>
+            <div id="upload-message" style="display:none;"></div>
                 <hr>
                 
 
@@ -775,7 +777,8 @@
                                     <td>Particulars</td>
                                     <td>Loan Amount</td>
                                     <td>Loan Issue Date</td>
-                                    <td>Loan Expiry Date</td>
+                                    
+                                    <td>Monthly Cutting Amount</td>
                                     
                                 </tr>
                             </thead>
@@ -786,7 +789,8 @@
                                     <td><h7 style="color: black;">Loan Issue</h7></td>
                                     <td>{{b.loan_amount}}</td>
                                     <td>{{b.date_issue}} </td>
-                                    <td>{{b.date_expiry}}</td>
+                                    
+                                    <td>{{b.monthly_cutting_amount}}</td>
                                     
                                 </tr>
                                 {% endfor %}
@@ -1476,7 +1480,7 @@
         var opt =
         {
             margin: 0,
-            filename: 'recurring bill_'+$("#pid").text() + '.pdf',
+            filename: 'employee loan_'+$("#pid").text() + '.pdf',
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { scale: 3 },
             jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }

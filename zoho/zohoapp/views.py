@@ -9667,6 +9667,7 @@ from django.shortcuts import render, redirect
 from .models import Payroll, Loan
 from django.shortcuts import render, redirect
 from .models import Loan, Payroll
+from django.core.exceptions import ValidationError
 
 def create_loan(request):
     error_message = None
@@ -9689,10 +9690,14 @@ def create_loan(request):
                 cutting_amount = (float(cutting_percentage) / 100) * float(payroll.salary)
             else:
                 cutting_amount = request.POST.get('monthly_cutting_amount')
-                cutting_percentage = None  # Initialize as None
+                cutting_percentage = 0  # Initialize as None
 
             # Fetch the payroll object based on the selected employee
             payroll = Payroll.objects.get(id=employee_id)
+            
+            # Check if monthly cutting amount is greater than salary
+            if float(cutting_amount) > float(payroll.salary):
+                raise ValueError("Monthly cutting amount cannot exceed employee's salary")
 
             loan = Loan(
                 payroll=payroll,
@@ -9703,6 +9708,7 @@ def create_loan(request):
                 monthly_cutting_percentage=cutting_percentage,
                 monthly_cutting_amount=cutting_amount
             )
+            
             loan.save()
 
             # Debugging: Print information to the console
@@ -9717,15 +9723,17 @@ def create_loan(request):
             print(f"Loan: {loan}")
 
             return redirect('employee_list')  # Redirect to the employee list page
-        except ValueError as e:
-            # Handle validation errors (e.g., percentage > 100%, amount >= salary)
+        except (ValueError, Payroll.DoesNotExist, ValidationError) as e:
+            # Handle validation errors (e.g., percentage > 100%, amount >= salary, employee not found)
             error_message = str(e)
 
     # For GET requests or when the form is not submitted, retrieve a list of all payrolls
     payrolls = Payroll.objects.all()
+    company = company_details.objects.get(user=request.user)
     context = {
         'payrolls': payrolls,
         'error_message': error_message,
+        'company': company,
     }
     return render(request, 'app/create_loan.html', context)
 
@@ -9733,14 +9741,16 @@ def create_loan(request):
 
 
 
+
 def employee_list(request):
     employees_with_loans = Payroll.objects.filter(loan__isnull=False)
-
+    company=company_details.objects.get(user=request.user)
     for employee in employees_with_loans:
         employee.loan_info = Loan.objects.get(payroll=employee)
     
     context = {
         'employees': employees_with_loans,
+        'company': company,
     }
     return render(request, 'app/employee_list.html', context)
 
@@ -9753,51 +9763,86 @@ def delete_loan(request, loan_id):
     return redirect('employee_list')  
 
 
+
+
+
+
+
+
+
 def edit_loan(request, loan_id): 
-    error_message = None
-    loan = get_object_or_404(Loan, id=loan_id)  
+    print("Entering edit_loan view")
+    
+    loan = get_object_or_404(Loan, id=loan_id)
+    payrolls = Payroll.objects.all()
 
     if request.method == 'POST':
-        # Process form submission
+        print("Processing form submission")
+        
+        employee_id = request.POST.get('employee')
         issue_date = request.POST.get('date_issue')
         expiry_date = request.POST.get('date_expiry')
         loan_amount = request.POST.get('loan_amount')
         
-        # Check if 'payment_method' exists and has been updated
-        if 'payment_method' in request.POST:
-            cutting_type = request.POST.get('payment_method')
-        else:
-            cutting_type = loan.monthly_cutting_type
+        cutting_type = request.POST.get('payment_method')
 
         # Check if 'cutting_type' is "percentage_wise" and calculate cutting_amount
-        if cutting_type == 'percentage_wise':
-            cutting_percentage = request.POST.get('percentage')
-            cutting_amount = (float(cutting_percentage) / 100) * float(loan.payroll.salary)
+        if cutting_type == 'amount_wise':
+            cutting_percentage = 0
+            cutting_amount = request.POST.get('monthly_cutting_amount')
         else:
             # 'cutting_type' is "amount_wise" or not provided, set cutting_percentage and cutting_amount to existing values
-            cutting_percentage = loan.monthly_cutting_percentage
-            cutting_amount = request.POST.get('monthly_cutting_amount')
-        if float(cutting_amount) > float(loan.payroll.salary):
-            error_message = "Monthly cutting amount cannot exceed the salary of the employee."
+            cutting_percentage = request.POST.get('percentage')
+            cutting_amount = (float(cutting_percentage) / 100) * float(loan.payroll.salary)
 
-        else:
+        # Check if any values have changed before updating
+        if (issue_date != loan.date_issue or
+            expiry_date != loan.date_expiry or
+            loan_amount != loan.loan_amount or
+            cutting_percentage != loan.monthly_cutting_percentage or
+            cutting_amount != loan.monthly_cutting_amount):
+            
+            # Fetch the payroll object based on the selected employee
+            payroll = Payroll.objects.get(id=employee_id)
+            
+            # Check if monthly cutting amount is greater than salary
+            if float(cutting_amount) > float(payroll.salary):
+                error_message = "Monthly cutting amount cannot exceed salary"
+                context = {
+                    'loan': loan, 
+                    'payrolls': payrolls,
+                    'error_message': error_message,
+                }
+                return render(request, 'app/edit_loan.html', context)
+            
             # Update loan details
+            loan.payroll = payroll
             loan.date_issue = issue_date
             loan.date_expiry = expiry_date
             loan.loan_amount = loan_amount
+            loan.monthly_cutting_type = cutting_type
             loan.monthly_cutting_percentage = cutting_percentage
             loan.monthly_cutting_amount = cutting_amount
-            loan.monthly_cutting_type = cutting_type  # Update the 'cutting_type' if provided
             loan.save()
 
-            return redirect('employee_list')  # Redirect to the employee list page
-
+            return redirect(reverse('employee_loan_details', args=[loan.payroll.id]))
+    
+    company = company_details.objects.get(user=request.user)
+    
     context = {
-        'loan': loan,  # Pass loan object to the template
-        'error_message': error_message,
+        'loan': loan, 
+        'company': company, 
+        'payrolls': payrolls,
     }
-
+    print("Returning from edit_loan view")
     return render(request, 'app/edit_loan.html', context)
+
+
+
+
+
+
+
 
 
 
@@ -9828,13 +9873,14 @@ def employee_loan_details(request, payroll_id):
             comment.save()
             # Redirect to the same page after saving the comment
             return redirect('employee_loan_details', payroll_id=payroll_id)'''
-
+    company=company_details.objects.get(user=request.user)
     context = {
         'p': payroll,
         'loans': loans,
         'l' : l,
         'comments': comments,
-        'attach' : attach
+        'attach' : attach,
+        'company': company,
     }
     for loan in loans:
         print(f"Loan ID: {loan.id}")
@@ -10000,7 +10046,10 @@ def add_loan_attach(request, payroll_id):
         a.save()
 
         # Return a JSON response indicating success
-        response_data = {'message': 'File uploaded successfully'}
+        response_data = {
+    'message': 'The file was uploaded successfully.\nPlease reload the page to download it.'
+}
+
         return JsonResponse(response_data)
 
     
@@ -10021,7 +10070,7 @@ def add_loan_attach_template(request, payroll_id):
         a.save()
 
         # Return a JSON response indicating success
-        response_data = {'message': 'File uploaded successfully'}
+        response_data = {'message': 'The file was uploaded successfully. Please reload the page to download it'}
         return JsonResponse(response_data)  
     else:
         return redirect('employee_loan_template', payroll_id=payroll_id)
@@ -10260,5 +10309,4 @@ def loan_dropwithoutreload(request, employee_id):
         
     }
 
-    # Return the employee details as a JSON response
     return JsonResponse(employee_details)

@@ -1,3 +1,4 @@
+<!-- RIJIN -->
 {% extends 'base.html' %}
 {% block content %}
 {% load static %}
@@ -150,15 +151,15 @@
                         </div>
                         <div class="col-6">
                             
-                            <select class="form-control text-dark" name="employee" id="employee" onchange="fillEmployeeDetails()">
+                            <select class="form-control text-dark" name="employee" id="employee" onchange="fillEmployeeDetails()" style="width: 500px;">
                                 <option value="">Select an employee</option>
                                 {% for payroll in payrolls %}
-                                    <option  value="{{ payroll.id }}"
+                                    <option value="{{ payroll.id }}"
                                         data-email="{{ payroll.email }}"
                                         data-emp-number="{{ payroll.emp_number }}"
                                         data-salary="{{ payroll.salary }}"
                                         data-joindate="{{ payroll.joindate|date:'Y-m-d' }}">
-                                        {{ payroll.employee_name }} 
+                                        {{ payroll.title }} {{ payroll.first_name }} {{ payroll.last_name }}
                                     </option>
                                 {% endfor %}
                             </select>
@@ -173,7 +174,7 @@
                             <label for="">Email</label>
                         </div>
                         <div class="input-container col-6">
-                            <input type="email" class="form-control text-dark" name="email" id="email" readonly>
+                            <input type="email" class="form-control text-dark" name="email" id="email" readonly style="width: 500px;">
                         </div>
                     </div>
                     <div class="row pb-3">
@@ -181,7 +182,7 @@
                             <label for="">Employee ID</label>
                         </div>
                         <div class="input-container col-6">
-                            <input type="text" class="form-control text-dark" name="emp_id" id="emp_id" readonly>
+                            <input type="text" class="form-control text-dark" name="emp_id" id="emp_id" readonly style="width: 500px;">
                         </div>
                     </div>
                     <div class="row pb-3">
@@ -189,7 +190,7 @@
                             <label for="">Salary</label>
                         </div>
                         <div class="input-container col-6">
-                            <input type="number" class="form-control text-dark" name="salary" id="salary" readonly>
+                            <input type="number" class="form-control text-dark" name="salary" id="salary" readonly style="width: 500px;">
                         </div>
                     </div>
                     <div class="row pb-3">
@@ -197,7 +198,7 @@
                             <label for="">Joining Date</label>
                         </div>
                         <div class="input-container col-6">
-                            <input type="date" class="form-control text-dark" name="joindate" id="joindate" readonly>
+                            <input type="date" class="form-control text-dark" name="joindate" id="joindate" readonly style="width: 500px;">
                         </div>
                     </div>
 
@@ -206,7 +207,7 @@
                             <label for="">Date of Loan Issue</label>
                         </div>
                         <div class="input-container col-6">
-                            <input type="date" class="form-control text-dark" name="loan_issue_date" id="loan_issue_date" required>
+                            <input type="date" class="form-control text-dark" name="loan_issue_date" id="loan_issue_date" required style="width: 500px;">
                         </div>
                     </div>
                     <div class="row pb-3">
@@ -214,7 +215,7 @@
                             <label for="">Expiry Date</label>
                         </div>
                         <div class="input-container col-6">
-                            <input type="date" class="form-control text-dark" name="loan_expiry_date" id="loan_expiry_date" required>
+                            <input type="date" class="form-control text-dark" name="loan_expiry_date" id="loan_expiry_date" required style="width: 500px;">
                         </div>
                     </div>
                     
@@ -223,7 +224,7 @@
                             <label for="">Loan Amount</label>
                         </div>
                         <div class="input-container col-6">
-                            <input type="number" class="form-control text-dark" name="loan_amount" id="loan_amount" required>
+                            <input type="number" class="form-control text-dark" name="loan_amount" id="loan_amount" required style="width: 500px;">
                         </div>
                     </div>
                     <div class="row pb-3">
@@ -231,7 +232,7 @@
                             <label for="payment_method" class="mr-2 mb-0" style="width: 150px;">Payment Method</label>
                         </div>
                         <div class="input-container col-6">
-                            <select class="form-control text-dark" name="payment_method" id="payment_method" required onchange="showAdditionalFields()">
+                            <select class="form-control text-dark" name="payment_method" id="payment_method" required onchange="showAdditionalFields()" style="width: 500px;">
                                 <option value="">Select</option>
                                 <option value="percentage_wise">Percentage Wise</option>
                                 <option value="amount_wise">Amount Wise</option>
@@ -239,25 +240,58 @@
                         </div>
                     </div>
                     
-                    <div class="row pb-3" id="percentageWiseFields">
-                        <div class="col-6">
-                            <label for="percentage" class="fixed-width-label">Percentage</label>
+                    <div id="percentageWiseFields" style="display: none;">
+                        
+                    <div class="row pb-3">
+                        
+                        <div class="col-6" >
+                            <label for="percentage" class="mr-2 mb-0" style="width: 150px;">Percentage</label>
                         </div>
-                        <div class="input-container col-6">
-                            <input type="number" class="form-control text-dark" name="percentage" id="percentage" step="0.01" min="0" max="100" oninput="updateMonthlyCuttingAmount()">
+                        <div class="input-container col-6" >
+                            <input type="number" class="form-control text-dark" name="percentage" id="percentage" step="0.01" min="0" max="100" oninput="updateMonthlyCuttingAmount()" style="width: 500px;">
                         </div>
                     </div>
-                    
-                    
-                    
-                    <div class="row pb-3" id="percentageWiseMonthlyFields">
+                </div>
+
+                    <div id="percentageWiseMonthlyFields" style="display: none;">
+                    <div class="row pb-3" >
+                        
+                        
                         <div class="col-6">
                             <label for="monthly_cutting_amount" class="mr-2 mb-0" style="width: 150px;">Monthly Cutting Amount</label>
                         </div>
                         <div class="input-container col-6">
-                            <input type="number" class="form-control text-dark" name="monthly_cutting_amount" id="monthly_cutting_amount" step="0.01" min="0">
+                            <input type="number" class="form-control text-dark" name="monthly_cutting_amount" id="monthly_cutting_amount" step="0.01" min="0" oninput="handleFormSubmission()" style="width: 500px;">
                         </div>
                     </div>
+                    
+                    <script>
+                        function showAdditionalFields() {
+                            var paymentMethod = document.getElementById('payment_method').value;
+                            var percentageWiseFields = document.getElementById('percentageWiseFields');
+                            var percentageWiseMonthlyFields = document.getElementById('percentageWiseMonthlyFields');
+                            var monthlyCuttingAmountLabel = document.querySelector('[for="monthly_cutting_amount"]');
+                            var monthlyCuttingAmountField = document.getElementById('monthly_cutting_amount');
+                        
+                            if (paymentMethod === 'percentage_wise') {
+                                percentageWiseFields.style.display = 'block';
+                                percentageWiseMonthlyFields.style.display = 'block';
+                                monthlyCuttingAmountLabel.style.display = 'block';
+                                monthlyCuttingAmountField.style.display = 'block';
+                            } else if (paymentMethod === 'amount_wise') {
+                                percentageWiseFields.style.display = 'none';
+                                percentageWiseMonthlyFields.style.display = 'block';  // Show the "Monthly Cutting Amount" field
+                                monthlyCuttingAmountLabel.style.display = 'block';
+                                monthlyCuttingAmountField.style.display = 'block';
+                            } else {
+                                percentageWiseFields.style.display = 'none';
+                                percentageWiseMonthlyFields.style.display = 'none';
+                                monthlyCuttingAmountLabel.style.display = 'none';
+                                monthlyCuttingAmountField.style.display = 'none';
+                            }
+                        }
+                        
+                    </script>
                     
                     
                     
@@ -942,22 +976,11 @@ function fillEmployeeDetails() {
 
 
 
-function showAdditionalFields() {
-    var paymentMethod = document.getElementById('payment_method').value;
-    var percentageWiseFields = document.getElementById('percentageWiseFields');
-    var amountWiseFields = document.getElementById('amountWiseFields');
 
-    if (paymentMethod === 'percentage_wise') {
-        percentageWiseFields.style.visibility = 'visible';
-        amountWiseFields.style.visibility = 'hidden';
-    } else if (paymentMethod === 'amount_wise') {
-        percentageWiseFields.style.visibility = 'hidden';
-        amountWiseFields.style.visibility = 'visible';
-    } else {
-        percentageWiseFields.style.visibility = 'hidden';
-        amountWiseFields.style.visibility = 'hidden';
-    }
-}
+
+
+
+
 function handleFormSubmission() {
     // Get the selected payment method
     var paymentMethod = document.getElementById('payment_method').value;
@@ -968,6 +991,10 @@ function handleFormSubmission() {
         var percentage = parseFloat(document.getElementById('percentage').value);
         var salary = parseFloat(document.getElementById('salary').value);
         var monthlyCuttingAmount = parseFloat(document.getElementById('monthly_cutting_amount').value);
+        
+        console.log("Percentage:", percentage);
+        console.log("Salary:", salary);
+        console.log("Monthly Cutting Amount:", monthlyCuttingAmount);
         
         if (isNaN(percentage) || isNaN(salary) || isNaN(monthlyCuttingAmount) || percentage < 0 || percentage > 100 || monthlyCuttingAmount < 0 || monthlyCuttingAmount > salary) {
             document.getElementById('error-message').innerText = "Invalid percentage or monthly cutting amount.";
@@ -981,6 +1008,8 @@ function handleFormSubmission() {
         var monthlyCuttingAmount = parseFloat(document.getElementById('monthly_cutting_amount').value);
         var salary = parseFloat(document.getElementById('salary').value);
         
+        console.log("Monthly Cutting Amount:", monthlyCuttingAmount);
+        
         if (isNaN(monthlyCuttingAmount) || monthlyCuttingAmount < 0 || monthlyCuttingAmount > salary) {
             document.getElementById('error-message').innerText = "Invalid monthly cutting amount.";
             return false; // Prevent form submission
@@ -992,6 +1021,8 @@ function handleFormSubmission() {
     
     return true; // Allow form submission for other cases
 }
+
+
 
 // Function to update the monthly cutting amount when percentage changes
 function updateMonthlyCuttingAmount() {
@@ -1147,14 +1178,8 @@ function updateMonthlyCuttingAmount() {
                     
                 
 
-<script>
-    // Function to handle form submission and validation
     
-</script>
-    
-        
-     <!-- Include jQuery (add this in your HTML, usually in the <head> section) -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 
 <!-- JavaScript to load content into the modal -->
 <script>

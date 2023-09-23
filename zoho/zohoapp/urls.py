@@ -492,7 +492,7 @@ path('add_loan_attach_template/<int:payroll_id>/', views.add_loan_attach_templat
  path('createpayroll2',views.createpayroll2,name='createpayroll2'),
  path('loan_dropdown',views.loan_dropdown,name = 'loan_dropdown'),
  path('loan_dropwithoutreload/<int:employee_id>/', views.loan_dropwithoutreload, name='loan_dropwithoutreload'),
-
+# Rijin- end of urls (employee_loan)
 
 
 ]
