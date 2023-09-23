@@ -9769,7 +9769,6 @@ def delete_loan(request, loan_id):
 
 
 
-
 def edit_loan(request, loan_id): 
     print("Entering edit_loan view")
     
@@ -9805,6 +9804,10 @@ def edit_loan(request, loan_id):
             # Fetch the payroll object based on the selected employee
             payroll = Payroll.objects.get(id=employee_id)
             
+            # If the payment method is "percentage_wise," recalculate the monthly cutting amount based on the new salary
+            if cutting_type == 'percentage_wise':
+                cutting_amount = (float(cutting_percentage) / 100) * float(payroll.salary)
+            
             # Check if monthly cutting amount is greater than salary
             if float(cutting_amount) > float(payroll.salary):
                 error_message = "Monthly cutting amount cannot exceed salary"
@@ -9814,6 +9817,8 @@ def edit_loan(request, loan_id):
                     'error_message': error_message,
                 }
                 return render(request, 'app/edit_loan.html', context)
+            
+            
             
             # Update loan details
             loan.payroll = payroll
@@ -9836,6 +9841,7 @@ def edit_loan(request, loan_id):
     }
     print("Returning from edit_loan view")
     return render(request, 'app/edit_loan.html', context)
+
 
 
 
