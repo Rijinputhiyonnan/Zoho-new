@@ -151,7 +151,7 @@
                         </div>
                         <div class="col-6">
                             
-                            <select class="form-control text-dark" name="employee" id="employee" onchange="fillEmployeeDetails()" style="width: 500px;">
+                            <select class="form-control text-dark" name="employee" id="employee" onchange="fillEmployeeDetails(); clearErrorMessage();" style="width: 500px;">
                                 <option value="">Select an employee</option>
                                 {% for payroll in payrolls %}
                                     <option value="{{ payroll.id }}"
@@ -163,12 +163,25 @@
                                     </option>
                                 {% endfor %}
                             </select>
+                            
                             <a href="" data-toggle="modal" data-target="#newvendor">+ Add New Employee</a>
                             
                         </div>
                     </div>
                     
-              
+            
+            
+                <script>
+                    function clearErrorMessage() {
+                        var errorDiv = document.getElementById('error-message');
+                        if (errorDiv) {
+                            errorDiv.style.display = 'none';
+                        }
+                    }
+                </script>
+                
+                
+                
                     <div class="row pb-3">
                         <div class="col-6">
                             <label for="">Email</label>
@@ -299,6 +312,7 @@
                                 <div id="error-message" style="color: red;"></div> <!-- Error message for cutting amount validation -->
                             </div>
                         </div>
+
                         
                         
                           <!-- Action buttons -->
@@ -771,7 +785,14 @@
             </div>
         </div>  
       </div>  
-                    <div class="text-center">
+      {% if error_message %}
+                    <div class="alert alert-danger" id="error-message">
+                    
+                        {{ error_message }}
+                    </div>
+                {% endif %}           
+      
+      <div class="text-center">
                         {% for message in messages %}
                         <div class="alert alert-success alert-dismissible fade show" role="alert" id="alert">
                             <strong>{{message}}</strong>

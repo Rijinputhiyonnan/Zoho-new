@@ -9669,6 +9669,13 @@ from django.shortcuts import render, redirect
 from .models import Loan, Payroll
 from django.core.exceptions import ValidationError
 
+
+
+from django.shortcuts import render, redirect
+from django.core.exceptions import ValidationError
+from .models import Loan, Payroll, company_details
+from datetime import date
+
 def create_loan(request):
     error_message = None
 
@@ -9695,34 +9702,40 @@ def create_loan(request):
             # Fetch the payroll object based on the selected employee
             payroll = Payroll.objects.get(id=employee_id)
             
-            # Check if monthly cutting amount is greater than salary
-            if float(cutting_amount) > float(payroll.salary):
-                raise ValueError("Monthly cutting amount cannot exceed employee's salary")
+            # Check if the selected employee already has an active loan
+            active_loans = Loan.objects.filter(payroll=payroll, date_expiry__gte=date.today())
+            if active_loans.exists():
+                error_message = "An active loan already exists for this employee."
+            else:
+                # Check if monthly cutting amount is greater than salary
+                if float(cutting_amount) > float(payroll.salary):
+                    raise ValueError("Monthly cutting amount cannot exceed employee's salary")
 
-            loan = Loan(
-                payroll=payroll,
-                date_issue=issue_date,
-                date_expiry=expiry_date,
-                loan_amount=loan_amount,
-                monthly_cutting_type=cutting_type,
-                monthly_cutting_percentage=cutting_percentage,
-                monthly_cutting_amount=cutting_amount
-            )
-            
-            loan.save()
+                loan = Loan(
+                    payroll=payroll,
+                    date_issue=issue_date,
+                    date_expiry=expiry_date,
+                    loan_amount=loan_amount,
+                    monthly_cutting_type=cutting_type,
+                    monthly_cutting_percentage=cutting_percentage,
+                    monthly_cutting_amount=cutting_amount
+                )
+                
+                loan.save()
 
-            # Debugging: Print information to the console
-            print(f"Employee ID: {employee_id}")
-            print(f"Issue Date: {issue_date}")
-            print(f"Expiry Date: {expiry_date}")
-            print(f"Loan Amount: {loan_amount}")
-            print(f"Cutting Type: {cutting_type}")
-            print(f"Cutting Percentage: {cutting_percentage}")
-            print(f"Cutting Amount: {cutting_amount}")
-            print(f"Payroll: {payroll}")
-            print(f"Loan: {loan}")
+                # Debugging: Print information to the console
+                print(f"Employee ID: {employee_id}")
+                print(f"Issue Date: {issue_date}")
+                print(f"Expiry Date: {expiry_date}")
+                print(f"Loan Amount: {loan_amount}")
+                print(f"Cutting Type: {cutting_type}")
+                print(f"Cutting Percentage: {cutting_percentage}")
+                print(f"Cutting Amount: {cutting_amount}")
+                print(f"Payroll: {payroll}")
+                print(f"Loan: {loan}")
 
-            return redirect('employee_list')  # Redirect to the employee list page
+                return redirect('employee_list')  # Redirect to the employee list page
+
         except (ValueError, Payroll.DoesNotExist, ValidationError) as e:
             # Handle validation errors (e.g., percentage > 100%, amount >= salary, employee not found)
             error_message = str(e)
@@ -9736,6 +9749,7 @@ def create_loan(request):
         'company': company,
     }
     return render(request, 'app/create_loan.html', context)
+
 
 
 
@@ -9769,11 +9783,18 @@ def delete_loan(request, loan_id):
 
 
 
+
 def edit_loan(request, loan_id): 
     print("Entering edit_loan view")
     
     loan = get_object_or_404(Loan, id=loan_id)
-    payrolls = Payroll.objects.all()
+    
+    
+   
+    payrolls = Payroll.objects.all() 
+    
+    error_message = ''  # Initialize the error message as an empty string
+  # Initialize the error message
 
     if request.method == 'POST':
         print("Processing form submission")
@@ -9782,7 +9803,6 @@ def edit_loan(request, loan_id):
         issue_date = request.POST.get('date_issue')
         expiry_date = request.POST.get('date_expiry')
         loan_amount = request.POST.get('loan_amount')
-        
         cutting_type = request.POST.get('payment_method')
 
         # Check if 'cutting_type' is "percentage_wise" and calculate cutting_amount
@@ -9794,32 +9814,20 @@ def edit_loan(request, loan_id):
             cutting_percentage = request.POST.get('percentage')
             cutting_amount = (float(cutting_percentage) / 100) * float(loan.payroll.salary)
 
-        # Check if any values have changed before updating
-        if (issue_date != loan.date_issue or
-            expiry_date != loan.date_expiry or
-            loan_amount != loan.loan_amount or
-            cutting_percentage != loan.monthly_cutting_percentage or
-            cutting_amount != loan.monthly_cutting_amount):
-            
-            # Fetch the payroll object based on the selected employee
-            payroll = Payroll.objects.get(id=employee_id)
-            
-            # If the payment method is "percentage_wise," recalculate the monthly cutting amount based on the new salary
-            if cutting_type == 'percentage_wise':
-                cutting_amount = (float(cutting_percentage) / 100) * float(payroll.salary)
-            
-            # Check if monthly cutting amount is greater than salary
-            if float(cutting_amount) > float(payroll.salary):
-                error_message = "Monthly cutting amount cannot exceed salary"
-                context = {
-                    'loan': loan, 
-                    'payrolls': payrolls,
-                    'error_message': error_message,
-                }
-                return render(request, 'app/edit_loan.html', context)
-            
-            
-            
+        # Fetch the payroll object based on the selected employee
+        payroll = Payroll.objects.get(id=employee_id)
+        
+        # If the payment method is "percentage_wise," recalculate the monthly cutting amount based on the new salary
+        if cutting_type == 'percentage_wise':
+            cutting_amount = (float(cutting_percentage) / 100) * float(payroll.salary)
+        
+        # Check if the selected employee already has an active loan
+        if Loan.objects.filter(payroll=payroll, date_expiry__gte=date.today()).exclude(id=loan.id).exists():
+            error_message = "An active loan already exists for this employee."
+        # Check if monthly cutting amount is greater than salary
+        elif float(cutting_amount) > float(payroll.salary):
+            error_message = "Monthly cutting amount cannot exceed salary"
+        else:
             # Update loan details
             loan.payroll = payroll
             loan.date_issue = issue_date
@@ -9838,9 +9846,11 @@ def edit_loan(request, loan_id):
         'loan': loan, 
         'company': company, 
         'payrolls': payrolls,
+        'error_message': error_message,
     }
     print("Returning from edit_loan view")
     return render(request, 'app/edit_loan.html', context)
+
 
 
 
